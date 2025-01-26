@@ -58,7 +58,7 @@ end
 function load_proxys(filename)
     local file = io.open(filename, "r")
     if not file then
-        sendTG("Ошибка с загрузкой прокси")
+        sendTG("ГЋГёГЁГЎГЄГ  Г± Г§Г ГЈГ°ГіГ§ГЄГ®Г© ГЇГ°Г®ГЄГ±ГЁ")
         return
     end
     for line in file:lines() do
@@ -70,7 +70,7 @@ end
 
 function onProxyError()
     if my_proxy_ip then
-        sendTG("Не работает прокси. IP: " ..my_proxy_ip)
+        sendTG("ГЌГҐ Г°Г ГЎГ®ГІГ ГҐГІ ГЇГ°Г®ГЄГ±ГЁ. IP: " ..my_proxy_ip)
     end
     connect_random_proxy()
 end
@@ -96,18 +96,18 @@ function writeTxt(filename, text)
     file:close()
 end
 
--- Конфигурация автообновления
-local UPDATE_URL = "https://raw.githubusercontent.com/ваш_репозиторий/скрипт/main/script.lua"
+-- ГЉГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї Г ГўГІГ®Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї
+local UPDATE_URL = "https://github.com/HentaikaZ/Evolved/blob/main/Evolved%20v2.lua"
 local LOCAL_SCRIPT_PATH = "script.lua"
-local CURRENT_VERSION = "2.0.0" -- Текущая версия скрипта
+local CURRENT_VERSION = "2.0.0" -- Г’ГҐГЄГіГ№Г Гї ГўГҐГ°Г±ГЁГї Г±ГЄГ°ГЁГЇГІГ 
 
--- Функция для извлечения версии из удалённого скрипта
+-- Г”ГіГ­ГЄГ¶ГЁГї Г¤Г«Гї ГЁГ§ГўГ«ГҐГ·ГҐГ­ГЁГї ГўГҐГ°Г±ГЁГЁ ГЁГ§ ГіГ¤Г Г«ВёГ­Г­Г®ГЈГ® Г±ГЄГ°ГЁГЇГІГ 
 local function extractVersion(scriptContent)
     local version = scriptContent:match("CURRENT_VERSION%s*=%s*\"(.-)\"")
     return version
 end
 
--- Функция автообновления
+-- Г”ГіГ­ГЄГ¶ГЁГї Г ГўГІГ®Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї
 function autoUpdate()
     local response = requests.get(UPDATE_URL)
     if response.status_code == 200 then
@@ -117,16 +117,16 @@ function autoUpdate()
             local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
             localFile:write(newScript)
             localFile:close()
-            print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", newVersion))
+            print(string.format("[ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ] ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ Г§Г ГўГҐГ°ГёГҐГ­Г®: Г­Г®ГўГ Гї ГўГҐГ°Г±ГЁГї %s ГіГ±ГІГ Г­Г®ГўГ«ГҐГ­Г . ГЏГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГІГҐ Г±ГЄГ°ГЁГЇГІ.", newVersion))
         else
-            print("[Обновление] Установлена последняя версия скрипта.")
+            print("[ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ] Г“Г±ГІГ Г­Г®ГўГ«ГҐГ­Г  ГЇГ®Г±Г«ГҐГ¤Г­ГїГї ГўГҐГ°Г±ГЁГї Г±ГЄГ°ГЁГЇГІГ .")
         end
     else
-        print("[Ошибка] Не удалось проверить обновление.")
+        print("[ГЋГёГЁГЎГЄГ ] ГЌГҐ ГіГ¤Г Г«Г®Г±Гј ГЇГ°Г®ГўГҐГ°ГЁГІГј Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ.")
     end
 end
 
--- Вызов функции обновления при запуске
+-- Г‚Г»Г§Г®Гў ГґГіГ­ГЄГ¶ГЁГЁ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГЇГ°ГЁ Г§Г ГЇГіГ±ГЄГҐ
 autoUpdate()
 
 -- telegram
