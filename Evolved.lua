@@ -97,7 +97,7 @@ function writeTxt(filename, text)
 end
 
 -- Конфигурация автообновления
-local UPDATE_URL = "https://github.com/HentaikaZ/Evolved/blob/main/Evolved.lua"
+local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/Evolved.lua"
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
 local CURRENT_VERSION = "2.0.0" -- Текущая версия скрипта
 
