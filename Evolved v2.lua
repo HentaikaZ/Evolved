@@ -98,7 +98,7 @@ end
 
 -- Êîíôèãóðàöèÿ àâòîîáíîâëåíèÿ
 local UPDATE_URL = "https://github.com/HentaikaZ/Evolved/blob/main/Evolved%20v2.lua"
-local LOCAL_SCRIPT_PATH = "script.lua"
+local LOCAL_SCRIPT_PATH = "Evolved v2.lua"
 local CURRENT_VERSION = "2.0.0" -- Òåêóùàÿ âåðñèÿ ñêðèïòà
 
 -- Ôóíêöèÿ äëÿ èçâëå÷åíèÿ âåðñèè èç óäàë¸ííîãî ñêðèïòà
