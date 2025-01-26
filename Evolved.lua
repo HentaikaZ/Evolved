@@ -1,6 +1,6 @@
 os.execute('color 0')
 
--- Liberaries
+-- Liberaries ghjdthrf
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
