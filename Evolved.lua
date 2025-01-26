@@ -104,6 +104,11 @@ local CURRENT_VERSION = "2.0.0" -- Текущая версия скрипта
 -- Функция для извлечения версии из удалённого скрипта
 local function extractVersion(scriptContent)
     local version = scriptContent:match("CURRENT_VERSION%s*=%s*\"(.-)\"")
+    if not version then
+        print("[Ошибка] Не удалось найти версию в удалённом скрипте.")
+        print("[Отладка] Содержимое скрипта:")
+        print(scriptContent:sub(1, 500)) -- Печатаем первые 500 символов скрипта
+    end
     return version
 end
 
