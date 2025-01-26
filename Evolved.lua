@@ -58,7 +58,7 @@ end
 function load_proxys(filename)
     local file = io.open(filename, "r")
     if not file then
-        sendTG("Îøèáêà ñ çàãðóçêîé ïðîêñè")
+        sendTG("Ошибка с загрузкой прокси")
         return
     end
     for line in file:lines() do
@@ -70,7 +70,7 @@ end
 
 function onProxyError()
     if my_proxy_ip then
-        sendTG("Íå ðàáîòàåò ïðîêñè. IP: " ..my_proxy_ip)
+        sendTG("Не работает прокси. IP: " ..my_proxy_ip)
     end
     connect_random_proxy()
 end
@@ -96,37 +96,59 @@ function writeTxt(filename, text)
     file:close()
 end
 
--- Êîíôèãóðàöèÿ àâòîîáíîâëåíèÿ
+-- Конфигурация автообновления
 local UPDATE_URL = "https://github.com/HentaikaZ/Evolved/blob/main/Evolved.lua"
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
-local CURRENT_VERSION = "2.0.0" -- Òåêóùàÿ âåðñèÿ ñêðèïòà
+local CURRENT_VERSION = "2.0.0" -- Текущая версия скрипта
 
--- Ôóíêöèÿ äëÿ èçâëå÷åíèÿ âåðñèè èç óäàë¸ííîãî ñêðèïòà
+-- Функция для извлечения версии из удалённого скрипта
 local function extractVersion(scriptContent)
     local version = scriptContent:match("CURRENT_VERSION%s*=%s*\"(.-)\"")
     return version
 end
 
--- Ôóíêöèÿ àâòîîáíîâëåíèÿ
+-- Функция для сравнения версий
+local function isVersionNewer(newVersion, currentVersion)
+    local function splitVersion(version)
+        local major, minor, patch = version:match("(%d+)%.(%d+)%.(%d+)")
+        return tonumber(major), tonumber(minor), tonumber(patch)
+    end
+
+    local newMajor, newMinor, newPatch = splitVersion(newVersion)
+    local currentMajor, currentMinor, currentPatch = splitVersion(currentVersion)
+
+    if newMajor > currentMajor then return true end
+    if newMajor == currentMajor and newMinor > currentMinor then return true end
+    if newMajor == currentMajor and newMinor == currentMinor and newPatch > currentPatch then return true end
+
+    return false
+end
+
+-- Функция автообновления
 function autoUpdate()
     local response = requests.get(UPDATE_URL)
     if response.status_code == 200 then
         local newScript = response.text
         local newVersion = extractVersion(newScript)
-        if newVersion and newVersion > CURRENT_VERSION then
-            local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
-            localFile:write(newScript)
-            localFile:close()
-            print(string.format("[Îáíîâëåíèå] Îáíîâëåíèå çàâåðøåíî: íîâàÿ âåðñèÿ %s óñòàíîâëåíà. Ïåðåçàãðóçèòå ñêðèïò.", newVersion))
+        if newVersion then
+            print(string.format("[Обновление] Удалённая версия: %s, Локальная версия: %s", newVersion, CURRENT_VERSION))
+            if isVersionNewer(newVersion, CURRENT_VERSION) then
+                local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
+                localFile:write(newScript)
+                localFile:close()
+                print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", newVersion))
+            else
+                print("[Обновление] Установлена последняя версия скрипта.")
+            end
         else
-            print("[Îáíîâëåíèå] Óñòàíîâëåíà ïîñëåäíÿÿ âåðñèÿ ñêðèïòà.")
+            print("[Ошибка] Не удалось извлечь версию из удалённого скрипта.")
         end
     else
-        print("[Îøèáêà] Íå óäàëîñü ïðîâåðèòü îáíîâëåíèå.")
+        print("[Ошибка] Не удалось проверить обновление.")
     end
 end
 
--- Âûçîâ ôóíêöèè îáíîâëåíèÿ ïðè çàïóñêå
+-- Вызов функции обновления при запуске
 autoUpdate()
 
 -- telegram
