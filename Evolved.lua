@@ -99,7 +99,22 @@ end
 -- Конфигурация автообновления
 local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/Evolved.lua"
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
-local CURRENT_VERSION = "2.0.0" -- Текущая версия скрипта
+local VERSION_FILE = "version.ini" -- Файл для хранения текущей версии
+
+-- Функция для чтения версии из файла
+local function readVersion()
+    local config = inicfg.load({version = "2.0.0"}, VERSION_FILE)
+    return config.version
+end
+
+-- Функция для записи версии в файл
+local function writeVersion(newVersion)
+    local config = {version = newVersion}
+    inicfg.save(config, VERSION_FILE)
+end
+
+-- Чтение текущей версии
+local CURRENT_VERSION = readVersion()
 
 -- Функция для извлечения версии из удалённого скрипта
 local function extractVersion(scriptContent)
@@ -141,6 +156,7 @@ function autoUpdate()
                 local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
                 localFile:write(newScript)
                 localFile:close()
+                writeVersion(newVersion) -- Обновляем локальную версию
                 print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", newVersion))
             else
                 print("[Обновление] Установлена последняя версия скрипта.")
@@ -155,7 +171,6 @@ end
 
 -- Вызов функции обновления при запуске
 autoUpdate()
-
 -- telegram
 
 -- main
