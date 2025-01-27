@@ -18,7 +18,7 @@ local configtg = {
     chat_id = cfg.telegram.chatid
 }
 
-math.randomseed(os.time()*os.clock()*math.random())
+math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
 
 local specialKey = nil
@@ -28,7 +28,7 @@ local SPECIAL_KEYS = {
     H = 3
 }
 
--- proxy
+-- Proxy
 local rep = false
 local loop = false
 local packet, veh = {}, {}
@@ -131,15 +131,16 @@ end
 -- Чтение текущей версии
 local CURRENT_VERSION = readVersion()
 
--- Функция для извлечения версии из удалённого скрипта
-local function extractVersion(scriptContent)
-    local version = scriptContent:match("CURRENT_VERSION%s*=%s*\"(.-)\"")
-    if not version then
-        print("[Ошибка] Не удалось найти версию в удалённом скрипте.")
-        print("[Отладка] Содержимое скрипта:") -- Печатаем первые 500 символов скрипта
-        print(scriptContent:sub(1, 500))
+-- Функция для получения версии из файла version.json
+local function getRemoteVersion()
+    local response = requests.get(VERSION_URL)
+    if response.status_code == 200 then
+        local versionData = json.decode(response.text)
+        return versionData and versionData.version or nil
+    else
+        print("[Ошибка] Не удалось загрузить файл версии.")
+        return nil
     end
-    return version
 end
 
 -- Функция для сравнения версий
@@ -161,26 +162,28 @@ end
 
 -- Функция автообновления
 function autoUpdate()
-    local response = requests.get(UPDATE_URL)
-    if response.status_code == 200 then
-        local newScript = response.text
-        local newVersion = extractVersion(newScript)
-        if newVersion then
-            print(string.format("[Обновление] Удалённая версия: %s, Локальная версия: %s", newVersion, CURRENT_VERSION))
-            if isVersionNewer(newVersion, CURRENT_VERSION) then
-                local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
-                localFile:write(newScript)
-                localFile:close()
-                writeVersion(newVersion) -- Обновляем локальную версию
-                print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", newVersion))
-            else
-                print("[Обновление] Установлена последняя версия скрипта.")
-            end
+    local remoteVersion = getRemoteVersion()
+    if not remoteVersion then
+        print("[Ошибка] Не удалось получить версию с удалённого источника.")
+        return
+    end
+
+    print(string.format("[Обновление] Удалённая версия: %s, Локальная версия: %s", remoteVersion, CURRENT_VERSION))
+
+    if isVersionNewer(remoteVersion, CURRENT_VERSION) then
+        local response = requests.get(UPDATE_URL)
+        if response.status_code == 200 then
+            local newScript = response.text
+            local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
+            localFile:write(newScript)
+            localFile:close()
+            writeVersion(remoteVersion) -- Обновляем локальную версию
+            print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", remoteVersion))
         else
-            print("[Ошибка] Не удалось извлечь версию из удалённого скрипта.")
+            print("[Ошибка] Не удалось загрузить обновлённый скрипт.")
         end
     else
-        print("[Ошибка] Не удалось проверить обновление.")
+        print("[Обновление] Установлена последняя версия скрипта.")
     end
 end
 
