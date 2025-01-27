@@ -8,7 +8,7 @@ local effil = require 'effil'
 local sampev = require('samp.events')
 local vector3d = require('libs.vector3d')
 local requests = require('requests')
-local json = require('dkjson')  -- Р”Р»СЏ СЂР°Р±РѕС‚С‹ СЃ JSON
+local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 local inicfg = require('inicfg')
@@ -59,7 +59,7 @@ end
 function load_proxys(filename)
     local file = io.open(filename, "r")
     if not file then
-        sendTG("РћС€РёР±РєР° СЃ Р·Р°РіСЂСѓР·РєРѕР№ РїСЂРѕРєСЃРё")
+        sendTG("Ошибка с загрузкой прокси")
         return
     end
     for line in file:lines() do
@@ -71,7 +71,7 @@ end
 
 function onProxyError()
     if my_proxy_ip then
-        sendTG("РќРµ СЂР°Р±РѕС‚Р°РµС‚ РїСЂРѕРєСЃРё. IP: " .. my_proxy_ip)
+        sendTG("Не работает прокси. IP: " .. my_proxy_ip)
     end
     connect_random_proxy()
 end
@@ -97,30 +97,30 @@ function writeTxt(filename, text)
     file:close()
 end
 
--- РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р°РІС‚РѕРѕР±РЅРѕРІР»РµРЅРёСЏ
+-- Конфигурация автообновления
 local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
-local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL РґР»СЏ РІРµСЂСЃРёРё
+local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL для версии
 local LOCAL_SCRIPT_PATH = "scripts/Evolved.lua"
-local VERSION_FILE = "scripts/version.json" -- РСЃРїРѕР»СЊР·СѓРµРј JSON С„Р°Р№Р» РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РІРµСЂСЃРёРё
+local VERSION_FILE = "scripts/version.json" -- Используем JSON файл для хранения версии
 
--- Р¤СѓРЅРєС†РёСЏ РґР»СЏ С‡С‚РµРЅРёСЏ РІРµСЂСЃРёРё РёР· JSON С„Р°Р№Р»Р°
+-- Функция для чтения версии из JSON файла
 local function readVersion()
     local file = io.open(VERSION_FILE, "r")
     if not file then
-        return "2.0.0" -- Р•СЃР»Рё С„Р°Р№Р»Р° РЅРµС‚, РІРѕР·РІСЂР°С‰Р°РµРј РґРµС„РѕР»С‚РЅСѓСЋ РІРµСЂСЃРёСЋ
+        return "2.0.0" -- Если файла нет, возвращаем дефолтную версию
     end
     local data = file:read("*all")
     file:close()
     
     local versionData = json.decode(data)
-    return versionData and versionData.version or "2.0.0" -- Р’РѕР·РІСЂР°С‰Р°РµРј РІРµСЂСЃРёСЋ, РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ, РёР»Рё РґРµС„РѕР»С‚
+    return versionData and versionData.version or "2.0.0" -- Возвращаем версию, если она есть, или дефолт
 end
 
--- Р¤СѓРЅРєС†РёСЏ РґР»СЏ Р·Р°РїРёСЃРё РІРµСЂСЃРёРё РІ JSON С„Р°Р№Р»
+-- Функция для записи версии в JSON файл
 local function writeVersion(newVersion)
     local file = io.open(VERSION_FILE, "w")
     if not file then
-        print("[РћС€РёР±РєР°] РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё РІРµСЂСЃРёРё.")
+        print("[Ошибка] Не удалось открыть файл для записи версии.")
         return
     end
     local versionData = { version = newVersion }
@@ -128,22 +128,22 @@ local function writeVersion(newVersion)
     file:close()
 end
 
--- Р§С‚РµРЅРёРµ С‚РµРєСѓС‰РµР№ РІРµСЂСЃРёРё
+-- Чтение текущей версии
 local CURRENT_VERSION = readVersion()
 
--- Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РІРµСЂСЃРёРё РёР· С„Р°Р№Р»Р° version.json
+-- Функция для получения версии из файла version.json
 local function getRemoteVersion()
     local response = requests.get(VERSION_URL)
     if response.status_code == 200 then
         local versionData = json.decode(response.text)
         return versionData and versionData.version or nil
     else
-        print("[РћС€РёР±РєР°] РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„Р°Р№Р» РІРµСЂСЃРёРё.")
+        print("[Ошибка] Не удалось загрузить файл версии.")
         return nil
     end
 end
 
--- Р¤СѓРЅРєС†РёСЏ РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ РІРµСЂСЃРёР№
+-- Функция для сравнения версий
 local function isVersionNewer(newVersion, currentVersion)
     local function splitVersion(version)
         local major, minor, patch = version:match("(%d+)%.(%d+)%.(%d+)")
@@ -160,15 +160,15 @@ local function isVersionNewer(newVersion, currentVersion)
     return false
 end
 
--- Р¤СѓРЅРєС†РёСЏ Р°РІС‚РѕРѕР±РЅРѕРІР»РµРЅРёСЏ
+-- Функция автообновления
 function autoUpdate()
     local remoteVersion = getRemoteVersion()
     if not remoteVersion then
-        print("[РћС€РёР±РєР°] РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РІРµСЂСЃРёСЋ СЃ СѓРґР°Р»С‘РЅРЅРѕРіРѕ РёСЃС‚РѕС‡РЅРёРєР°.")
+        print("[Ошибка] Не удалось получить версию с удалённого источника.")
         return
     end
 
-    print(string.format("[РћР±РЅРѕРІР»РµРЅРёРµ] РЈРґР°Р»С‘РЅРЅР°СЏ РІРµСЂСЃРёСЏ: %s, Р›РѕРєР°Р»СЊРЅР°СЏ РІРµСЂСЃРёСЏ: %s", remoteVersion, CURRENT_VERSION))
+    print(string.format("[Обновление] Удалённая версия: %s, Локальная версия: %s", remoteVersion, CURRENT_VERSION))
 
     if isVersionNewer(remoteVersion, CURRENT_VERSION) then
         local response = requests.get(UPDATE_URL)
@@ -177,15 +177,15 @@ function autoUpdate()
             local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
             localFile:write(newScript)
             localFile:close()
-            writeVersion(remoteVersion) -- РћР±РЅРѕРІР»СЏРµРј Р»РѕРєР°Р»СЊРЅСѓСЋ РІРµСЂСЃРёСЋ
-            print(string.format("[РћР±РЅРѕРІР»РµРЅРёРµ] РћР±РЅРѕРІР»РµРЅРёРµ Р·Р°РІРµСЂС€РµРЅРѕ: РЅРѕРІР°СЏ РІРµСЂСЃРёСЏ %s СѓСЃС‚Р°РЅРѕРІР»РµРЅР°. РџРµСЂРµР·Р°РіСЂСѓР·РёС‚Рµ СЃРєСЂРёРїС‚.", remoteVersion))
+            writeVersion(remoteVersion) -- Обновляем локальную версию
+            print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", remoteVersion))
         else
-            print("[РћС€РёР±РєР°] РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РѕР±РЅРѕРІР»С‘РЅРЅС‹Р№ СЃРєСЂРёРїС‚.")
+            print("[Ошибка] Не удалось загрузить обновлённый скрипт.")
         end
     else
-        print("[РћР±РЅРѕРІР»РµРЅРёРµ] РЈСЃС‚Р°РЅРѕРІР»РµРЅР° РїРѕСЃР»РµРґРЅСЏСЏ РІРµСЂСЃРёСЏ СЃРєСЂРёРїС‚Р°.")
+        print("[Обновление] Установлена последняя версия скрипта.")
     end
 end
 
--- Р’С‹Р·РѕРІ С„СѓРЅРєС†РёРё РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРё Р·Р°РїСѓСЃРєРµ
+-- Вызов функции обновления при запуске
 autoUpdate()
