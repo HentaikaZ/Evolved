@@ -1,6 +1,7 @@
 os.execute('color 0')
 
 -- Liberaries ghjdthrf
+local config = inicfg.load({version = "1.0.0"}, VERSION_FILE)
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
