@@ -1,6 +1,6 @@
 os.execute('color 0')
 
--- Libraries 1
+-- Libraries
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
@@ -11,6 +11,8 @@ local requests = require('requests')
 local json = require('dkjson')  -- Для работы с JSON
 local ffi = require('ffi')
 local socket = require 'socket'
+local inicfg = require('inicfg')
+local cfg = inicfg.load(nil, 'E-Settings')
 local configtg = {
     token = cfg.telegram.tokenbot,
     chat_id = cfg.telegram.chatid
@@ -96,8 +98,8 @@ function writeTxt(filename, text)
 end
 
 -- Конфигурация автообновления
-local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
-local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL для версии
+local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/Evolved.lua"
+local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/version.json"  -- URL для версии
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
 local VERSION_FILE = "version.json" -- Используем JSON файл для хранения версии
 
@@ -134,8 +136,8 @@ local function extractVersion(scriptContent)
     local version = scriptContent:match("CURRENT_VERSION%s*=%s*\"(.-)\"")
     if not version then
         print("[Ошибка] Не удалось найти версию в удалённом скрипте.")
-        print("[Отладка] Содержимое скрипта:")
-        print(scriptContent:sub(1, 500)) -- Печатаем первые 500 символов скрипта
+        print("[Отладка] Содержимое скрипта:") -- Печатаем первые 500 символов скрипта
+        print(scriptContent:sub(1, 500))
     end
     return version
 end
