@@ -98,8 +98,8 @@ function writeTxt(filename, text)
 end
 
 -- Конфигурация автообновления
-local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/Evolved.lua"
-local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/version.json"  -- URL для версии
+local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
+local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL для версии
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
 local VERSION_FILE = "version.json" -- Используем JSON файл для хранения версии
 
