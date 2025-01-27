@@ -1,6 +1,6 @@
 os.execute('color 0')
 
--- Libraries 1
+-- Libraries
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
