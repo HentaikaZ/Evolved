@@ -1,7 +1,6 @@
 os.execute('color 0')
 
--- Liberaries ghjdthrf
-local config = inicfg.load({version = "1.0.0"}, VERSION_FILE)
+-- Libraries
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
@@ -9,14 +8,13 @@ local effil = require 'effil'
 local sampev = require('samp.events')
 local vector3d = require('libs.vector3d')
 local requests = require('requests')
-local inicfg = require('inicfg')
-local cfg = inicfg.load(nil, 'E-Settings')
+local json = require('dkjson')  -- Для работы с JSON
 local ffi = require('ffi')
 local socket = require 'socket'
 local configtg = {
-	token = cfg.telegram.tokenbot,
-	chat_id = cfg.telegram.chatid
-  }
+    token = cfg.telegram.tokenbot,
+    chat_id = cfg.telegram.chatid
+}
 
 math.randomseed(os.time()*os.clock()*math.random())
 math.random(); math.random(); math.random()
@@ -49,8 +47,8 @@ function split(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t={}
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         table.insert(t, str)
     end
     return t
@@ -64,19 +62,19 @@ function load_proxys(filename)
     end
     for line in file:lines() do
         local info = split(line, ":")
-        proxys[#proxys + 1] = {ip = info[1]..":"..info[2], user = info[3], pass = info[4]}
+        proxys[#proxys + 1] = {ip = info[1] .. ":" .. info[2], user = info[3], pass = info[4]}
     end
     file:close()
 end
 
 function onProxyError()
     if my_proxy_ip then
-        sendTG("Не работает прокси. IP: " ..my_proxy_ip)
+        sendTG("Не работает прокси. IP: " .. my_proxy_ip)
     end
     connect_random_proxy()
 end
 
-function onReceivePacket(id, bs) 
+function onReceivePacket(id, bs)
     if id == 36 then
         connect_random_proxy()
     end
@@ -92,26 +90,40 @@ end
 function writeTxt(filename, text)
     local file, error = io.open(filename, "a+")
     if file then
-        file:write(text.. "\n")
+        file:write(text .. "\n")
     end
     file:close()
 end
 
 -- Конфигурация автообновления
-local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/main/Evolved.lua"
+local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
+local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL для версии
 local LOCAL_SCRIPT_PATH = "Evolved.lua"
-local VERSION_FILE = "version.ini" -- Файл для хранения текущей версии
+local VERSION_FILE = "version.json" -- Используем JSON файл для хранения версии
 
--- Функция для чтения версии из файла
+-- Функция для чтения версии из JSON файла
 local function readVersion()
-    local config = inicfg.load({version = "2.0.0"}, VERSION_FILE)
-    return config.version
+    local file = io.open(VERSION_FILE, "r")
+    if not file then
+        return "1.0.0" -- Если файла нет, возвращаем дефолтную версию
+    end
+    local data = file:read("*all")
+    file:close()
+    
+    local versionData = json.decode(data)
+    return versionData and versionData.version or "1.0.0" -- Возвращаем версию, если она есть, или дефолт
 end
 
--- Функция для записи версии в файл
+-- Функция для записи версии в JSON файл
 local function writeVersion(newVersion)
-    local config = {version = newVersion}
-    inicfg.save(config, VERSION_FILE)
+    local file = io.open(VERSION_FILE, "w")
+    if not file then
+        print("[Ошибка] Не удалось открыть файл для записи версии.")
+        return
+    end
+    local versionData = { version = newVersion }
+    file:write(json.encode(versionData, {indent = true}))
+    file:close()
 end
 
 -- Чтение текущей версии
@@ -172,7 +184,3 @@ end
 
 -- Вызов функции обновления при запуске
 autoUpdate()
--- telegram
-
--- main
-
