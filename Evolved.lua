@@ -99,7 +99,7 @@ function checkProxyLimit(proxy_ip)
     if proxy_usage[proxy_ip] then
         if proxy_usage[proxy_ip].count >= 2 then
             print("[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip)
-            return false  -- Ограничение на подключение с этого IP
+            connect_random_proxy()  -- Ограничение на подключение с этого IP
         end
     end
 
