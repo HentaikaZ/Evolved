@@ -299,7 +299,7 @@ function slap.process()
             slap.processMovingForward()
         end
         updateSync()
-        wait(50) -- Обновление каждые 50 мс
+        wait(25) -- Сокращённая задержка для более плавной обработки
     end
 end
 
