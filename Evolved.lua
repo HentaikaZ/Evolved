@@ -924,6 +924,7 @@ function samp.onAdminTeleport(targetPlayerId, position)
     if targetPlayerId == getBotId() then
         -- Если cfg.main.runspawn = 1, активируем движение
         if cfg.main.runspawn == 1 then
+            wait(40000)
             startBotMovement()
         end
     end
@@ -931,8 +932,8 @@ end
 
 -- Обрабатываем событие спавна
 function samp.onSendSpawn()
-    wait(20000)
     if cfg.main.runspawn == 1 then
+        wait(40000)
         startBotMovement()
     end
 end
