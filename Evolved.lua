@@ -842,6 +842,73 @@ function slapuved()
 	end
 end
 
+-- ТЕСТОВАЯ ФУНКЦИЯ ПОБЕГА ( ТЕЛЕПОРТ )
+local samp = require("samp.events")
+
+local bot_running = false
+local last_move_time = os.time()
+
+-- Настройки для поведения бота
+local bot_settings = {
+    run_speed = 0.5,  -- скорость движения
+    move_interval = 100,  -- интервал обновления позиции в миллисекундах
+    direction_angle = math.random() * 360,  -- случайный угол движения
+}
+
+-- Функция для старта движения бота
+function startBotMovement()
+    if bot_running then return end  -- Если бот уже убегает, не начинаем движение
+
+    bot_running = true
+    print("Bot is starting to move.")
+
+    -- Получаем текущую позицию бота
+    local botX, botY, botZ = getBotPosition()
+
+    -- Определяем направление движения (например, на случайный угол)
+    local angle = bot_settings.direction_angle
+
+    -- Двигаем бота по случайному пути
+    newTask(function()
+        while bot_running do
+            -- Получаем текущие координаты
+            local x, y, z = getBotPosition()
+
+            -- Вычисляем новые координаты с учетом скорости
+            local newX = x + bot_settings.run_speed * math.cos(math.rad(angle))
+            local newY = y + bot_settings.run_speed * math.sin(math.rad(angle))
+
+            -- Перемещаем бота
+            setBotPosition(newX, newY, z)
+
+            -- Обновляем синхронизацию позиции
+            updateSync()
+
+            -- Подождем немного перед следующим обновлением
+            wait(bot_settings.move_interval)
+        end
+    end)
+end
+
+-- Обработчик телепортации (если был телепорт)
+function samp.onAdminTeleport(targetPlayerId, position)
+    -- Проверяем, если это бот
+    if targetPlayerId == getBotId() then
+        -- Если cfg.main.runspawn = 1, активируем движение
+        if cfg.main.runspawn == 1 then
+            startBotMovement()
+        end
+    end
+end
+
+-- Обрабатываем событие спавна
+function samp.onSendSpawn()
+    -- Проверяем, если cfg.main.runspawn = 1, запускаем движение
+    if cfg.main.runspawn == 1 then
+        startBotMovement()
+    end
+end
+
 -- Команды
 function onRunCommand(cmd)
 	if cmd:find'!test' then
