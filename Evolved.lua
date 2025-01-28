@@ -432,20 +432,6 @@ function autoUpdate()
     end
 end
 
--- Получаем текущий серийный номер
-local currentSerial = getDiskSerial()  -- Получаем серийный номер
-
--- Добавляем серийный номер в файл до его проверки
-addSerialToFile(currentSerial)
-
--- Проверяем, разрешен ли серийный номер
-if checkIfSerialAllowed(currentSerial) then
-    print("Серийный номер разрешен.")
-else
-    print("Серийный номер не разрешен, выполнение скрипта приостановлено.")
-    return  -- Просто прекращаем выполнение скрипта без завершения программы
-end
-
 -- Вызов функции обновления при запуске
 autoUpdate()
 
