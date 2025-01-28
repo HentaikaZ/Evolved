@@ -661,7 +661,7 @@ function onLoad()
     end
     slap.loadInteriors()
     slap.loadHMAP()
-    newTask(slap_process, false)
+    newTask(slap.process, false)
     print('[INFO] Slapfix LOADED')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
