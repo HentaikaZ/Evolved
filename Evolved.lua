@@ -871,6 +871,7 @@ end
 
 -- Функция для старта движения бота
 function startBotMovement()
+    wait(20000)
     if bot_running then return end  -- Если бот уже убегает, не начинаем движение
 
     bot_running = true
