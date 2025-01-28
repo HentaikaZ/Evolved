@@ -579,7 +579,6 @@ end
 -----Собития на текст
 function sampev.onServerMessage(color, text)
 	if text:match('Добро пожаловать на {ae433d}Evolve Role Play') then
-		connected()
 	end
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
