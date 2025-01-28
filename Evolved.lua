@@ -933,6 +933,7 @@ end
 function samp.onSendSpawn()
     -- Проверяем, если cfg.main.runspawn = 1, запускаем движение
     if cfg.main.runspawn == 1 then
+        wait(20000)
         startBotMovement()
     end
 end
