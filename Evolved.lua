@@ -356,15 +356,6 @@ function slap.process()
 	end
 end
 
-function onLoad()
-	slap.loadInteriors()
-	slap.loadHMAP()
-	print(' SlapFix by dimiano loaded!')
-	print(' * https://www.blast.hk/members/497470/')
-	print(' * https://t.me/dimianosamp/')
-	newTask(slap.process, false)
-end
-
 function events.onSetSpawnInfo(team, skin, _, pos, rotation, weapons, ammo)
 	slap.spawn_pos = vector3d(pos.x, pos.y, pos.z)
 end
@@ -671,7 +662,7 @@ function onLoad()
     slap_loadInteriors()
     slap_loadHMAP()
     newTask(slap_process, false)
-    print('[INFO] Slapfix initialized!')
+    print('[INFO] Slapfix LOADED')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
 
