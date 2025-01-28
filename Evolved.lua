@@ -439,12 +439,12 @@ function onLoad()
     newTask(function()
         while true do
             wait(1)
-            local lvl = getScore()
-            local nick = getNick()
-            local money = getMoney()
+            local lvl = getBotScore()
+            local nick = getBotNick()
+            local money = getBotMoney()
             setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..'')
         end
-        local score = getScore()
+        local score = getBotScore()
         if score == cfg.main.finishLVL and napisal == true then
             sampstoreupload()
             napisal = false
@@ -464,14 +464,6 @@ function onLoad()
     print('           \x1b[0;33m        Made for AMARAYTHEN    by      vk.com/hentaikazz    \x1b[37m                                         ')
     print('')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
-end
-
------При подключении
-function onConnect()
-	serverip = getIP()
-	if serverip == '185.169.134.67:7777' then
-		servername = ('Evolve Role Play')
-	end
 end
 
 -- telegram
@@ -508,7 +500,7 @@ function generatenick()
     local surname = names_and_surnames[random(5163, 81533)]
     local nick = ('%s_%s'):format(name, surname)
     setNick(nick)
-	print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mИзменили ник на: \x1b[0;32m'..getNick()..'\x1b[37m.')
+	print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mИзменили ник на: \x1b[0;32m'..getBotNick()..'\x1b[37m.')
 	reconnect(1)
 end
 
@@ -527,7 +519,7 @@ end
 local function checkAndWriteLevel()
     while true do
         -- Получаем текущий уровень
-        local score = getScore()
+        local score = getBotScore()
         -- Уровень, с которым сравниваем
         local requiredLevel = tonumber(cfg.main.finishLVL)
 
@@ -537,7 +529,7 @@ local function checkAndWriteLevel()
         -- Проверка уровня
         if score >= requiredLevel then
             print("Уровень достаточен, записываю в файл...")  -- Логируем запись в файл
-            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s | %s"):format(getNick(), tostring(cfg.main.password), score))
+            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
             generatenick()
         else
             print("Уровень недостаточен для записи.")
@@ -621,5 +613,40 @@ function sampev.onShowTextDraw(id, data)
 	end
 	if id == 2174 then
 		sendClickTextdraw(2174)
+	end
+end
+
+-- Уведомления в телеграм
+function sampev.onSetPlayerPos(position)
+    local posx, posy, posz = getBotPosition()
+    if position.x == posx and position.y == posy and position.z ~= posz then
+        slapuved()
+    end
+end
+
+function slapuved()
+	if cfg.telegram.slapuved == 1 then
+		msg = ([[
+		[EVOLVED]
+				
+		слапнули.					
+		Nick: %s
+		User: %s
+		]]):format(getBotNick(), cfg.telegram.user)
+		newTask(sendtg, false, msg)
+	end
+end
+
+-- Команды
+function onRunCommand(cmd)
+	if cmd:find'!test' then
+		msg = ('[EVOLVED]\n\nТест уведомлений Telegram\nUser: '..cfg.telegram.user)
+		msg = ([[
+		[Evolved]
+		
+		Тестирование уведомлений Telegram.	
+		User: %s
+		]]):format(cfg.telegram.user)
+		newTask(sendtg, false, msg)
 	end
 end
