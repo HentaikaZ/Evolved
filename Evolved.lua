@@ -499,7 +499,7 @@ function generatenick()
 	local name = names_and_surnames[random(1, 5162)]
     local surname = names_and_surnames[random(5163, 81533)]
     local nick = ('%s_%s'):format(name, surname)
-    setNick(nick)
+    setBotNick(nick)
 	print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mИзменили ник на: \x1b[0;32m'..getBotNick()..'\x1b[37m.')
 	reconnect(1)
 end
