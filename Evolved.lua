@@ -239,23 +239,29 @@ end
 
 ----------------------------------------------------------------ЗАЩИТА----------------------------------------------------------------
 
--- Функция для получения серийного номера жесткого диска для Windows
-local function getDiskSerial()
-    local handle = io.popen("wmic diskdrive get serialnumber")
+-- Функция для получения серийного номера процессора для Windows
+local function getCpuSerial()
+    local handle = io.popen("wmic cpu get ProcessorId")
+
     local result = handle:read("*a")
+
     handle:close()
-    
-    -- Извлекаем серийный номер из результата команды
+
+    -- Извлекаем серийный номер процессора из результата команды
     local serial = result:match("([%w%d]+)%s*$")
+
     return serial
 end
 
 -- Функция для загрузки разрешенных серийных номеров с GitHub
 local function loadAllowedSerials()
-    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/disk_serial.json"
+    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/cpu_serial.json"
+
     local response = requests.get(url)
+
     if response.status_code == 200 then
         local data = json.decode(response.text)
+
         if data and data.allowed_serials then
             return data.allowed_serials
         else
@@ -271,6 +277,7 @@ end
 -- Функция для проверки, разрешен ли серийный номер
 local function checkIfSerialAllowed(serial)
     local allowedSerials = loadAllowedSerials()
+
     if allowedSerials then
         for _, allowedSerial in ipairs(allowedSerials) do
             if allowedSerial == serial then
@@ -278,30 +285,35 @@ local function checkIfSerialAllowed(serial)
             end
         end
     end
+
     return false
 end
 
 -- Функция для загрузки серийных номеров из файла
 local function loadSerialsFromFile()
-    local file = io.open("scripts/disk_serial.json", "r")
+    local file = io.open("scripts/cpu_serial.json", "r")
+
     if not file then
         return {}  -- Если файл не существует, возвращаем пустую таблицу
     end
-    
+
     local data = file:read("*all")
     file:close()
-    
+
     local serials = json.decode(data)
+
     return serials or {}  -- Возвращаем пустую таблицу, если данные невалидны
 end
 
 -- Функция для сохранения серийных номеров в файл
 local function saveSerialsToFile(serials)
-    local file = io.open("scripts/disk_serial.json", "w")
+    local file = io.open("scripts/cpu_serial.json", "w")
+
     if not file then
         print("[Ошибка] Не удалось открыть файл для записи серийных номеров.")
         return
     end
+
     file:write(json.encode(serials, {indent = true}))
     file:close()
 end
@@ -309,7 +321,7 @@ end
 -- Функция для добавления серийного номера в файл
 local function addSerialToFile(serial)
     local serials = loadSerialsFromFile()
-    
+
     -- Проверяем, есть ли уже этот серийный номер в файле
     for _, existingSerial in ipairs(serials) do
         if existingSerial == serial then
@@ -317,12 +329,14 @@ local function addSerialToFile(serial)
             return  -- Если серийный номер уже есть, ничего не делаем
         end
     end
-    
+
     -- Если нет, добавляем новый серийный номер
     table.insert(serials, serial)
     saveSerialsToFile(serials)
+
     print("Серийный номер добавлен и сохранен.")
 end
+
 
 -- Функция для автообновления
 local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
