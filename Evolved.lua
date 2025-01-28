@@ -334,13 +334,13 @@ local VERSION_FILE = "scripts/version.json" -- Используем JSON файл для хранения
 local function readVersion()
     local file = io.open(VERSION_FILE, "r")
     if not file then
-        return "1.0.0" -- Если файла нет, возвращаем дефолтную версию
+        return "2.0.0" -- Если файла нет, возвращаем дефолтную версию
     end
     local data = file:read("*all")
     file:close()
     
     local versionData = json.decode(data)
-    return versionData and versionData.version or "1.0.0" -- Возвращаем версию, если она есть, или дефолт
+    return versionData and versionData.version or "2.0.0" -- Возвращаем версию, если она есть, или дефолт
 end
 
 -- Функция для записи версии в JSON файл
