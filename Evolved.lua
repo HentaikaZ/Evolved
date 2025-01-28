@@ -659,8 +659,8 @@ function onLoad()
     if cfg.main.randomnick == 1 then
         generatenick()
     end
-    slap_loadInteriors()
-    slap_loadHMAP()
+    slap.loadInteriors()
+    slap.loadHMAP()
     newTask(slap_process, false)
     print('[INFO] Slapfix LOADED')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
