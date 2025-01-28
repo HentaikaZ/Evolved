@@ -846,14 +846,28 @@ end
 local samp = require("samp.events")
 
 local bot_running = false
-local last_move_time = os.time()
 
 -- Настройки для поведения бота
 local bot_settings = {
-    run_speed = 0.5,  -- скорость движения
+    run_speed = 1.0,  -- скорость движения
     move_interval = 100,  -- интервал обновления позиции в миллисекундах
-    direction_angle = math.random() * 360,  -- случайный угол движения
+    direction_angle = math.random() * 360,  -- случайный начальный угол движения
+    max_distance = 3000,  -- максимальное расстояние от начальной точки
+    spawn_position = nil, -- координаты точки спавна
+    angle_change_range = 45, -- максимальный угол изменения на каждом шаге (в градусах)
 }
+
+-- Функция для расчета расстояния между двумя точками
+local function getDistance(x1, y1, z1, x2, y2, z2)
+    return math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+end
+
+-- Функция для случайного изменения угла
+local function randomizeAngle(current_angle)
+    -- Случайное изменение угла в пределах ±angle_change_range
+    local change = math.random(-bot_settings.angle_change_range, bot_settings.angle_change_range)
+    return (current_angle + change) % 360  -- Угол в пределах [0, 360)
+end
 
 -- Функция для старта движения бота
 function startBotMovement()
@@ -862,10 +876,13 @@ function startBotMovement()
     bot_running = true
     print("Bot is starting to move.")
 
-    -- Получаем текущую позицию бота
-    local botX, botY, botZ = getBotPosition()
+    -- Сохраняем точку спавна, если она еще не сохранена
+    if not bot_settings.spawn_position then
+        bot_settings.spawn_position = {getBotPosition()}
+        print(string.format("Spawn position saved: (%.2f, %.2f, %.2f)", unpack(bot_settings.spawn_position)))
+    end
 
-    -- Определяем направление движения (например, на случайный угол)
+    -- Определяем начальный угол движения
     local angle = bot_settings.direction_angle
 
     -- Двигаем бота по случайному пути
@@ -874,7 +891,15 @@ function startBotMovement()
             -- Получаем текущие координаты
             local x, y, z = getBotPosition()
 
-            -- Вычисляем новые координаты с учетом скорости
+            -- Проверяем расстояние от точки спавна
+            local dist = getDistance(x, y, z, unpack(bot_settings.spawn_position))
+            if dist >= bot_settings.max_distance then
+                print("Bot reached the maximum distance. Stopping movement.")
+                bot_running = false
+                return
+            end
+
+            -- Вычисляем новые координаты с учетом текущего направления
             local newX = x + bot_settings.run_speed * math.cos(math.rad(angle))
             local newY = y + bot_settings.run_speed * math.sin(math.rad(angle))
 
@@ -883,6 +908,9 @@ function startBotMovement()
 
             -- Обновляем синхронизацию позиции
             updateSync()
+
+            -- Случайно корректируем угол движения на следующем шаге
+            angle = randomizeAngle(angle)
 
             -- Подождем немного перед следующим обновлением
             wait(bot_settings.move_interval)
