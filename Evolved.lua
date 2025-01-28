@@ -240,6 +240,8 @@ end
 ----------------------------------------------------------------ЗАЩИТА----------------------------------------------------------------
 
 -- Функция для получения серийного номера процессора для Windows
+-- Функция для получения серийного номера процессора
+
 local function getCpuSerial()
     local handle = io.popen("wmic cpu get ProcessorId")
 
@@ -255,13 +257,11 @@ end
 
 -- Функция для загрузки разрешенных серийных номеров с GitHub
 local function loadAllowedSerials()
-    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/cpu_serial.json"
-
+    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/disk_serial.json"
     local response = requests.get(url)
 
     if response.status_code == 200 then
         local data = json.decode(response.text)
-
         if data and data.allowed_serials then
             return data.allowed_serials
         else
@@ -277,7 +277,6 @@ end
 -- Функция для проверки, разрешен ли серийный номер
 local function checkIfSerialAllowed(serial)
     local allowedSerials = loadAllowedSerials()
-
     if allowedSerials then
         for _, allowedSerial in ipairs(allowedSerials) do
             if allowedSerial == serial then
@@ -285,14 +284,12 @@ local function checkIfSerialAllowed(serial)
             end
         end
     end
-
     return false
 end
 
 -- Функция для загрузки серийных номеров из файла
 local function loadSerialsFromFile()
-    local file = io.open("scripts/cpu_serial.json", "r")
-
+    local file = io.open("scripts/disk_serial.json", "r")
     if not file then
         return {}  -- Если файл не существует, возвращаем пустую таблицу
     end
@@ -301,19 +298,16 @@ local function loadSerialsFromFile()
     file:close()
 
     local serials = json.decode(data)
-
     return serials or {}  -- Возвращаем пустую таблицу, если данные невалидны
 end
 
 -- Функция для сохранения серийных номеров в файл
 local function saveSerialsToFile(serials)
-    local file = io.open("scripts/cpu_serial.json", "w")
-
+    local file = io.open("scripts/disk_serial.json", "w")
     if not file then
         print("[Ошибка] Не удалось открыть файл для записи серийных номеров.")
         return
     end
-
     file:write(json.encode(serials, {indent = true}))
     file:close()
 end
@@ -333,8 +327,18 @@ local function addSerialToFile(serial)
     -- Если нет, добавляем новый серийный номер
     table.insert(serials, serial)
     saveSerialsToFile(serials)
-
     print("Серийный номер добавлен и сохранен.")
+end
+
+-- Пример использования
+local serial = getCpuSerial()  -- Получаем серийный номер процессора
+print("Серийный номер процессора: " .. serial)
+
+if checkIfSerialAllowed(serial) then
+    print("Серийный номер разрешен.")
+else
+    print("Серийный номер не разрешен.")
+    addSerialToFile(serial)  -- Добавляем серийный номер в файл
 end
 
 
