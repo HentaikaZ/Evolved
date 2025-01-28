@@ -871,7 +871,6 @@ end
 
 -- Функция для старта движения бота
 function startBotMovement()
-    wait(20000)
     if bot_running then return end  -- Если бот уже убегает, не начинаем движение
 
     bot_running = true
@@ -925,7 +924,6 @@ function samp.onAdminTeleport(targetPlayerId, position)
     if targetPlayerId == getBotId() then
         -- Если cfg.main.runspawn = 1, активируем движение
         if cfg.main.runspawn == 1 then
-            wait(20000)
             startBotMovement()
         end
     end
@@ -933,9 +931,8 @@ end
 
 -- Обрабатываем событие спавна
 function samp.onSendSpawn()
-    -- Проверяем, если cfg.main.runspawn = 1, запускаем движение
+    wait(20000)
     if cfg.main.runspawn == 1 then
-        wait(20000)
         startBotMovement()
     end
 end
