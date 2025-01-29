@@ -52,18 +52,35 @@ local configPath = "config/E-Settings.ini"
 -- Структура конфигурационного файла
 local defaultConfig = {
     main = {
-        password=12341234,
+        password="12341234",
         randomnick=1,
         finishLVL=3,
         proxy=0,
         runspawn=0
     },
     telegram = {
-        tokenbot=7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ,
+        tokenbot="7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid=450167751,
-        user=@your_user
+        user="@your_user"
     }
 }
+
+-- Функция удаления пробелов перед и после '=' в INI-файле
+local function removeSpacesFromINI(filePath)
+    local file = io.open(filePath, "r")
+    if not file then return end
+
+    local content = file:read("*a")
+    file:close()
+
+    -- Убираем пробелы вокруг '='
+    content = content:gsub("(%S+)%s*=%s*(%S+)", "%1=%2")
+
+    -- Перезаписываем файл без пробелов
+    file = io.open(filePath, "w")
+    file:write(content)
+    file:close()
+end
 
 -- Проверяем, существует ли INI-файл
 local function checkAndCreateConfig()
@@ -75,6 +92,7 @@ local function checkAndCreateConfig()
         local success = inicfg.save(defaultConfig, "E-Settings")
         if success then
             print("[INFO] Файл 'E-Settings.ini' успешно создан!")
+            removeSpacesFromINI(configPath) -- Удаление пробелов после создания
         else
             print("[ERROR] Ошибка при создании INI-файла.")
         end
