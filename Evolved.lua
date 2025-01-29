@@ -560,9 +560,6 @@ function slapuved()
 	end
 end
 
--- ТЕСТОВАЯ ФУНКЦИЯ ПОБЕГА ( ТЕЛЕПОРТ )
-
-
 -- Команды
 function onRunCommand(cmd)
 	if cmd:find'!test' then
@@ -576,3 +573,5 @@ function onRunCommand(cmd)
 		newTask(sendtg, false, msg)
 	end
 end
+
+-- Выполнение квестов или же обычный курдмастер
