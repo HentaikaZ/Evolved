@@ -13,7 +13,6 @@ local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 local inicfg = require('inicfg')
-local cfg = inicfg.load(nil, 'E-Settings')
 
 local configtg = {
     token = cfg.telegram.tokenbot,
@@ -47,6 +46,9 @@ function sampev.onSendPlayerSync(data)
 end
 
 -- config
+local inicfg = require("inicfg")
+
+-- Путь к конфигурационному файлу
 local configPath = "config/E-Settings.ini"
 
 -- Структура конфигурационного файла
@@ -59,51 +61,53 @@ local defaultConfig = {
         runspawn=0
     },
     telegram = {
-        tokenbot="7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
+        tokenbot="7015859286:AAGUQmfZjG46W44OG8viKGrU8viKGrU8nYgUI6OogQ",
         chatid=450167751,
         user="@your_user"
     }
 }
 
--- Функция удаления пробелов перед и после '=' в INI-файле
-local function removeSpacesFromINI(filePath)
-    local file = io.open(filePath, "r")
-    if not file then return end
-
-    local content = file:read("*a")
-    file:close()
-
-    -- Убираем пробелы вокруг '='
-    content = content:gsub("(%S+)%s*=%s*(%S+)", "%1=%2")
-
-    -- Перезаписываем файл без пробелов
-    file = io.open(filePath, "w")
-    file:write(content)
-    file:close()
-end
-
--- Проверяем, существует ли INI-файл
-local function checkAndCreateConfig()
-    local file = io.open(configPath, "r") -- Пробуем открыть файл на чтение
-    if not file then
-        print("[INFO] INI-файл не найден. Создаю новый...")
-
-        -- Записываем стандартные настройки
-        local success = inicfg.save(defaultConfig, "E-Settings")
-        if success then
-            print("[INFO] Файл 'E-Settings.ini' успешно создан!")
-            removeSpacesFromINI(configPath) -- Удаление пробелов после создания
-        else
-            print("[ERROR] Ошибка при создании INI-файла.")
-        end
-    else
+-- Проверяем существование файла
+local function fileExists(path)
+    local file = io.open(path, "r")
+    if file then 
         file:close()
-        print("[INFO] INI-файл уже существует.")
+        return true 
+    else 
+        return false 
     end
 end
 
--- Запускаем проверку
-checkAndCreateConfig()
+-- Функция создания INI-файла
+local function createConfig()
+    print("[INFO] INI-файл не найден. Создаю новый...")
+
+    -- Создаём папку config, если её нет
+    os.execute("mkdir config")
+
+    -- Записываем стандартные настройки
+    local success = inicfg.save(defaultConfig, "E-Settings")
+    if success then
+        print("[INFO] Файл 'E-Settings.ini' успешно создан!")
+    else
+        print("[ERROR] Ошибка при создании INI-файла.")
+    end
+end
+
+-- Загружаем конфиг или создаем новый
+if not fileExists(configPath) then
+    createConfig()
+end
+
+-- Загружаем настройки после проверки
+local cfg = inicfg.load(nil, "E-Settings")
+if not cfg then
+    print("[ERROR] Не удалось загрузить INI-файл!")
+    return
+end
+
+print("[INFO] Конфиг загружен успешно.")
+
 
 -- Proxy
 local proxys = {}
