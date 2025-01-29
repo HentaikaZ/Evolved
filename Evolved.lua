@@ -46,6 +46,47 @@ function sampev.onSendPlayerSync(data)
 	end
 end
 
+-- config
+local configPath = "config/E-Settings.ini"
+
+-- Структура конфигурационного файла
+local defaultConfig = {
+    main = {
+        password=12341234,
+        randomnick=1,
+        finishLVL=3,
+        proxy=0,
+        runspawn=0
+    },
+    telegram = {
+        tokenbot=7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ,
+        chatid=450167751,
+        user=@your_user
+    }
+}
+
+-- Проверяем, существует ли INI-файл
+local function checkAndCreateConfig()
+    local file = io.open(configPath, "r") -- Пробуем открыть файл на чтение
+    if not file then
+        print("[INFO] INI-файл не найден. Создаю новый...")
+
+        -- Записываем стандартные настройки
+        local success = inicfg.save(defaultConfig, "E-Settings")
+        if success then
+            print("[INFO] Файл 'E-Settings.ini' успешно создан!")
+        else
+            print("[ERROR] Ошибка при создании INI-файла.")
+        end
+    else
+        file:close()
+        print("[INFO] INI-файл уже существует.")
+    end
+end
+
+-- Запускаем проверку
+checkAndCreateConfig()
+
 -- Proxy
 local proxys = {}
 local my_proxy_ip
