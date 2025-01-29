@@ -12,7 +12,6 @@ local requests = require('requests')
 local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
-local inicfg = require('inicfg')
 
 local configtg = {
     token = cfg.telegram.tokenbot,
