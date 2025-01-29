@@ -449,7 +449,7 @@ local function checkAndWriteLevel()
         -- Проверка уровня
         if score >= requiredLevel then
             print("Уровень достаточен, записываю в файл...")  -- Логируем запись в файл
-            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
+            writeToFile("config\\accounts.txt", ("%s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
             generatenick()
         else
             print("Уровень недостаточен для записи.")
