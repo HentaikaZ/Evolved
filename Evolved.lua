@@ -524,6 +524,12 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Увольнение') then
 			sendDialogResponse(id, 1, 0, '')
 		end
+        if id == 4423 then 
+            sendDialogResponse(4423, 1, 0, "")
+            printm("Устроился на работу грузчика!")
+            gruzchik()
+            return false
+        end
     end)
 end
 
@@ -601,4 +607,59 @@ function onRunCommand(cmd)
 	end
 end
 
--- Выполнение квестов или же обычный курдмастер
+-- Выполнение квестов 
+
+
+-- грузщики 
+function printm(text)
+	print("\x1b[0;36m[Gruz Evolve]:\x1b[37m \x1b[0;32m"..text.."\x1b[37m")
+end
+
+function tp(toX, toY, toZ, noExitCar) 
+	needX, needY, needZ = toX, toY, toZ
+	coordStart(toX, toY, toZ, 30, 2, true)
+	while isCoordActive() do
+		wait(0)
+	end
+	if not noExitCar then
+		setBotVehicle(0, 0)
+		setBotVehicle(0, 0)
+		setBotVehicle(0, 0)
+		setPos(toX, toY, toZ)
+	end
+end
+
+function setPos(toX, toY, toZ) 
+	x, y, z = getBotPosition()
+	if getDistanceBetweenCoords3d(x, y, z, toX, toY, toZ) < 15 then
+		setBotPosition(toX, toY, toZ)
+	end
+end
+
+function getDistanceBetweenCoords3d(x1, y1, z1, x2, y2, z2) 
+    return math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+end
+
+function sampev.onSendSpawn()
+    newTask(function()
+        tp(1158.7135009766, -1753.1791992188, 13.600618362427)
+        updateSync()
+        printm("Телепортируюсь работать грузчиком.")
+        tp(2137.8679199219, -2282.1091308594, 20.671875)
+    end)
+end
+
+function gruzchik()
+    newTask(function()
+        while true do
+            tp(2225.4377441406, -2276.4077148438, 14.764669418335)
+            tp(2187.3654785156, -2303.673828125, 13.546875)
+            printm("Взял мешок с зерном. Жду 15 секунд перед следующим тп для того что-бы не кикнуло.")
+            wait(15000)
+            tp(2163.060546875, -2238.1853027344, 13.287099838257)
+            tp(2167.7253417969, -2262.1433105469, 13.30480670929)
+            printm("Отнёс мешок с зерном. Жду 15 секунд перед следующим тп для того что-бы не кикнуло.")
+            wait(15000)
+        end
+    end)
+end
