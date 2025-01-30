@@ -821,6 +821,8 @@ function gruzchik()
 end
 
 -- побег со спавна
+math.randomseed(os.time()) -- Инициализация генератора случайных чисел
+
 local function readCoordsFromFile(filePath)
     local coords = {}
     local file = io.open(filePath, "r")
@@ -858,9 +860,11 @@ local function teleportToRandomLocation()
 
     if randomCoord then
         local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
-        local command = string.format("%f, %f, %f", x, y, z)
-        tp( .. command)
+        local command = string.format("tp(%.13f, %.13f, %.13f)", x, y, z)
         print("[INFO] Телепортируемся в: " .. command)
+
+        -- Выполнение команды (если нужно, раскомментируй)
+        -- runCommand(command)
     end
 end
 
