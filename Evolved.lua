@@ -860,11 +860,12 @@ local function teleportToRandomLocation()
 
     if randomCoord then
         local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
-        local command = string.format("tp(%.13f, %.13f, %.13f)", x, y, z)
-        print("[INFO] Телепортируемся в: " .. command)
+        print(string.format("[INFO] Телепортируемся в: tp(%.13f, %.13f, %.13f)", x, y, z))
 
-        -- Выполнение команды (если нужно, раскомментируй)
-        -- runCommand(command)
+        -- Вызов функции tp(x, y, z)
+        tp(x, y, z)
+    else
+        print("[Ошибка] Координаты не найдены, телепортация невозможна.")
     end
 end
 
