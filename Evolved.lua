@@ -605,7 +605,7 @@ function onRunCommand(cmd)
 		]]):format(cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
-    if cmd:find'!quest1' then
+    if cmd:find'!quest' then
         nagruz()
     end
 end
@@ -819,3 +819,49 @@ function gruzchik()
     printm("Отнёс мешок с зерном. Жду 15 секунд перед следующим тп для того что-бы не кикнуло.")
     wait(15000)
 end
+
+-- побег со спавна
+local function readCoordsFromFile(filePath)
+    local coords = {}
+    local file = io.open(filePath, "r")
+
+    if not file then
+        print("[Ошибка] Не удалось открыть файл: " .. filePath)
+        return coords
+    end
+
+    for line in file:lines() do
+        local x, y, z = line:match("([%-?%d%.]+),%s*([%-?%d%.]+),%s*([%-?%d%.]+)")
+        if x and y and z then
+            table.insert(coords, {tonumber(x), tonumber(y), tonumber(z)})
+        end
+    end
+
+    file:close()
+    return coords
+end
+
+local function getRandomCoord(coords)
+    if #coords == 0 then
+        print("[Ошибка] Список координат пуст.")
+        return nil
+    end
+
+    local index = math.random(1, #coords)
+    return coords[index]
+end
+
+local function teleportToRandomLocation()
+    local coordsFile = "config/coords.txt"
+    local coords = readCoordsFromFile(coordsFile)
+    local randomCoord = getRandomCoord(coords)
+
+    if randomCoord then
+        local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
+        local command = string.format("tp(%f, %f, %f)", x, y, z)
+        print("[INFO] Телепортируемся в: " .. command)
+    end
+end
+
+-- Запуск телепортации
+teleportToRandomLocation()
