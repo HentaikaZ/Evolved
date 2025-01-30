@@ -605,6 +605,9 @@ function onRunCommand(cmd)
 		]]):format(cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
+    if cmd:find'!quest1' then
+        nagruz()
+    end
 end
 
 -- Выполнение квестов 
@@ -612,7 +615,7 @@ end
 
 -- грузщики 
 function printm(text)
-	print("\x1b[0;36m[Gruz Evolve]:\x1b[37m \x1b[0;32m"..text.."\x1b[37m")
+	print("\x1b[0;36m[EVOLVED]:\x1b[37m \x1b[0;32m"..text.."\x1b[37m")
 end
 
 function tp(toX, toY, toZ, noExitCar) 
@@ -640,7 +643,7 @@ function getDistanceBetweenCoords3d(x1, y1, z1, x2, y2, z2)
     return math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
 end
 
-function sampev.onSendSpawn()
+function nagruz()
     newTask(function()
         tp(1158.7135009766, -1753.1791992188, 13.600618362427)
         updateSync()
