@@ -13,11 +13,6 @@ local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 
-local configtg = {
-    token = cfg.telegram.tokenbot,
-    chat_id = cfg.telegram.chatid
-}
-
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
 
@@ -107,6 +102,10 @@ end
 
 print("[INFO] Конфиг загружен успешно.")
 
+local configtg = {
+    token = cfg.telegram.tokenbot,
+    chat_id = cfg.telegram.chatid
+}
 
 -- Proxy
 local proxys = {}
