@@ -863,5 +863,8 @@ local function teleportToRandomLocation()
     end
 end
 
--- Запуск телепортации
-teleportToRandomLocation()
+function sampev.onSendSpawn()
+    newTask(function()
+        teleportToRandomLocation()
+    end)
+end
