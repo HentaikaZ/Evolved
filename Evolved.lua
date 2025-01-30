@@ -871,6 +871,7 @@ end
 
 function sampev.onSendSpawn()
     newTask(function()
+        wait(5000)
         teleportToRandomLocation()
     end)
 end
