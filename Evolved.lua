@@ -12,6 +12,13 @@ local requests = require('requests')
 local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
+local inicfg = require('inicfg')
+local cfg = inicfg.load(nil, 'E-Settings')
+
+local configtg = {
+    token = cfg.telegram.tokenbot,
+    chat_id = cfg.telegram.chatid
+}
 
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
@@ -38,74 +45,6 @@ function sampev.onSendPlayerSync(data)
 		specialKey = nil
 	end
 end
-
--- config
-local inicfg = require("inicfg")
-
--- Путь к конфигурационному файлу
-local configPath = "config/E-Settings.ini"
-
--- Структура конфигурационного файла
-local defaultConfig = {
-    main = {
-        password="12341234",
-        randomnick=1,
-        finishLVL=3,
-        proxy=0,
-        runspawn=0
-    },
-    telegram = {
-        tokenbot="7015859286:AAGUQmfZjG46W44OG8viKGrU8viKGrU8nYgUI6OogQ",
-        chatid=450167751,
-        user="@your_user"
-    }
-}
-
--- Проверяем существование файла
-local function fileExists(path)
-    local file = io.open(path, "r")
-    if file then 
-        file:close()
-        return true 
-    else 
-        return false 
-    end
-end
-
--- Функция создания INI-файла
-local function createConfig()
-    print("[INFO] INI-файл не найден. Создаю новый...")
-
-    -- Создаём папку config, если её нет
-    os.execute("mkdir config")
-
-    -- Записываем стандартные настройки
-    local success = inicfg.save(defaultConfig, "E-Settings")
-    if success then
-        print("[INFO] Файл 'E-Settings.ini' успешно создан!")
-    else
-        print("[ERROR] Ошибка при создании INI-файла.")
-    end
-end
-
--- Загружаем конфиг или создаем новый
-if not fileExists(configPath) then
-    createConfig()
-end
-
--- Загружаем настройки после проверки
-local cfg = inicfg.load(nil, "E-Settings")
-if not cfg then
-    print("[ERROR] Не удалось загрузить INI-файл!")
-    return
-end
-
-print("[INFO] Конфиг загружен успешно.")
-
-local configtg = {
-    token = cfg.telegram.tokenbot,
-    chat_id = cfg.telegram.chatid
-}
 
 -- Proxy
 local proxys = {}
@@ -438,6 +377,10 @@ function onLoad()
     if cfg.main.randomnick == 1 then
         generatenick()
     end
+    slap.loadInteriors()
+    slap.loadHMAP()
+    newTask(slap.process, false)
+    print('[INFO] Slapfix LOADED')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
 
@@ -510,7 +453,7 @@ local function checkAndWriteLevel()
         -- Проверка уровня
         if score >= requiredLevel then
             print("Уровень достаточен, записываю в файл...")  -- Логируем запись в файл
-            writeToFile("config\\accounts.txt", ("%s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
+            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
             generatenick()
         else
             print("Уровень недостаточен для записи.")
