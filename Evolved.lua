@@ -387,35 +387,37 @@ function onLoad()
 end
 
 -- telegram
+
 function char_to_hex(str)
+
   return ('%%%02X'):format(str:byte())
+
 end
+
+
 
 function url_encode(str)
+
   return str:gsub('([^%w])', char_to_hex)
+
 end
 
--- Функция для отправки уведомлений в Telegram
-function sendtg(text)
-    -- Проверка, загружены ли настройки Telegram
-    if not cfg.telegram or not cfg.telegram.tokenbot or not cfg.telegram.chatid then
-        print("[Ошибка] Настройки Telegram не загружены.")
-        return
-    end
 
-    local params = {
-        chat_id = cfg.telegram.chatid,
-        text = text
-    }
-    
-    local url = ('https://api.telegram.org/bot%s/sendMessage'):format(cfg.telegram.tokenbot)
-    
-    local response = requests.get(url, {params = params})  -- <-- исправленный запрос
-    if response.status_code ~= 200 then
-        print("[Ошибка] Не удалось отправить сообщение в Telegram. Код: " .. response.status_code)
-    else
-        print("[INFO] Уведомление отправлено в Telegram!")
-    end
+
+function sendtg(text)
+
+  local params = {
+
+    chat_id = configtg.chat_id,
+
+    text = url_encode(u8(text))
+
+  }
+
+  local url = ('https://api.telegram.org/bot%s/sendMessage'):format(configtg.token)
+
+  local response = requests.get({url, params=params})
+
 end
 
 -- Уведомление при слапе
@@ -587,7 +589,7 @@ end
 
 -- Команды
 function onRunCommand(cmd)
-	if cmd:find('!test') then
+	if cmd:find'!test' then
 		msg = ('[EVOLVED]\n\nТест уведомлений Telegram\nUser: '..cfg.telegram.user)
 		msg = ([[
 		[Evolved]
