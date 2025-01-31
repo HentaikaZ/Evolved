@@ -382,6 +382,7 @@ function onLoad()
     print('			\x1b[0;33m        EVOLVED\x1b[37m  - \x1b[0;32mАКТИВИРОВАН\x1b[37m           ')
     print('           \x1b[0;33m        Made for AMARAYTHEN    by      vk.com/hentaikazz    \x1b[37m                                         ')
     print('')
+    print('                           \x1b[37m  - \x1b[0;32mfor help use !evolved | <3 \x1b[37m             ')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
 end
 
@@ -681,7 +682,7 @@ function onRunCommand(cmd)
     if cmd:find'!fspawn' then
         fspawn()
     end
-    if cmd:find'!evolved then
+    if cmd:find'!evolved' then
         print('==================== Вспомогательная Информация ====================')
         print('Почти все настройки находят по пути config/E-Settings.ini')
         print('Обьясняю как работают уведомления и некоторые true or false: 1 - Да, 0 - Нет.')
