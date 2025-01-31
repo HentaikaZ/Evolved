@@ -517,7 +517,6 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         end
         if title:find('Игровой лаунчер') then
             sendDialogResponse(id, 1, 0, '')
-            teleportToRandomLocation()
         end
         if title:find('Предложение') then
 			sendDialogResponse(id, 1, 0, '')
@@ -630,6 +629,9 @@ function onRunCommand(cmd)
 	end
     if cmd:find'!quest' then
         nagruz()
+    end
+    if cmd:find'!run' then
+        teleportToRandomLocation()
     end
 end
 
