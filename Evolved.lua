@@ -530,6 +530,9 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             gruzchik()
             return false
         end
+        if title:find('Блокировка') then
+			noipban()
+        end
     end)
 end
 
@@ -615,6 +618,52 @@ function slapuved()
 	end
 end
 
+function vkacheno()
+    if cfg.telegram and cfg.telegram.vkacheno == 1 then
+        local msg = ([[  
+        [EVOLVED]  
+
+        Аккаунт вкачен. 
+        Nick: %s
+        LVL: %s  
+        User: %s  
+        ]]):format(getBotNick(), getBotScore(), cfg.telegram.user)
+
+        sendtg(msg)
+    end
+end
+
+function noipban()
+	if cfg.telegram.noipbanuveda == 1 then
+		msg = ([[
+		[FUCK U BITCHEZZ]
+		
+		Аккаунт заблокировали.	
+		Nick: %s
+		User: %s
+		]]):format(getNick(), cfg.telegram.user)
+		newTask(sendtg, false, msg)
+	end
+	generatenick()
+end
+
+function ipban()
+	if cfg.telegram.ipbanuved == 1 then
+		msg = ([[
+		[FUCK U BITCHEZZ]
+		
+		Аккаунт заблокировали по IP.	
+		Nick: %s
+        IP: %s
+        User: %s
+			
+		Аккаунт прожил: %s ч. %s мин. %s с.
+		]]):format(getNick(), my_proxy_ip, zfg.telegram.user)
+		newTask(sendtg, false, msg)
+	end
+    generatenick()
+end
+
 -- Команды
 function onRunCommand(cmd)
 	if cmd:find'!test' then
@@ -629,6 +678,9 @@ function onRunCommand(cmd)
 	end
     if cmd:find'!quest' then
         nagruz()
+    end
+    if cmd:find'!fspawn' then
+        fspawn()
     end
 end
 
