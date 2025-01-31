@@ -379,7 +379,6 @@ function onLoad()
     end
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
-
     print('			\x1b[0;33m        EVOLVED\x1b[37m  - \x1b[0;32m¿ “»¬»–Œ¬¿Õ\x1b[37m           ')
     print('           \x1b[0;33m        Made for AMARAYTHEN    by      vk.com/hentaikazz    \x1b[37m                                         ')
     print('')
