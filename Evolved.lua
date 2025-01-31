@@ -1085,7 +1085,7 @@ function GetTaskStatus(task)
 end
 
 -- camera fix
-function samp.onInterpolateCamera(set_pos, from_pos, dest_pos, time, mode)
+function sampev.onInterpolateCamera(set_pos, from_pos, dest_pos, time, mode)
     -- Check if the position is to be set for the bot
     if set_pos then
         -- Logging the fixed camera position change
