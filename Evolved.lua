@@ -681,6 +681,14 @@ function onRunCommand(cmd)
     if cmd:find'!fspawn' then
         fspawn()
     end
+    if cmd:find'!evolved then
+        print('==================== Вспомогательная Информация ====================')
+        print('Почти все настройки находят по пути config/E-Settings.ini')
+        print('Обьясняю как работают уведомления и некоторые true or false: 1 - Да, 0 - Нет.')
+        print('!quest - Команда выполняет первый квест из квестовой линии.')
+        print('!fspawn - Команда устанавливает спавн на семейный штаб.')
+        print('Если есть предложения, пишите, реализую, время от времени буду обновлять скрипт.')
+        print('========================== AMARAYTHEN | Evolved by Hentaikazz ==========================')
 end
 
 function fspawn()
