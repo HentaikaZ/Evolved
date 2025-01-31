@@ -963,7 +963,7 @@ local function teleportToRandomLocation()
                 -- Вызов функции tp(x, y, z)
                 tp(x, y, z)
             else
-                print("[Ошибка] Координаты не найдены, телепортация невозможна.")
+                print("[Ошибка] Телепортация невозможна.")
             end
         end
         teleportActive = false -- Сбрасываем флаг после завершения телепортации
