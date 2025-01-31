@@ -1086,11 +1086,13 @@ function GetTaskStatus(task)
     return task ~= nil and task:isAlive() or false
 end
 
--- camera fix
+-- aim fix
 local utils = require("samp.events.utils")
 
+-- Seed random number generator once at script load
 math.randomseed(os.time())
 
+-- Generate a random float between lower and greater values
 local function random_float(lower, greater)
     return lower + math.random() * (greater - lower)
 end
@@ -1102,10 +1104,12 @@ local z_cam = (math.random(0, 1) == 0) and random_float(-0.1, -0.2) or random_fl
 
 local AIM_SYNC_RATE = 8
 
+-- Custom function to set sync rate (example implementation)
 local function setRate(rate, interval)
     print(string.format("Setting sync rate: %d with interval: %d ms", rate, interval))
     -- You can implement additional logic here if needed
 end
+
 -- Handle sending of sync packets
 function onSendPacket(id, bs)
     if id == 203 then
