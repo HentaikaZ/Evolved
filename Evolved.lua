@@ -973,6 +973,7 @@ end
 function sampev.onSendSpawn()
     newTask(function()
         wait(6666)
+        local x, y = getPosition()
         if cfg.main.runspawn == 1 and x >= 1142 and x <= 1161 and y >= -1767 and y <= -1772 then
             teleportToRandomLocation()
         else
