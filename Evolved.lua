@@ -572,7 +572,9 @@ function onPrintLog(text)
 		end
 	end
 	if text:match('^%[LUA%] teleport to spawn pos detected$') then
-		teleportToRandomLocation()
+        newTask(function()
+		    teleportToRandomLocation()
+        end)
 	end
 end
 
