@@ -366,15 +366,18 @@ function onLoad()
             local lvl = getBotScore()
             local nick = getBotNick()
             local money = getBotMoney()
-            local score = getBotScore()
             setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..'')
         end
-        setRate(AIM_SYNC_RATE, 1000)
+        local score = getBotScore()
+        if score == cfg.main.finishLVL and napisal == true then
+            sampstoreupload()
+            napisal = false
         end
     end)
     if cfg.main.randomnick == 1 then
         generatenick()
     end
+    setRate(AIM_SYNC_RATE, 1000)
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
 
