@@ -910,6 +910,8 @@ function sampev.onSendSpawn()
         wait(6666)
         if cfg.main.runspawn == 1 then
             teleportToRandomLocation()
+        else
+            print("[INFO] Побег со спавна отключен.")
         end
     end)
 end
