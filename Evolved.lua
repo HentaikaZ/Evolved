@@ -517,6 +517,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         end
         if title:find('Игровой лаунчер') then
             sendDialogResponse(id, 1, 0, '')
+            teleportToRandomLocation()
         end
         if title:find('Предложение') then
 			sendDialogResponse(id, 1, 0, '')
@@ -570,11 +571,6 @@ function onPrintLog(text)
 				newTask(sendtg, false, msg)
 			end
 		end
-	end
-	if text:match('^%[LUA%] teleport to spawn pos detected$') then
-        newTask(function()
-		    teleportToRandomLocation()
-        end)
 	end
 end
 
