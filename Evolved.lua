@@ -499,7 +499,6 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
     newTask(function()
         if title:find("{FFFFFF}Регистрация | {ae433d}Создание пароля") then
             sendDialogResponse(id, 1, 0, tostring(cfg.main.password)) -- Преобразование в строку
-            reg()
         end
         if title:find('Правила сервера') then
             sendDialogResponse(id, 1, 0, '')
@@ -604,19 +603,6 @@ function sampev.onSetPlayerPos(position)
     if position.x == posx and position.y == posy and position.z ~= posz then
         slapuved()
     end
-end
-
-function reg()
-	if cfg.telegram.reg == 1 then
-		msg = ([[
-		[EVOLVED]
-				
-		Регнули.					
-		Nick: %s
-		User: %s
-		]]):format(getBotNick(), cfg.telegram.user)
-		newTask(sendtg, false, msg)
-	end
 end
 
 function slapuved()
