@@ -377,6 +377,7 @@ function onLoad()
     if cfg.main.randomnick == 1 then
         generatenick()
     end
+    print("[HitFix] LOADED.")
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
 
@@ -684,6 +685,10 @@ function onRunCommand(cmd)
     end
 end
 
+function fspawn()
+    sendInput('/setspawn')
+end
+
 -- ¬˚ÔÓÎÌÂÌËÂ Í‚ÂÒÚÓ‚ 
 
 
@@ -968,3 +973,122 @@ function sampev.onSendSpawn()
     end)
 end
 
+
+
+
+
+
+-- ‘» —€ » œ–Œ◊≈≈
+--[[
+	TABLE 	anim_fight - table of animations, damage and offsets to fall back
+	FLOAT 	min_dist - min distance to start check animations around bot from other players
+	FLOAT 	fov - field of view
+	INT 	iters - count of iterations of sending new sync
+	INT 	waiting - time in ms between iterations
+	BOOL 	copy_player_z - copy Z coord of player who attacks
+--]]
+
+local e_set = {
+	anim_fight = {
+		{id = 1136, dmg = 1.3200000524521, offset = -0.11}, -- FIGHTA_1
+		{id = 1137, dmg = 2.3100001811981, offset = -0.09}, -- FIGHTA_2
+		{id = 1138, dmg = 3.960000038147, offset = -0.1}, 	-- FIGHTA_3
+		{id = 1141, dmg = 1.3200000524521, offset = -0.11}, -- FIGHTA_M
+		{id = 504, dmg = 1.9800000190735, offset = -0.07}, 	-- FIGHTKICK
+		{id = 505, dmg = 5.2800002098083, offset = -0.05},	-- FIGHTKICK_B
+		{id = 472, dmg = 2.6400001049042, offset = -0.03}, 	-- FIGHTB_1
+		{id = 473, dmg = 1.6500000953674, offset = -0.07}, 	-- FIGHTB_2
+		{id = 474, dmg = 4.289999961853, offset = -0.15}, 	-- FIGHTB_3
+		{id = 478, dmg = 1.3200000524521, offset = -0.11}, 	-- FIGHTB_M
+		{id = 482, dmg = 1.3200000524521, offset = -0.02}, 	-- FIGHTC_1
+		{id = 483, dmg = 2.3100001811981, offset = -0.09}, 	-- FIGHTC_2
+		{id = 484, dmg = 3.960000038147, offset = -0.18},	-- FIGHTC_3
+	},
+	min_dist = 1.4,
+	fov = 40.0,
+	iters = 8,
+	waiting = 48,
+	copy_player_z = true
+}
+
+local e_temp = {
+	s_task = nil,
+	speed = {x = 0.0, y = 0.0, z = 0.0},
+	send_speed = false,
+	last_anim = 1189,
+	kill_kd = os.time()
+}
+
+function sampev.onPlayerSync(playerId, data)
+	local pedX, pedY, pedZ = getBotPosition()
+	if getDistanceBeetweenTwoPoints3D(pedX, pedY, pedZ, data.position.x, data.position.y, data.position.z) < e_set.min_dist and not GetTaskStatus(e_temp.s_task) and e_temp.last_anim == 1189 and e_temp.kill_kd < os.time() then
+		for k, v in ipairs(e_set.anim_fight) do
+			if v.id == data.animationId then
+				local p_angle = (math.deg(math.atan2(-data.quaternion[4], data.quaternion[1])) * 2.0) % 360.0
+				local b_angle = math.ceil(getBotRotation())
+				local c_angle = b_angle < 180.0 and b_angle + 180.0 or b_angle > 180.0 and b_angle - 180.0 or (p_angle < 180.0 and 0.0 or 360.0)
+				local now_calc = c_angle - p_angle
+				if (now_calc >= 0 and now_calc <= e_set.fov) or (now_calc < 0 and now_calc >= -e_set.fov) then
+					if getBotHealth() - v.dmg > 0 then
+						--print(string.format("in my fov. detected %f | player angle %f", now_calc, p_angle))
+						setBotHealth(getBotHealth() - v.dmg)
+						sendTakeDamage(playerId, v.dmg, 0, 3)
+						e_temp.s_task = newTask(function()
+							local start_speed = math.abs(v.offset)
+							local step_speed = start_speed / e_set.iters
+							for i = 1, e_set.iters do
+								start_speed = start_speed - step_speed
+								local cbX, cbY, cbZ = getBotPosition()
+								cbZ = e_set.copy_player_z and data.position.z or cbZ
+								local sbX, sbY = cbX + (v.offset * math.sin(math.rad(-b_angle))), cbY + (v.offset * math.cos(math.rad(-b_angle)))
+								e_temp.speed.x, e_temp.speed.y, e_temp.speed.z = getVelocity(cbX, cbY, cbZ, sbX, sbY, cbZ, i == e_set.iters and 0.0 or start_speed)
+								e_temp.send_speed = true
+								updateSync()
+								setBotPosition(sbX, sbY, cbZ)
+								wait(e_set.waiting)
+							end
+						end)
+					else
+						e_temp.kill_kd = os.time() + 3
+						runCommand('!kill')
+					end
+				end
+				break
+			end
+		end
+	end
+end
+
+function sampev.onSendPlayerSync(data)
+	e_temp.last_anim = data.animationId
+	if e_temp.send_speed then
+		data.moveSpeed.x = e_temp.speed.x
+		data.moveSpeed.y = e_temp.speed.y
+		data.moveSpeed.z = e_temp.speed.z
+		e_temp.send_speed = false
+	end
+end
+
+function sendTakeDamage(playerId, damage, weapon, bodypart)
+	local bs = bitStream.new()
+	bs:writeBool(true)
+	bs:writeUInt16(playerId)
+	bs:writeFloat(damage)
+	bs:writeUInt32(weapon)
+	bs:writeUInt32(bodypart)
+	bs:sendRPC(115)
+end
+
+function getDistanceBeetweenTwoPoints3D(x, y, z, x1, y1, z1)
+	return math.sqrt(math.pow(x1 - x, 2.0) + math.pow(y1 - y, 2.0) + math.pow(z1 - z, 2.0))
+end
+
+function getVelocity(x, y, z, x1, y1, z1, speed)
+    local x2, y2, z2 = x1 - x, y1 - y, z1 - z
+    local dist = getDistanceBeetweenTwoPoints3D(x, y, z, x1, y1, z1)
+    return x2 / dist * speed, y2 / dist * speed, z2 / dist * speed
+end
+
+function GetTaskStatus(task)
+    return task ~= nil and task:isAlive() or false
+end
