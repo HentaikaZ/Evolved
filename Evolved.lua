@@ -885,25 +885,30 @@ local function teleportToRandomLocation()
 
     teleportActive = true -- Устанавливаем флаг
 
-    local coordsFile = "config/coords.txt"
-    local coords = readCoordsFromFile(coordsFile)
-    local randomCoord = getRandomCoord(coords)
+    newTask(function() -- Создаём корутину для телепортации
+        local coordsFile = "config/coords.txt"
+        local coords = readCoordsFromFile(coordsFile)
+        local randomCoord = getRandomCoord(coords)
 
-    if randomCoord then
-        local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
-        print(string.format("[INFO] Телепортируемся в: tp(%.13f, %.13f, %.13f)", x, y, z))
+        if randomCoord then
+            local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
+            print(string.format("[INFO] Телепортируемся в: tp(%.13f, %.13f, %.13f)", x, y, z))
 
-        -- Вызов функции tp(x, y, z)
-        tp(x, y, z)
-    else
-        print("[Ошибка] Координаты не найдены, телепортация невозможна.")
-    end
+            -- Вызов функции tp(x, y, z)
+            tp(x, y, z)
+        else
+            print("[Ошибка] Координаты не найдены, телепортация невозможна.")
+        end
 
-    wait(2000) -- Задержка перед сбросом флага (можно настроить)
-    teleportActive = false -- Сбрасываем флаг
+        teleportActive = false -- Сбрасываем флаг после завершения телепортации
+    end)
 end
 
 -- Вызываем телепортацию при спавне, но проверяем активность
 function sampev.onSendSpawn()
-    teleportToRandomLocation()
+    newTask(function()
+        wait(6666)
+        teleportToRandomLocation()
+    end)
 end
+
