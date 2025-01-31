@@ -690,6 +690,7 @@ function onRunCommand(cmd)
         print('!fspawn - Команда устанавливает спавн на семейный штаб.')
         print('Если есть предложения, пишите, реализую, время от времени буду обновлять скрипт.')
         print('========================== AMARAYTHEN | Evolved by Hentaikazz ==========================')
+    end
 end
 
 function fspawn()
