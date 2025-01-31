@@ -2,6 +2,7 @@ os.execute('color 0')
 
 -- Libraries
 require('addon')
+local utils = require("samp.events.utils")
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
@@ -1087,9 +1088,7 @@ function GetTaskStatus(task)
 end
 
 -- aim fix
-local utils = require("samp.events.utils")
 
--- Seed random number generator once at script load
 math.randomseed(os.time())
 
 -- Generate a random float between lower and greater values
