@@ -954,18 +954,17 @@ local function teleportToRandomLocation()
         local coordsFile = "config/coords.txt"
         local coords = readCoordsFromFile(coordsFile)
         local randomCoord = getRandomCoord(coords)
-        local x, y = getPosition()
-		if x >= 1142 and x <= 1161 and y >= -1767 and y <= -1772 and randomCoord then
-            if x >= -1961 and x <= -1979 and y >= 113 and <= 135.38 then
-                local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
-                print(string.format("[INFO] Òåëåïîğòèğóåìñÿ â: tp(%.13f, %.13f, %.13f)", x, y, z))
 
-                -- Âûçîâ ôóíêöèè tp(x, y, z)
-                tp(x, y, z)
-            else
-                print("[Îøèáêà] Òåëåïîğòàöèÿ íåâîçìîæíà.")
-            end
+        if randomCoord then
+            local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
+            print(string.format("[INFO] Òåëåïîğòèğóåìñÿ â: tp(%.13f, %.13f, %.13f)", x, y, z))
+
+            -- Âûçîâ ôóíêöèè tp(x, y, z)
+            tp(x, y, z)
+        else
+            print("[Îøèáêà] Êîîğäèíàòû íå íàéäåíû, òåëåïîğòàöèÿ íåâîçìîæíà.")
         end
+
         teleportActive = false -- Ñáğàñûâàåì ôëàã ïîñëå çàâåğøåíèÿ òåëåïîğòàöèè
     end)
 end
@@ -974,7 +973,8 @@ end
 function sampev.onSendSpawn()
     newTask(function()
         wait(6666)
-        if cfg.main.runspawn == 1 then
+        if cfg.main.runspawn == 1
+        elseif x >= 1142 and x <= 1161 and y >= -1767 and y <= -1772 then
             teleportToRandomLocation()
         else
             printm("[INFO] Ïîáåã ñî ñïàâíà îòêëş÷åí.")
