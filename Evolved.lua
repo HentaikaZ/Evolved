@@ -975,12 +975,12 @@ function sampev.onSendSpawn()
         wait(6666)
         local x, y = getBotPosition()
         if cfg.main.runspawn == 1 then
-            if x >= 1142 and x <= 1161 and y >= -1767 and y <= -1772 then
+            if interior == 0 then
                 teleportToRandomLocation()
             else
                 printm("[INFO] Побег со спавна отключен.")
             end
-        end 
+        end
     end)
 end
 
