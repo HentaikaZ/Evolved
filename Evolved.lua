@@ -551,6 +551,31 @@ function sampev.onServerMessage(color, text)
 	end
 end
 
+-- RPC TEXT
+function onPrintLog(text)
+	if text:match('^%[NET%] Bad nickname$') then
+		generatenick()
+	end
+	if text:match('^%[NET%] You are banned$') then
+		count = count + 1
+		if count == 20 then
+			if cfg.telegram.ipbanuveda == 1 then
+				msg = ([[
+				[EVOLVED]
+						
+				Айпи заблокирован.					
+				Nick: %s
+				User: %s
+				]]):format(getNick(), cfg.telegram.user)
+				newTask(sendtg, false, msg)
+			end
+		end
+	end
+	if text:match('^%[LUA%] teleport to spawn pos detected$') then
+		teleportToRandomLocation()
+	end
+end
+
 -----Текстдравы
 function sampev.onShowTextDraw(id, data)
 	if data.selectable and data.text == 'selecticon2' and data.position.x == 396.0 and data.position.y == 315.0 then --Dimiano - пасиба
@@ -867,11 +892,4 @@ local function teleportToRandomLocation()
     else
         print("[Ошибка] Координаты не найдены, телепортация невозможна.")
     end
-end
-
-function sampev.onSendSpawn()
-    newTask(function()
-        wait(5000)
-        teleportToRandomLocation()
-    end)
 end
