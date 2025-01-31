@@ -556,7 +556,7 @@ function onPrintLog(text)
 	if text:match('^%[NET%] Bad nickname$') then
 		generatenick()
 	end
-	if text:match('^%[NET%] You are banned$') then
+	if text:match('[NET] You are banned. Reconnecting') then
 		count = count + 1
 		if count == 20 then
 			if cfg.telegram.ipbanuved == 1 then
