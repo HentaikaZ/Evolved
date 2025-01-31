@@ -388,7 +388,7 @@ end
 
 -- при подключении
 function onConnect()
-	serverip = getIP()
+	serverip = getServerAddress()
 	if serverip == '185.169.134.67:7777' then
 		servername = ('Evolve 01')
 	end
