@@ -2,7 +2,6 @@ os.execute('color 0')
 
 -- Libraries
 require('addon')
-local utils = require("samp.events.utils")
 local encoding = require('encoding')
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
@@ -378,7 +377,6 @@ function onLoad()
     if cfg.main.randomnick == 1 then
         generatenick()
     end
-    setRate(AIM_SYNC_RATE, 1000)
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
 
@@ -1087,62 +1085,16 @@ function GetTaskStatus(task)
     return task ~= nil and task:isAlive() or false
 end
 
--- aim fix
+-- camera fix
+function samp.onInterpolateCamera(set_pos, from_pos, dest_pos, time, mode)
+    -- Check if the position is to be set for the bot
+    if set_pos then
+        -- Logging the fixed camera position change
+        print(string.format("Fixed position for interpolate camera. From: (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", 
+            from_pos.x, from_pos.y, from_pos.z, dest_pos.x, dest_pos.y, dest_pos.z))
 
-math.randomseed(os.time())
-
--- Generate a random float between lower and greater values
-local function random_float(lower, greater)
-    return lower + math.random() * (greater - lower)
-end
-
-local bot_move = true
-local last_rate_time = os.time() + math.random(10, 60)
-local last_pos = {x = 0.0, y = 0.0, z = 0.0}
-local z_cam = (math.random(0, 1) == 0) and random_float(-0.1, -0.2) or random_float(0.1, 0.2)
-
-local AIM_SYNC_RATE = 8
-
--- Custom function to set sync rate (example implementation)
-local function setRate(rate, interval)
-    print(string.format("Setting sync rate: %d with interval: %d ms", rate, interval))
-    -- You can implement additional logic here if needed
-end
-
--- Handle sending of sync packets
-function onSendPacket(id, bs)
-    if id == 203 then
-        -- If bot is not moving and bot is spawned, process aim sync data
-        if not bot_move and isBotSpawned() then
-            if last_rate_time < os.time() then
-                last_rate_time = os.time() + math.random(10, 60)
-                local aim_data = (utils.process_outcoming_sync_data(bs, 'AimSyncData'))[1]
-                aim_data.camMode = (getBotVehicle() ~= 0) and 18 or 4
-                aim_data.camExtZoom = 63
-                aim_data.camFront.z = z_cam
-            else
-                return false
-            end
-        else
-            return false
-        end
-    end
-
-    -- Handle player and vehicle sync
-    if id == 207 or id == 200 then
-        local data = (id == 207) and (utils.process_outcoming_sync_data(bs, 'PlayerSyncData'))[1] or (utils.process_outcoming_sync_data(bs, 'VehicleSyncData'))[1]
-        if data.position.x ~= last_pos.x or data.position.y ~= last_pos.y or data.position.z ~= last_pos.z then
-            bot_move = true
-        end
-        last_pos = {x = data.position.x, y = data.position.y, z = data.position.z}
-    end
-end
-
--- Handle receiving of RPC packets
-function onReceiveRPC(id, bs)
-    if id == 12 then -- handle aim sync on setplayerpos
-        local pos = {x = bs:readFloat(), y = bs:readFloat(), z = bs:readFloat()}
-        last_pos = pos
-        last_rate_time = os.time() - 1
+        -- Ensure the bot's position is set correctly
+        -- Here, you can apply additional checks or adjustments if needed.
+        setBotPosition(dest_pos.x, dest_pos.y, dest_pos.z)
     end
 end
