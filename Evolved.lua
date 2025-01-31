@@ -559,7 +559,7 @@ function onPrintLog(text)
 	if text:match('^%[NET%] You are banned$') then
 		count = count + 1
 		if count == 20 then
-			if cfg.telegram.ipbanuveda == 1 then
+			if cfg.telegram.ipbanuved == 1 then
 				msg = ([[
 				[EVOLVED]
 						
