@@ -878,7 +878,7 @@ local function getRandomCoord(coords)
     return coords[index]
 end
 
-local function teleportToRandomLocation()
+function teleportToRandomLocation()
     local coordsFile = "config/coords.txt"
     local coords = readCoordsFromFile(coordsFile)
     local randomCoord = getRandomCoord(coords)
