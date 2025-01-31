@@ -386,6 +386,17 @@ function onLoad()
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
 end
 
+-- при подключении
+function onConnect()
+	serverip = getIP()
+	if serverip == '185.169.134.67:7777' then
+		servername = ('Evolve 01')
+	end
+    if serverip == '185.169.134.68:7777' then
+        servername = ('Evolve 02')
+    end
+end
+
 -- telegram
 
 function char_to_hex(str)
@@ -418,21 +429,6 @@ function sendtg(text)
 
   local response = requests.get({url, params=params})
 
-end
-
--- Уведомление при слапе
-function slapuved()
-    if cfg.telegram and cfg.telegram.slapuved == 1 then
-        local msg = ([[  
-        [EVOLVED]  
-
-        Слапнули.  
-        Nick: %s  
-        User: %s  
-        ]]):format(getBotNick(), cfg.telegram.user or "неизвестный")
-
-        sendtg(msg)
-    end
 end
 
 -----Ключ рандома + сам рандом
@@ -480,7 +476,7 @@ local function checkAndWriteLevel()
         -- Проверка уровня
         if score >= requiredLevel then
             print("Уровень достаточен, записываю в файл...")  -- Логируем запись в файл
-            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score))
+            writeToFile("config\\accounts.txt", ("%s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score, servername))
             generatenick()
         else
             print("Уровень недостаточен для записи.")
@@ -568,8 +564,9 @@ function onprintLog(text)
 						
 				Айпи заблокирован.					
 				Nick: %s
+                Server: %s
 				User: %s
-				]]):format(getNick(), cfg.telegram.user)
+				]]):format(getNick(), servername, cfg.telegram.user)
 				newTask(sendtg, false, msg)
 			end
 		end
@@ -612,8 +609,9 @@ function slapuved()
 				
 		слапнули.					
 		Nick: %s
+        Server: %s
 		User: %s
-		]]):format(getBotNick(), cfg.telegram.user)
+		]]):format(getBotNick(), servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
 end
@@ -625,9 +623,10 @@ function vkacheno()
 
         Аккаунт вкачен. 
         Nick: %s
-        LVL: %s  
+        LVL: %s
+        Server: %s
         User: %s  
-        ]]):format(getBotNick(), getBotScore(), cfg.telegram.user)
+        ]]):format(getBotNick(), getBotScore(), servername, cfg.telegram.user)
 
         sendtg(msg)
     end
@@ -640,8 +639,9 @@ function noipban()
 		
 		Аккаунт заблокировали.	
 		Nick: %s
+        Server: %s
 		User: %s
-		]]):format(getNick(), cfg.telegram.user)
+		]]):format(getNick(), servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
 	generatenick()
@@ -655,10 +655,11 @@ function ipban()
 		Аккаунт заблокировали по IP.	
 		Nick: %s
         IP: %s
+        Server: %s
         User: %s
 			
 		Аккаунт прожил: %s ч. %s мин. %s с.
-		]]):format(getNick(), my_proxy_ip, zfg.telegram.user)
+		]]):format(getNick(), my_proxy_ip, servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
     generatenick()
@@ -673,7 +674,8 @@ function onRunCommand(cmd)
 		
 		Тестирование уведомлений Telegram.	
 		User: %s
-		]]):format(cfg.telegram.user)
+        Server: %s
+		]]):format(cfg.telegram.user, servername)
 		newTask(sendtg, false, msg)
 	end
     if cmd:find'!quest' then
