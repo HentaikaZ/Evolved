@@ -630,9 +630,6 @@ function onRunCommand(cmd)
     if cmd:find'!quest' then
         nagruz()
     end
-    if cmd:find'!run' then
-        teleportToRandomLocation()
-    end
 end
 
 -- Выполнение квестов 
@@ -848,6 +845,8 @@ end
 -- побег со спавна
 math.randomseed(os.time()) -- Инициализация генератора случайных чисел
 
+local teleportActive = false -- Флаг активности телепортации
+
 local function readCoordsFromFile(filePath)
     local coords = {}
     local file = io.open(filePath, "r")
@@ -878,7 +877,14 @@ local function getRandomCoord(coords)
     return coords[index]
 end
 
-function teleportToRandomLocation()
+local function teleportToRandomLocation()
+    if teleportActive then
+        print("[Ошибка] Телепортация уже выполняется, невозможно запустить новую.")
+        return
+    end
+
+    teleportActive = true -- Устанавливаем флаг
+
     local coordsFile = "config/coords.txt"
     local coords = readCoordsFromFile(coordsFile)
     local randomCoord = getRandomCoord(coords)
@@ -892,4 +898,12 @@ function teleportToRandomLocation()
     else
         print("[Ошибка] Координаты не найдены, телепортация невозможна.")
     end
+
+    wait(2000) -- Задержка перед сбросом флага (можно настроить)
+    teleportActive = false -- Сбрасываем флаг
+end
+
+-- Вызываем телепортацию при спавне, но проверяем активность
+function sampev.onSendSpawn()
+    teleportToRandomLocation()
 end
