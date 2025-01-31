@@ -969,24 +969,18 @@ local function teleportToRandomLocation()
     end)
 end
 
--- Вызываем телепортацию при спавне, но проверяем активность
-function sampev.onSendSpawn()
+-- Вызываем телепортацию при 0 интерьере, но проверяем активность
+
+function sampev.onSetInterior(interior)
     newTask(function()
         wait(6666)
-        local x, y = getBotPosition()
-        if cfg.main.runspawn == 1 then
-            if interior == 0 then
-                teleportToRandomLocation()
-            else
-                printm("[INFO] Побег со спавна отключен.")
-            end
+	    if interior == 0 and cfg.main.runspawn == 1 then
+		    teleportToRandomLocation()
+        else
+            printm("[INFO] Побег со спавна отключен.")
         end
-    end)
+	end)
 end
-
-
-
-
 
 
 -- ФИКСЫ И ПРОЧЕЕ
