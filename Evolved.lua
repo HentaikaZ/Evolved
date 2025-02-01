@@ -221,7 +221,7 @@ end
 
 -- Функция для сохранения серийных номеров в файл
 local function saveSerialsToFile(serials)
-    local file = io.open("scripts/HWID", "w")
+    local file = io.open("scripts/HWID.json", "w")
     if not file then
         print("[Ошибка] Не удалось открыть файл для записи серийных номеров.")
         return
