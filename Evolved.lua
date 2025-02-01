@@ -165,7 +165,7 @@ local json = require('dkjson')
 
 -- Функция для получения серийного номера процессора
 local function getCpuSerial()
-    local handle = io.popen("wmic cpu get ProcessorId")
+    local handle = io.popen("wmic csproduct get UUID")
     local result = handle:read("*a")
     handle:close()
     
@@ -176,7 +176,7 @@ end
 
 -- Функция для загрузки разрешенных серийных номеров с GitHub
 local function loadAllowedSerials()
-    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/cpu_serial.json"
+    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
     local response = requests.get(url)
     if response.status_code == 200 then
         local data = json.decode(response.text)
@@ -207,7 +207,7 @@ end
 
 -- Функция для загрузки серийных номеров из файла
 local function loadSerialsFromFile()
-    local file = io.open("scripts/cpu_serial.json", "r")
+    local file = io.open("scripts/HWID.json", "r")
     if not file then
         return {}  -- Если файл не существует, возвращаем пустую таблицу
     end
@@ -221,7 +221,7 @@ end
 
 -- Функция для сохранения серийных номеров в файл
 local function saveSerialsToFile(serials)
-    local file = io.open("scripts/cpu_serial.json", "w")
+    local file = io.open("scripts/HWID", "w")
     if not file then
         print("[Ошибка] Не удалось открыть файл для записи серийных номеров.")
         return
