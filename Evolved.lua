@@ -634,7 +634,7 @@ function vkacheno()
 end
 
 function noipban()
-	if cfg.telegram.noipbanuveda == 1 then
+	if cfg.telegram.noipban == 1 then
 		msg = ([[
 		[FUCK U BITCHEZZ]
 		
@@ -973,19 +973,18 @@ local function teleportToRandomLocation()
     end)
 end
 
--- Вызываем телепортацию при 0 интерьере, но проверяем активность
+-- Вызываем телепортацию при cпавне, но проверяем активность
 
-function sampev.onSetInterior(interior)
+function sampev.onSendSpawn()
     newTask(function()
         wait(6666)
-	    if interior == 0 and cfg.main.runspawn == 1 then
-		    teleportToRandomLocation()
+        if cfg.main.runspawn == 1 then
+            teleportToRandomLocation()
         else
             printm("[INFO] Побег со спавна отключен.")
         end
-	end)
+    end)
 end
-
 
 -- ФИКСЫ И ПРОЧЕЕ
 
