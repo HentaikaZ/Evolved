@@ -567,7 +567,7 @@ function onprintLog(text)
 				Nick: %s
                 Server: %s
 				User: %s
-				]]):format(getNick(), servername, cfg.telegram.user)
+				]]):format(getBotNick(), servername, cfg.telegram.user)
 				newTask(sendtg, false, msg)
 			end
 		end
@@ -642,7 +642,7 @@ function noipban()
 		Nick: %s
         Server: %s
 		User: %s
-		]]):format(getNick(), servername, cfg.telegram.user)
+		]]):format(getBotNick(), servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
 	generatenick()
@@ -660,7 +660,7 @@ function ipban()
         User: %s
 			
 		јккаунт прожил: %s ч. %s мин. %s с.
-		]]):format(getNick(), my_proxy_ip, servername, cfg.telegram.user)
+		]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
     generatenick()
