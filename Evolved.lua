@@ -977,7 +977,7 @@ end
 
 function sampev.onSendSpawn()
     newTask(function()
-        wait(6666)
+        wait(180000)
         if cfg.main.runspawn == 1 then
             teleportToRandomLocation()
         else
