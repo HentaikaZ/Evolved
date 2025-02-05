@@ -504,7 +504,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             sendDialogResponse(id, 1, 0, 'nomail@mail.ru')
         end
         if title:find('Приглашение') then
-            sendDialogResponse(id, 1, 0, 'Kanadez_Qween')
+            sendDialogResponse(id, 1, 0, '#warrior')
         end
         if title:find('Пол') then
             sendDialogResponse(id, 1, 0, '')
