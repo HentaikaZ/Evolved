@@ -559,19 +559,9 @@ function onprintLog(text)
 	if text:match('[NET] You are banned. Reconnecting') then
 		count = count + 1
 		if count == 20 then
-			if cfg.telegram.ipbanuved == 1 then
-				msg = ([[
-				[EVOLVED]
-						
-				Айпи заблокирован.					
-				Nick: %s
-                Server: %s
-				User: %s
-				]]):format(getBotNick(), servername, cfg.telegram.user)
-				newTask(sendtg, false, msg)
-			end
-		end
-	end
+			ipban()
+        end
+    end
 end
 
 -----Текстдравы
