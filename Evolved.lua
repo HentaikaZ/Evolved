@@ -664,18 +664,16 @@ end
 
 function test()
     msg = ([[
-		[FUCK U BITCHEZZ]
+	[FUCK U BITCHEZZ]
 		
-		реярнбне сбеднлкемхе н пюанре.	
-		Nick: %s
-        IP: %s
-        Server: %s
-        User: %s
+	реярнбне сбеднлкемхе н пюанре.	
+	Nick: %s
+    IP: %s
+    Server: %s
+    User: %s
 			
-		юЙЙЮСМР ОПНФХК: %s В. %s ЛХМ. %s Я.
-		]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
-		newTask(sendtg, false, msg)
-    end
+	]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+	newTask(sendtg, false, msg)
 end
 
 -- йНЛЮМДШ
