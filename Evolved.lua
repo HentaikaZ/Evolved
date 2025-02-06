@@ -632,7 +632,7 @@ end
 function noipban()
 	if cfg.telegram.noipban == 1 then
 		msg = ([[
-		[FUCK U BITCHEZZ]
+		[EVOLVED]
 		
 		Аккаунт заблокировали.	
 		Nick: %s
@@ -647,15 +647,14 @@ end
 function ipban()
 	if cfg.telegram.ipbanuved == 1 then
 		msg = ([[
-		[FUCK U BITCHEZZ]
+		[EVOLVED]
 		
 		Аккаунт заблокировали по IP.	
 		Nick: %s
         IP: %s
         Server: %s
         User: %s
-			
-		Аккаунт прожил: %s ч. %s мин. %s с.
+		
 		]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
 		newTask(sendtg, false, msg)
 	end
@@ -664,11 +663,10 @@ end
 
 function test()
     msg = ([[
-	[FUCK U BITCHEZZ]
+	[EVOLVED]
 		
-	ТЕСТОВОЕ УВЕДОМЛЕНИЕ О РАБОТЕ.	
-	Nick: %s
-    IP: %s
+	    ТЕСТОВОЕ УВЕДОМЛЕНИЕ О РАБОТЕ.	
+	    Nick: %s
     Server: %s
     User: %s
 			
