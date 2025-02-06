@@ -662,18 +662,26 @@ function ipban()
     generatenick()
 end
 
+function test()
+    msg = ([[
+		[FUCK U BITCHEZZ]
+		
+		ТЕСТОВОЕ УВЕДОМЛЕНИЕ О РАБОТЕ.	
+		Nick: %s
+        IP: %s
+        Server: %s
+        User: %s
+			
+		Аккаунт прожил: %s ч. %s мин. %s с.
+		]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+		newTask(sendtg, false, msg)
+    end
+end
+
 -- Команды
 function onRunCommand(cmd)
 	if cmd:find'!test' then
-		msg = ('[EVOLVED]\n\nТест уведомлений Telegram\nUser: '..cfg.telegram.user)
-		msg = ([[
-		[Evolved]
-		
-		Тестирование уведомлений Telegram.	
-		User: %s
-        Server: %s
-		]]):format(cfg.telegram.user, servername)
-		newTask(sendtg, false, msg)
+		test()
 	end
     if cmd:find'!quest' then
         nagruz()
