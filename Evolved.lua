@@ -667,7 +667,7 @@ function test()
 		
 	    реярнбне сбеднлкемхе н пюанре.
         	
-	    Nick: %s
+	   Nick: %s
     Server: %s
     User: %s
 			
