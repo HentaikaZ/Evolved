@@ -665,7 +665,8 @@ function test()
     msg = ([[
 	[EVOLVED]
 		
-	    реярнбне сбеднлкемхе н пюанре.	
+	    реярнбне сбеднлкемхе н пюанре.
+        	
 	    Nick: %s
     Server: %s
     User: %s
