@@ -671,7 +671,7 @@ function test()
     Server: %s
     User: %s
 			
-	]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+	]]):format(getBotNick(), servername, cfg.telegram.user)
 	newTask(sendtg, false, msg)
 end
 
