@@ -1,6 +1,6 @@
 os.execute('color 0')
 
--- Libraries
+-- Librariess
 require('addon')
 local encoding = require('encoding')
 encoding.default = 'CP1251'
