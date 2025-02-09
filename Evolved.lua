@@ -920,7 +920,7 @@ end
 
 -- побег со спавна
 function pobeg()
-	if cfg.settings.runspawn == 1 then
+	if cfg.main.runspawn == 1 then
 		newTask(function()
 			local x, y = getPosition()
 			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old losantos spawn
