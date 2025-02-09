@@ -698,6 +698,10 @@ function onRunCommand(cmd)
         print('\x1b[0;32mЕсли есть предложения, пишите, реализую, время от времени буду обновлять скрипт.\x1b[37m')
         print('\x1b[0;36m========================== AMARAYTHEN | Evolved by Hentaikazz ==========================\x1b[37m')
     end
+    if cmd:find('!play') or cmd:find('!stop') then
+		runRoute(cmd)
+		return false
+	end
 end
 
 function fspawn()
@@ -912,69 +916,226 @@ function gruzchik()
     tp(2167.7253417969, -2262.1433105469, 13.30480670929)
     printm("Отнёс мешок с зерном. Жду 15 секунд перед следующим тп для того что-бы не кикнуло.")
     wait(15000)
-    teleportToRandomLocation()
 end
 
 -- побег со спавна
-math.randomseed(os.time()) -- Инициализация генератора случайных чисел
-
-local teleportActive = false -- Флаг активности телепортации
-
-local function readCoordsFromFile(filePath)
-    local coords = {}
-    local file = io.open(filePath, "r")
-
-    if not file then
-        print("[Ошибка] Не удалось открыть файл: " .. filePath)
-        return coords
-    end
-
-    for line in file:lines() do
-        local x, y, z = line:match("([%-?%d%.]+),%s*([%-?%d%.]+),%s*([%-?%d%.]+)")
-        if x and y and z then
-            table.insert(coords, {tonumber(x), tonumber(y), tonumber(z)})
-        end
-    end
-
-    file:close()
-    return coords
+function pobeg()
+	if cfg.settings.runspawn == 1 then
+		newTask(function()
+			local x, y = getPosition()
+			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old losantos spawn
+				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m')
+				local put = random(1,15)
+				runRoute('!play ls'..put)
+			elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- San Fierro spawn
+				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДСФ спавне.\x1b[0;37m')
+				local put = random(1,15)
+				runRoute('!play sf'..put)
+			else
+				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m')
+			end
+		end)
+	end
 end
 
-local function getRandomCoord(coords)
-    if #coords == 0 then
-        print("[Ошибка] Список координат пуст.")
-        return nil
-    end
+local bitstream = {
+	onfoot = bitStream.new(),
+	incar = bitStream.new(),
+	aim = bitStream.new()
+}
 
-    local index = math.random(1, #coords)
-    return coords[index]
+function sampev.onSendVehicleSync(data)
+	if rep then
+		return false
+	end
 end
 
-local function teleportToRandomLocation()
-    if teleportActive then
-        print("[Ошибка] Телепортация уже выполняется, невозможно запустить новую.")
-        return
-    end
+function sampev.onSendPlayerSync(data)
+	if rep then
+		return false
+	end
+end
 
-    teleportActive = true -- Устанавливаем флаг
+function sampev.onVehicleStreamIn(vehid, data)
+	veh[vehid] = data.health
+end
 
-    newTask(function() -- Создаём корутину для телепортации
-        local coordsFile = "config/coords.txt"
-        local coords = readCoordsFromFile(coordsFile)
-        local randomCoord = getRandomCoord(coords)
+newTask(function()
+	while true do
+		check_update()
+		wait(50)
+	end
+end)
 
-        if randomCoord then
-            local x, y, z = randomCoord[1], randomCoord[2], randomCoord[3]
-            print(string.format("[INFO] Телепортируемся в: tp(%.13f, %.13f, %.13f)", x, y, z))
+function check_update()
+	if rep then
+		local ok = fillBitStream(getVehicle() ~= 0 and 2 or 1)
+		if ok then
+			if getVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
+			setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+			counter = counter + 1
+			if counter%20 == 0 then
+				local aok = fillBitStream(3)
+				if aok then
+					bitstream.aim:sendPacket()
+				else
+					err()
+				end
+			end
+		else
+			err()
+		end
 
-            -- Вызов функции tp(x, y, z)
-            tp(x, y, z)
-        else
-            print("[Ошибка] Координаты не найдены, телепортация невозможна.")
-        end
+		bitstream.onfoot:reset()
+		bitstream.incar:reset()
+		bitstream.aim:reset()
 
-        teleportActive = false -- Сбрасываем флаг после завершения телепортации
-    end)
+		if counter == #packet then
+			if not loop then
+				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут завершен.\x1b[0;37m')
+				rep = false
+				setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+				setQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
+				packet = {}
+			end
+			counter = 1
+		end
+	end
+end
+
+function err()
+	rep = false
+	packet = {}
+	counter = 1
+	print('an error has occured while writing data')
+end
+
+function fillBitStream(mode)
+	if mode == 2 then
+		local bs = bitstream.incar
+		bs:writeUInt8(packet[counter].packetId)
+		bs:writeUInt16(getVehicle())
+		bs:writeUInt16(packet[counter].lr)
+		bs:writeUInt16(packet[counter].ud)
+		bs:writeUInt16(packet[counter].keys)
+		bs:writeFloat(packet[counter].qw)
+		bs:writeFloat(packet[counter].qx)
+		bs:writeFloat(packet[counter].qy)
+		bs:writeFloat(packet[counter].qz)
+		bs:writeFloat(packet[counter].x)
+		bs:writeFloat(packet[counter].y)
+		bs:writeFloat(packet[counter].z)
+		bs:writeFloat(packet[counter].sx)
+		bs:writeFloat(packet[counter].sy)
+		bs:writeFloat(packet[counter].sz)
+		bs:writeFloat(veh[getVehicle()])
+		bs:writeUInt8(getHealth())
+		bs:writeUInt8(getArmour())
+		bs:writeUInt8(0)
+		bs:writeUInt8(0)
+		bs:writeUInt8(packet[counter].gear)
+		bs:writeUInt16(0)
+		bs:writeFloat(0)
+		bs:writeFloat(0)
+
+	elseif mode == 1 then
+		local bs = bitstream.onfoot
+		bs:writeUInt8(packet[counter].packetId)
+		bs:writeUInt16(packet[counter].lr)
+		bs:writeUInt16(packet[counter].ud)
+		bs:writeUInt16(packet[counter].keys)
+		bs:writeFloat(packet[counter].x)
+		bs:writeFloat(packet[counter].y)
+		bs:writeFloat(packet[counter].z)
+		bs:writeFloat(packet[counter].qw)
+		bs:writeFloat(packet[counter].qx)
+		bs:writeFloat(packet[counter].qy)
+		bs:writeFloat(packet[counter].qz)
+		bs:writeUInt8(getHealth())
+		bs:writeUInt8(getArmour())
+		bs:writeUInt8(0)
+		bs:writeUInt8(packet[counter].sa)
+		bs:writeFloat(packet[counter].sx)
+		bs:writeFloat(packet[counter].sy)
+		bs:writeFloat(packet[counter].sz)
+		bs:writeFloat(0)
+		bs:writeFloat(0)
+		bs:writeFloat(0)
+		bs:writeUInt16(0)
+		bs:writeUInt16(packet[counter].anim)
+		bs:writeUInt16(packet[counter].flags)
+
+	elseif mode == 3 then
+		local bs = bitstream.aim
+		bs:writeUInt8(203)
+		bs:writeUInt8(packet[counter].mode)
+		bs:writeFloat(packet[counter].cx)
+		bs:writeFloat(packet[counter].cy)
+		bs:writeFloat(packet[counter].cz)
+		bs:writeFloat(packet[counter].px)
+		bs:writeFloat(packet[counter].py)
+		bs:writeFloat(packet[counter].pz)
+		bs:writeFloat(packet[counter].az)
+		bs:writeUInt8(packet[counter].zoom)
+		bs:writeUInt8(packet[counter].wstate)
+		bs:writeUInt8(packet[counter].unk)
+
+	else return false end
+	return true
+end
+
+function runRoute(act)
+	if act:find('!play .*') then
+		packet = loadIni(getPath()..'routes\\'..act:match('!play (.*)')..'.rt')
+		if packet then
+			print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mЗапустили маршрут: '..act:match('!play (.*)')..'\x1b[0;37m')
+			counter = 1
+			rep = true
+			loop = false
+		else
+			print('route doesnt exist')
+		end
+	elseif act:find('!stop') then
+		if counter >= 1 then
+			rep = false
+			print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mОстановились на пакете номер: '..counter..'\x1b[0;37m')
+			counter = 0
+		else
+			print('not playing any route')
+		end
+	end
+end
+
+function loadIni(fileName)
+	local file = io.open(fileName, 'r')
+	if file then
+		local data = {}
+		local section
+		for line in file:lines() do
+			local tempSection = line:match('^%[([^%[%]]+)%]$')
+			if tempSection then
+				section = tonumber(tempSection) and tonumber(tempSection) or tempSection
+				data[section] = data[section] or {}
+			end
+			local param, value = line:match('^([%w|_]+)%s-=%s-(.+)$')
+			if param and value ~= nil then
+				if tonumber(value) then
+					value = tonumber(value)
+				elseif value == 'true' then
+					value = true
+				elseif value == 'false' then
+					value = false
+				end
+				if tonumber(param) then
+					param = tonumber(param)
+				end
+				data[section][param] = value
+			end
+		end
+		file:close()
+		return data
+	end
+	return false
 end
 
 -- Вызываем телепортацию при cпавне, но проверяем активность
@@ -983,7 +1144,7 @@ function sampev.onSendSpawn()
     newTask(function()
         wait(959362)
         if cfg.main.runspawn == 1 then
-            teleportToRandomLocation()
+            pobeg()
         else
             printm("[INFO] Побег со спавна отключен.")
         end
