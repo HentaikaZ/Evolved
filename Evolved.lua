@@ -924,14 +924,14 @@ function pobeg()
 		newTask(function()
             wait(44444)
 			local x, y = getBotPosition()
-			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old los Santos spawn
-				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄËÑ ñïàâíå.\x1b[0;37m')
-				local put = random(1,15)
-				runRoute('!play ls'..put)
-			elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- San Fierro spawn
+			if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
 				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄÑÔ ñïàâíå.\x1b[0;37m')
 				local put = random(1,15)
 				runRoute('!play sf'..put)
+			elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- Los Santos spawn
+				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄËÑ ñïàâíå.\x1b[0;37m')
+				local put = random(1,15)
+				runRoute('!play ls'..put)
 			else
 				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mCêğèïò íå ñìîã îïğåäåëèòü ñïàâí.\x1b[0;37m')
 			end
