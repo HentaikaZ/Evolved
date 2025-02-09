@@ -1143,7 +1143,7 @@ end
 
 function sampev.onSendSpawn()
     newTask(function()
-        wait(959362)
+        wait(11111)
         if cfg.main.runspawn == 1 then
             pobeg()
         else
