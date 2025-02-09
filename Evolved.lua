@@ -922,7 +922,7 @@ end
 function pobeg()
 	if cfg.main.runspawn == 1 then
 		newTask(function()
-			local x, y = getPosition()
+			local x, y = getBotPosition()
 			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old losantos spawn
 				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄËÑ ñïàâíå.\x1b[0;37m')
 				local put = random(1,15)
