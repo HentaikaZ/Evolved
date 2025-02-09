@@ -960,48 +960,53 @@ function sampev.onVehicleStreamIn(vehid, data)
 	veh[vehid] = data.health
 end
 
+function check_update()
+    if rep then
+        local ok = fillBitStream(getVehicle() ~= 0 and 2 or 1)
+        if ok then
+            if getVehicle() ~= 0 then 
+                bitstream.incar:sendPacket() 
+            else 
+                bitstream.onfoot:sendPacket() 
+            end
+            setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+            counter = counter + 1
+            if counter % 20 == 0 then
+                local aok = fillBitStream(3)
+                if aok then
+                    bitstream.aim:sendPacket()
+                else
+                    err()
+                end
+            end
+        else
+            err()
+        end
+
+        bitstream.onfoot:reset()
+        bitstream.incar:reset()
+        bitstream.aim:reset()
+
+        if counter == #packet then
+            if not loop then
+                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут завершен.\x1b[0;37m')
+                rep = false
+                setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+                setQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
+                packet = {}
+            end
+            counter = 1
+        end
+    end
+end
+
 newTask(function()
-	while true do
-		check_update()
-		wait(50)
-	end
+    while true do
+        check_update()
+        wait(50)
+    end
 end)
 
-function check_update()
-	if rep then
-		local ok = fillBitStream(getVehicle() ~= 0 and 2 or 1)
-		if ok then
-			if getVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
-			setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-			counter = counter + 1
-			if counter%20 == 0 then
-				local aok = fillBitStream(3)
-				if aok then
-					bitstream.aim:sendPacket()
-				else
-					err()
-				end
-			end
-		else
-			err()
-		end
-
-		bitstream.onfoot:reset()
-		bitstream.incar:reset()
-		bitstream.aim:reset()
-
-		if counter == #packet then
-			if not loop then
-				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут завершен.\x1b[0;37m')
-				rep = false
-				setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-				setQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-				packet = {}
-			end
-			counter = 1
-		end
-	end
-end
 
 function err()
 	rep = false
