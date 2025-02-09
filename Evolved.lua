@@ -698,7 +698,7 @@ function onRunCommand(cmd)
         print('\x1b[0;32mЕсли есть предложения, пишите, реализую, время от времени буду обновлять скрипт.\x1b[37m')
         print('\x1b[0;36m========================== AMARAYTHEN | Evolved by Hentaikazz ==========================\x1b[37m')
     end
-    if cmd:find('!play') or cmd:find('!stop') then
+    if cmd:find('!play') or cmd:find('!stop') or cmd:find('!loop') then
 		runRoute(cmd)
 		return false
 	end
@@ -922,8 +922,9 @@ end
 function pobeg()
 	if cfg.main.runspawn == 1 then
 		newTask(function()
+            wait(44444)
 			local x, y = getBotPosition()
-			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old losantos spawn
+			if x >= 1700 and x <= 1800 and y >= -1950 and y <= -1850 then -- old los Santos spawn
 				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m')
 				local put = random(1,15)
 				runRoute('!play ls'..put)
@@ -938,6 +939,13 @@ function pobeg()
 	end
 end
 
+local rep = false
+local loop = false
+local packet, veh = {}, {}
+local counter = 0
+
+local trailerId = 0
+
 local bitstream = {
 	onfoot = bitStream.new(),
 	incar = bitStream.new(),
@@ -945,142 +953,121 @@ local bitstream = {
 }
 
 function sampev.onSendVehicleSync(data)
-	if rep then
-		return false
-	end
+	if rep then return false end
 end
 
 function sampev.onSendPlayerSync(data)
+	if rep then return false end
+end
+
+function sampev.onVehicleStreamIn(vehid, data)
+	veh[vehid] = data.health
+end
+
+
+function check_update()
 	if rep then
-		return false
+		local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
+		if ok then
+			if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
+			setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+			counter = counter + 1
+			if counter%20 == 0 then
+				local aok = fillBitStream(3)
+				if aok then 
+					bitstream.aim:sendPacket()
+				else 
+					err()
+				end
+			end
+		else
+			err()
+		end
+					
+		bitstream.onfoot:reset()
+		bitstream.incar:reset()
+		bitstream.aim:reset()
+					
+		if counter == #packet then
+			if not loop then
+				rep = false
+				setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+				setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
+				print('Маршрут закончен.')
+				packet = {}
+			end
+			counter = 1
+		end
 	end
 end
 
-function check_update()
-    if rep then
-        local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1)
-        if ok then
-            if getBotVehicle() ~= 0 then 
-                bitstream.incar:sendPacket() 
-            else 
-                bitstream.onfoot:sendPacket() 
-            end
-            setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-            counter = counter + 1
-            if counter % 20 == 0 then
-                local aok = fillBitStream(3)
-                if aok then
-                    bitstream.aim:sendPacket()
-                else
-                    err()
-                end
-            end
-        else
-            err()
-        end
-
-        bitstream.onfoot:reset()
-        bitstream.incar:reset()
-        bitstream.aim:reset()
-
-        if counter == #packet then
-            if not loop then
-                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут завершен.\x1b[0;37m')
-                rep = false
-                setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-                setQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-                packet = {}
-            end
-            counter = 1
-        end
-    end
-end
-
 newTask(function()
-    while true do
-        check_update()
-        wait(50)
-    end
+	while true do
+		check_update()
+		wait(60)
+	end
 end)
 
+local print = function(arg) return print('[EVOLVED]: '..arg) end
 
 function err()
 	rep = false
 	packet = {}
 	counter = 1
-	print('an error has occured while writing data')
+	print('Ошибка чтения маршрута.')
 end
+
 
 function fillBitStream(mode)
 	if mode == 2 then
-		local bs = bitstream.incar
-		bs:writeUInt8(packet[counter].packetId)
-		bs:writeUInt16(getBotVehicle())
-		bs:writeUInt16(packet[counter].lr)
-		bs:writeUInt16(packet[counter].ud)
-		bs:writeUInt16(packet[counter].keys)
-		bs:writeFloat(packet[counter].qw)
-		bs:writeFloat(packet[counter].qx)
-		bs:writeFloat(packet[counter].qy)
-		bs:writeFloat(packet[counter].qz)
-		bs:writeFloat(packet[counter].x)
-		bs:writeFloat(packet[counter].y)
-		bs:writeFloat(packet[counter].z)
-		bs:writeFloat(packet[counter].sx)
-		bs:writeFloat(packet[counter].sy)
-		bs:writeFloat(packet[counter].sz)
-		bs:writeFloat(veh[getBotVehicle()])
-		bs:writeUInt8(getBotHealth())
-		bs:writeUInt8(getBotArmour())
-		bs:writeUInt8(0)
-		bs:writeUInt8(0)
-		bs:writeUInt8(packet[counter].gear)
-		bs:writeUInt16(0)
-		bs:writeFloat(0)
-		bs:writeFloat(0)
-
+		local data = samp_create_sync_data("vehicle")
+			data.vehicleId = getBotVehicle()
+			data.leftRightKeys = packet[counter].lr
+			data.upDownKeys = packet[counter].ud
+			data.keysData = packet[counter].keys
+			data.quaternion = {packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz}
+			data.position = {packet[counter].x, packet[counter].y, packet[counter].z}
+			data.moveSpeed = {packet[counter].sx, packet[counter].sy, packet[counter].sz}
+			data.vehicleHealth = veh[getBotVehicle()]
+			data.playerHealth = getBotHealth()
+			data.armor = getBotArmor()
+			data.currentWeapon = 0
+			data.specialKey = 0
+			data.siren = 0
+			data.landingGearState = 0
+			data.trailerId = trailerId
+			data.bikeLean = packet[counter].lean
+			data.send()
+		local data = samp_create_sync_data("trailer")
+		    data.position = {packet[counter].trx, packet[counter].try, packet[counter].trz}
+		    data.moveSpeed = {packet[counter].trsx, packet[counter].trsy, packet[counter].trsz}
+		    data.quaternion = {packet[counter].tqw, packet[counter].tqx, packet[counter].tqy, packet[counter].tqz}
+			data.trailerId = trailerId
+			data.direction = {packet[counter].tdx, packet[counter].tdy, packet[counter].tdz}
+		    data.send()
 	elseif mode == 1 then
-		local bs = bitstream.onfoot
-		bs:writeUInt8(packet[counter].packetId)
-		bs:writeUInt16(packet[counter].lr)
-		bs:writeUInt16(packet[counter].ud)
-		bs:writeUInt16(packet[counter].keys)
-		bs:writeFloat(packet[counter].x)
-		bs:writeFloat(packet[counter].y)
-		bs:writeFloat(packet[counter].z)
-		bs:writeFloat(packet[counter].qw)
-		bs:writeFloat(packet[counter].qx)
-		bs:writeFloat(packet[counter].qy)
-		bs:writeFloat(packet[counter].qz)
-		bs:writeUInt8(getBotHealth())
-		bs:writeUInt8(getBotArmour())
-		bs:writeUInt8(0)
-		bs:writeUInt8(packet[counter].sa)
-		bs:writeFloat(packet[counter].sx)
-		bs:writeFloat(packet[counter].sy)
-		bs:writeFloat(packet[counter].sz)
-		bs:writeFloat(0)
-		bs:writeFloat(0)
-		bs:writeFloat(0)
-		bs:writeUInt16(0)
-		bs:writeUInt16(packet[counter].anim)
-		bs:writeUInt16(packet[counter].flags)
-
+		local data = samp_create_sync_data("player")
+			data.leftRightKeys = packet[counter].lr
+			data.upDownKeys = packet[counter].ud
+			data.keysData = packet[counter].keys
+			data.quaternion = {packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz}
+			data.position = {packet[counter].x, packet[counter].y, packet[counter].z}
+			data.moveSpeed = {packet[counter].sx, packet[counter].sy, packet[counter].sz}
+			data.health = getBotHealth()
+			data.armor = getBotArmor()
+			data.specialAction = packet[counter].sa
+			data.animationId = packet[counter].anim
+			data.animationFlags = packet[counter].flags
+			data.send()
 	elseif mode == 3 then
-		local bs = bitstream.aim
-		bs:writeUInt8(203)
-		bs:writeUInt8(packet[counter].mode)
-		bs:writeFloat(packet[counter].cx)
-		bs:writeFloat(packet[counter].cy)
-		bs:writeFloat(packet[counter].cz)
-		bs:writeFloat(packet[counter].px)
-		bs:writeFloat(packet[counter].py)
-		bs:writeFloat(packet[counter].pz)
-		bs:writeFloat(packet[counter].az)
-		bs:writeUInt8(packet[counter].zoom)
-		bs:writeUInt8(packet[counter].wstate)
-		bs:writeUInt8(packet[counter].unk)
-
+		local data = samp_create_sync_data("aim")
+			data.camMode = packet[counter].mode
+			data.camFront = {packet[counter].cx, packet[counter].cy, packet[counter].cz}
+			data.camPos = {packet[counter].px, packet[counter].py, packet[counter].pz}
+			data.aimZ = packet[counter].az
+			data.camExtZoom = packet[counter].zoom
+			data.weaponState = packet[counter].wstate
+			data.send()
 	else return false end
 	return true
 end
@@ -1089,21 +1076,22 @@ function runRoute(act)
 	if act:find('!play .*') then
 		packet = loadIni(getPath()..'routes\\'..act:match('!play (.*)')..'.rt')
 		if packet then
-			print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mЗапустили маршрут: '..act:match('!play (.*)')..'\x1b[0;37m')
+			local time = #packet*0.06/60
+            local timesec = #packet*0.06-math.floor(time)*60
+            local timems = #packet*60
+			print('Запущен маршрут: "'..act:match('!play (.*)')..'". Длинтельность маршрута: '..math.floor(time)..' минут '..math.floor(timesec)..' секунд. В мс: '..timems)
 			counter = 1
 			rep = true
 			loop = false
 		else
-			print('route doesnt exist')
+			print('Такой записи нет.')
 		end
+	elseif act:find('!loop') then
+		if rep then loop = not loop; print(loop and 'Зацикливание текущего маршрута.' or 'Зацикливание прекращено.') else print('Маршрут не проигрывается.') end
 	elseif act:find('!stop') then
-		if counter >= 1 then
-			rep = false
-			print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mОстановились на пакете номер: '..counter..'\x1b[0;37m')
-			counter = 0
-		else
-			print('not playing any route')
-		end
+		if counter > 1 then rep = not rep else print('Маршрут не проигрывается.') end
+		if not rep then setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz) end
+		print(rep and 'Маршрут возобновлен.' or 'Остановлено на пакете: '.. counter)
 	end
 end
 
@@ -1111,14 +1099,14 @@ function loadIni(fileName)
 	local file = io.open(fileName, 'r')
 	if file then
 		local data = {}
-		local section
+		local number
 		for line in file:lines() do
-			local tempSection = line:match('^%[([^%[%]]+)%]$')
-			if tempSection then
-				section = tonumber(tempSection) and tonumber(tempSection) or tempSection
-				data[section] = data[section] or {}
+			local packetNumber = line:match('^%[([^%[%]]+)%]$') --получение порядкового номера пакета
+			if packetNumber then
+				number = tonumber(packetNumber) and tonumber(packetNumber) or packetNumber
+				data[number] = data[number] or {}
 			end
-			local param, value = line:match('^([%w|_]+)%s-=%s-(.+)$')
+			local param, value = line:match('^([%w|_]+)%s-=%s-(.+)$') --получение значений с пакета
 			if param and value ~= nil then
 				if tonumber(value) then
 					value = tonumber(value)
@@ -1130,7 +1118,7 @@ function loadIni(fileName)
 				if tonumber(param) then
 					param = tonumber(param)
 				end
-				data[section][param] = value
+				data[number][param] = value
 			end
 		end
 		file:close()
@@ -1139,6 +1127,60 @@ function loadIni(fileName)
 	return false
 end
 
+function samp_create_sync_data(sync_type, copy_from_player)
+    local ffi = require 'ffi'
+    local sampfuncs = require 'sampfuncs'
+    -- from SAMP.Lua
+    local raknet = require 'samp.raknet'
+    require 'samp.synchronization'
+
+    copy_from_player = copy_from_player or true
+    local sync_traits = {
+        player = {'PlayerSyncData', raknet.PACKET.PLAYER_SYNC, sampStorePlayerOnfootData},
+        vehicle = {'VehicleSyncData', raknet.PACKET.VEHICLE_SYNC, sampStorePlayerIncarData},
+        passenger = {'PassengerSyncData', raknet.PACKET.PASSENGER_SYNC, sampStorePlayerPassengerData},
+        aim = {'AimSyncData', raknet.PACKET.AIM_SYNC, sampStorePlayerAimData},
+        trailer = {'TrailerSyncData', raknet.PACKET.TRAILER_SYNC, sampStorePlayerTrailerData},
+        unoccupied = {'UnoccupiedSyncData', raknet.PACKET.UNOCCUPIED_SYNC, nil},
+        bullet = {'BulletSyncData', raknet.PACKET.BULLET_SYNC, nil},
+        spectator = {'SpectatorSyncData', raknet.PACKET.SPECTATOR_SYNC, nil}
+    }
+    local sync_info = sync_traits[sync_type]
+    local data_type = 'struct ' .. sync_info[1]
+    local data = ffi.new(data_type, {})
+    local raw_data_ptr = tonumber(ffi.cast('uintptr_t', ffi.new(data_type .. '*', data)))
+    -- copy player's sync data to the allocated memory
+    if copy_from_player then
+        local copy_func = sync_info[3]
+        if copy_func then
+            local _, player_id
+            if copy_from_player == true then
+                _, player_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            else
+                player_id = tonumber(copy_from_player)
+            end
+            copy_func(player_id, raw_data_ptr)
+        end
+    end
+    -- function to send packet
+    local func_send = function()
+        local bs = bitStream.new()
+        bs:writeInt8(sync_info[2])
+        bs:writeBuffer(raw_data_ptr, ffi.sizeof(data))
+        bs:sendPacketEx(sampfuncs.HIGH_PRIORITY, sampfuncs.UNRELIABLE_SEQUENCED, 1)
+        bs:reset()
+    end
+    -- metatable to access sync data and 'send' function
+    local mt = {
+        __index = function(t, index)
+            return data[index]
+        end,
+        __newindex = function(t, index, value)
+            data[index] = value
+        end
+    }
+    return setmetatable({send = func_send}, mt)
+end
 -- Вызываем телепортацию при cпавне, но проверяем активность
 
 function sampev.onSendSpawn()
