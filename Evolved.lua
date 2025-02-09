@@ -920,23 +920,23 @@ end
 
 -- побег со спавна
 function pobeg()
-	if cfg.main.runspawn == 1 then
-		newTask(function()
+    if cfg.main.runspawn == 1 then
+        newTask(function()
             wait(44444)
-			local x, y = getBotPosition()
-			if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
-				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДСФ спавне.\x1b[0;37m')
-				local put = random(1,15)
-				runRoute('!play sf'..put)
-			elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- Los Santos spawn
-				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m')
-				local put = random(1,15)
-				runRoute('!play ls'..put)
-			else
-				print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m')
-			end
-		end)
-	end
+            local x, y = getBotPosition()
+            if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
+                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДСФ спавне.\x1b[0;37m')
+                local put = random(1,15)
+                runRoute('!play sf'..put)
+            elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- Los Santos spawn
+                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m')
+                local put = random(1,15)
+                runRoute('!play ls'..put)
+            else
+                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m')
+            end
+        end)
+    end
 end
 
 local rep = false
@@ -1073,26 +1073,31 @@ function fillBitStream(mode)
 end
 
 function runRoute(act)
-	if act:find('!play .*') then
-		packet = loadIni(getPath()..'routes\\'..act:match('!play (.*)')..'.rt')
-		if packet then
-			local time = #packet*0.06/60
-            local timesec = #packet*0.06-math.floor(time)*60
-            local timems = #packet*60
-			print('Запущен маршрут: "'..act:match('!play (.*)')..'". Длинтельность маршрута: '..math.floor(time)..' минут '..math.floor(timesec)..' секунд. В мс: '..timems)
-			counter = 1
-			rep = true
-			loop = false
-		else
-			print('Такой записи нет.')
-		end
-	elseif act:find('!loop') then
-		if rep then loop = not loop; print(loop and 'Зацикливание текущего маршрута.' or 'Зацикливание прекращено.') else print('Маршрут не проигрывается.') end
-	elseif act:find('!stop') then
-		if counter > 1 then rep = not rep else print('Маршрут не проигрывается.') end
-		if not rep then setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz) end
-		print(rep and 'Маршрут возобновлен.' or 'Остановлено на пакете: '.. counter)
-	end
+    if rep then
+        print('[EVOLVED] Маршрут уже запущен, повторная активация невозможна.')
+        return
+    end
+
+    if act:find('!play .*') then
+        packet = loadIni(getPath()..'routes\\'..act:match('!play (.*)')..'.rt')
+        if packet then
+            local time = #packet * 0.06 / 60
+            local timesec = #packet * 0.06 - math.floor(time) * 60
+            local timems = #packet * 60
+            print('Запущен маршрут: "'..act:match('!play (.*)')..'". Длительность маршрута: '..math.floor(time)..' минут '..math.floor(timesec)..' секунд. В мс: '..timems)
+            counter = 1
+            rep = true
+            loop = false
+        else
+            print('Такой записи нет.')
+        end
+    elseif act:find('!loop') then
+        if rep then loop = not loop; print(loop and 'Зацикливание текущего маршрута.' or 'Зацикливание прекращено.') else print('Маршрут не проигрывается.') end
+    elseif act:find('!stop') then
+        if counter > 1 then rep = not rep else print('Маршрут не проигрывается.') end
+        if not rep then setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz) end
+        print(rep and 'Маршрут возобновлен.' or 'Остановлено на пакете: '.. counter)
+    end
 end
 
 function loadIni(fileName)
