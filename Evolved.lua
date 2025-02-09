@@ -962,14 +962,14 @@ end
 
 function check_update()
     if rep then
-        local ok = fillBitStream(getVehicle() ~= 0 and 2 or 1)
+        local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1)
         if ok then
-            if getVehicle() ~= 0 then 
+            if getBotVehicle() ~= 0 then 
                 bitstream.incar:sendPacket() 
             else 
                 bitstream.onfoot:sendPacket() 
             end
-            setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+            setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
             counter = counter + 1
             if counter % 20 == 0 then
                 local aok = fillBitStream(3)
@@ -991,7 +991,7 @@ function check_update()
             if not loop then
                 print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут завершен.\x1b[0;37m')
                 rep = false
-                setPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+                setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
                 setQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
                 packet = {}
             end
@@ -1034,8 +1034,8 @@ function fillBitStream(mode)
 		bs:writeFloat(packet[counter].sy)
 		bs:writeFloat(packet[counter].sz)
 		bs:writeFloat(veh[getVehicle()])
-		bs:writeUInt8(getHealth())
-		bs:writeUInt8(getArmour())
+		bs:writeUInt8(getBotHealth())
+		bs:writeUInt8(getBotArmour())
 		bs:writeUInt8(0)
 		bs:writeUInt8(0)
 		bs:writeUInt8(packet[counter].gear)
@@ -1056,8 +1056,8 @@ function fillBitStream(mode)
 		bs:writeFloat(packet[counter].qx)
 		bs:writeFloat(packet[counter].qy)
 		bs:writeFloat(packet[counter].qz)
-		bs:writeUInt8(getHealth())
-		bs:writeUInt8(getArmour())
+		bs:writeUInt8(getBotHealth())
+		bs:writeUInt8(getBotArmour())
 		bs:writeUInt8(0)
 		bs:writeUInt8(packet[counter].sa)
 		bs:writeFloat(packet[counter].sx)
