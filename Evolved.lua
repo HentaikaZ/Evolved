@@ -956,10 +956,6 @@ function sampev.onSendPlayerSync(data)
 	end
 end
 
-function sampev.onVehicleStreamIn(vehid, data)
-	veh[vehid] = data.health
-end
-
 function check_update()
     if rep then
         local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1)
