@@ -1008,7 +1008,7 @@ newTask(function()
 	end
 end)
 
-local print = function(arg) return print('[EVOLVED]: '..arg) end
+local print = function(arg) return print('\x1b[0;33mEVOLVED\x1b[37m] '..arg) end
 
 function err()
 	rep = false
@@ -1074,7 +1074,7 @@ end
 
 function runRoute(act)
     if rep then
-        print('[EVOLVED] Маршрут уже запущен, повторная активация невозможна.')
+        print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mМаршрут уже запущен, дождитесь окончания маршрута.\x1b[0;37m')
         return
     end
 
