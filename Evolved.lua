@@ -60,6 +60,19 @@ function checkAndLoadIni()
     if not lfs.attributes(config_path) then
         print("[INFO] INI файл отсутствует. Создаём новый.")
         config = default_config
+
+        -- Печатаем дополнительные отладочные данные для проверки
+        print("[INFO] Путь для сохранения файла: " .. config_path)
+        print("[INFO] Проверка прав на запись в папку...")
+        local test_file = io.open(config_path, "w")
+        if test_file then
+            test_file:close()
+            print("[INFO] Права на запись в папку проверены. Продолжаем.")
+        else
+            print("[ERROR] Нет прав на запись в папку. Проверьте разрешения.")
+            return nil
+        end
+
         -- Сохраняем новый INI файл
         local success, err = pcall(function()
             ini.save(config, config_path)
