@@ -154,26 +154,38 @@ local configtg = {
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
 
-local specialKey = nil
-local SPECIAL_KEYS = {
-    Y = 1,
-    N = 2,
-    H = 3
-}
+-- нажатие клавиш
+function sendKey(id)
+    key = id
+    updateSync() -- принудительно отправляем пакет синхронизации с кнопками
+end
 
-function pressSpecialKey(key)
-    if not SPECIAL_KEYS[key] then return false end
-    specialKey = SPECIAL_KEYS[key]
+-- Y, N, H
+function sendSpecialKey(id)
+    skey = id
     updateSync()
 end
 
 function sampev.onSendPlayerSync(data)
-    if rep then
-        return false
+    if key then
+        data.keysData = key -- в исходящей синхронизации подставляем свою кнопку
+        key = nil -- чистим, чтобы клавиша не была зажата
     end
-    if specialKey then
-        data.specialKey = specialKey
-        specialKey = nil
+    if skey then
+        data.specialKey = skey -- ( Y, N, H )
+        skey = nil
+    end
+end
+
+-- то же самое, что и в функции выше, только еще и для авто
+function sampev.onSendVehicleSync(data)
+    if key then
+        data.keysData = key
+        key = nil
+    end
+    if skey then
+        data.specialKey = skey
+        skey = nil
     end
 end
 
@@ -684,7 +696,7 @@ function sampev.onServerMessage(color, text)
 		generatenick()
 	end
 	if text:match('Используйте:') then
-        pressSpecialKey('Y')
+        sendKey(89)
 	end
 	if text:match('Вы превысили максимальное число подключений') then
 		connect_random_proxy()
@@ -837,6 +849,13 @@ function onRunCommand(cmd)
 		runRoute(cmd)
 		return false
 	end
+    if cmd:find("^!key %d+$") then
+        sendKey(tonumber(cmd:match("%d+")))
+        return false
+    elseif cmd:find("^!skey %d+$") then
+        sendSpecialKey(tonumber(cmd:match("%d+")))
+        return false
+    end
 end
 
 function fspawn()
