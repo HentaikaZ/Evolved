@@ -1,6 +1,6 @@
 os.execute('color 0')
 
--- Librariess
+-- Libraries
 require('addon')
 local encoding = require('encoding')
 encoding.default = 'CP1251'
@@ -13,16 +13,93 @@ local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 local inicfg = require('inicfg')
-local cfg = inicfg.load(nil, 'E-Settings')
+local lfs = require('lfs')  -- For working with the file system
 
+-- Config file path
+local config_dir = "config"
+local config_path = config_dir .. "/E-Settings.ini"
+
+-- Default INI structure
+local default_config = {
+    main = {
+        password = "12341234",
+        randomnick = 0,
+        finishLVL = 3,
+        proxy = 0,
+        runspawn = 1,
+        famspawn = 0
+    },
+    telegram = {
+        tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
+        chatid = "-1002199217342",
+        user = "@your_username",
+        slapuved = 1,
+        ipbanuved = 1,
+        vkacheno = 1,
+        noipban = 1,
+        ipban = 1,
+    }
+}
+
+-- Ensure the config directory exists
+local function ensureDirectoryExists(dir)
+    local attr = lfs.attributes(dir)
+    if not attr then
+        print("[INFO] Directory '" .. dir .. "' not found. Creating...")
+        lfs.mkdir(dir)
+    end
+end
+
+-- Check and load INI file
+local function checkAndLoadIni()
+    ensureDirectoryExists(config_dir)
+    
+    local config = inicfg.load(default_config, config_path)
+    local needSave = false
+
+    if not config then
+        print("[INFO] INI file missing. Creating new one.")
+        config = default_config
+        needSave = true
+    else
+        for section, params in pairs(default_config) do
+            if not config[section] then
+                config[section] = {}
+                needSave = true
+            end
+            for key, value in pairs(params) do
+                if config[section][key] == nil then
+                    print("[INFO] Added new parameter: " .. section .. "." .. key)
+                    config[section][key] = value
+                    needSave = true
+                end
+            end
+        end
+    end
+
+    if needSave then
+        inicfg.save(config, config_path)
+        print("[INFO] INI file updated.")
+    else
+        print("[INFO] INI file loaded without changes.")
+    end
+
+    return config
+end
+
+-- Load config
+local config = checkAndLoadIni()
+
+-- Telegram config
 local configtg = {
-    token = cfg.telegram.tokenbot,
-    chat_id = cfg.telegram.chatid
+    token = config.telegram.tokenbot,
+    chat_id = config.telegram.chatid
 }
 
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
 
+-- клавиши
 local specialKey = nil
 local SPECIAL_KEYS = {
     Y = 1,
@@ -37,92 +114,14 @@ function pressSpecialKey(key)
 end
 
 function sampev.onSendPlayerSync(data)
-	if rep then
-		return false
-	end
-	if specialKey then
-		data.specialKey = specialKey
-		specialKey = nil
-	end
-end
-
--- config
-local ini = require("inicfg")
-local lfs = require("lfs")  -- Для работы с файловой системой
-local config_path = "config/E-Settings.ini"
-local config_dir = "config"
-
--- Ожидаемая структура ini файла
-local default_config = {
-    main = {
-        password = "12341234",
-        randomnick = 0,
-        finishLVL = 3,
-        proxy = 0,
-        runspawn = 1,
-        famspawn = 0
-    },
-    telegram = {
-        tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
-        chatid = "-1002199217342",
-        user = "@ne_sakuta",
-        slapuved = 1,
-        ipbanuved = 1,
-        vkacheno = 1,
-        noipban = 1,
-        ipban = 1
-    }
-}
-
--- Функция для проверки существования папки
-local function ensureDirectoryExists(dir)
-    local attr = lfs.attributes(dir)
-    if not attr then
-        print("[INFO] Директория '" .. dir .. "' не найдена. Создаём...")
-        lfs.mkdir(dir)
+    if rep then
+        return false
+    end
+    if specialKey then
+        data.specialKey = specialKey
+        specialKey = nil
     end
 end
-
--- Функция для проверки и обновления ini файла
-function checkAndLoadIni()
-    ensureDirectoryExists(config_dir)  -- Проверяем и создаём папку config, если её нет
-
-    local config = ini.load(config_path)
-    local needSave = false
-
-    if not config then
-        print("[INFO] INI файл отсутствует. Создаём новый.")
-        config = default_config
-        needSave = true
-    else
-        -- Проверяем наличие всех параметров, добавляем недостающие
-        for section, params in pairs(default_config) do
-            if not config[section] then
-                config[section] = {}
-                needSave = true
-            end
-            for key, value in pairs(params) do
-                if config[section][key] == nil then
-                    print("[INFO] Добавлен новый параметр: " .. section .. "." .. key)
-                    config[section][key] = value
-                    needSave = true
-                end
-            end
-        end
-    end
-
-    if needSave then
-        ini.save(config, config_path)
-        print("[INFO] INI файл обновлён.")
-    else
-        print("[INFO] INI файл загружен без изменений.")
-    end
-
-    return config
-end
-
--- Загружаем конфиг
-local config = checkAndLoadIni()
 
 -- Proxy
 local proxys = {}
