@@ -687,7 +687,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Блокировка') then
 			noipban()
         end
-        if title:find('Принять') then
+        if id == 20302 then
             sendDialogResponse(id, 1, 0, '')
         end
         if title:find('Подтверждение') then
