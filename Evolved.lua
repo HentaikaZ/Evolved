@@ -99,8 +99,9 @@ function checkAndLoadIni()
 
     -- Сохраняем изменения, если они были
     if needSave then
+        print("[INFO] Попытка сохранить INI файл в путь: " .. config_path)  -- Выводим путь для отладки
         local success, err = pcall(function()
-            assert(ini.save(config, config_path))
+            ini.save(config, config_path)
         end)
 
         if not success then
