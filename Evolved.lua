@@ -695,8 +695,9 @@ function sampev.onServerMessage(color, text)
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
 	end
-	if text:match('Используйте:') then
+	if text:match('Используйте: {26931C}"Y"{4682B4} - принять предложение. {ae433d}"N"{4682B4} - отклонить предложение') then
         sendKey(89)
+        test()
 	end
 	if text:match('Вы превысили максимальное число подключений') then
 		connect_random_proxy()
