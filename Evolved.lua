@@ -12,9 +12,8 @@ local requests = require('requests')
 local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
-local inicfg = require('inicfg')
+local ini = require("inicfg")
 local lfs = require("lfs")  -- Для работы с файловой системой
-
 local config_path = "config/E-Settings.ini"
 local config_dir = "config"
 
@@ -31,7 +30,7 @@ local default_config = {
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
-        user = "@your_username",
+        user = "@ne_sakuta"
     }
 }
 
@@ -48,7 +47,7 @@ end
 function checkAndLoadIni()
     ensureDirectoryExists(config_dir)  -- Проверяем и создаём папку config, если её нет
 
-    local config = inicfg.load(nil, 'E-Settings')
+    local config = ini.load(config_path)
     local needSave = false
 
     if not config then
@@ -56,7 +55,7 @@ function checkAndLoadIni()
         config = default_config
         needSave = true
     else
-        -- Проверяем наличие всех параметров, добавляем недостающие
+        -- Проверяем наличие всех параметров, добавляем недостающие, удаляем лишние
         for section, params in pairs(default_config) do
             if not config[section] then
                 config[section] = {}
@@ -70,10 +69,27 @@ function checkAndLoadIni()
                 end
             end
         end
+
+        -- Удаление лишних параметров
+        for section, params in pairs(config) do
+            if default_config[section] then
+                for key in pairs(params) do
+                    if default_config[section][key] == nil then
+                        print("[INFO] Удалён лишний параметр: " .. section .. "." .. key)
+                        config[section][key] = nil
+                        needSave = true
+                    end
+                end
+            else
+                print("[INFO] Удалён лишний раздел: " .. section)
+                config[section] = nil
+                needSave = true
+            end
+        end
     end
 
     if needSave then
-        inicfg.save(config, config_path)
+        ini.save(config, config_path)
         print("[INFO] INI файл обновлён.")
     else
         print("[INFO] INI файл загружен без изменений.")
@@ -83,7 +99,9 @@ function checkAndLoadIni()
 end
 
 -- Загружаем конфиг
-local cfg = checkAndLoadIni()
+local config = checkAndLoadIni()
+
+-- telegramm
 
 local configtg = {
     token = cfg.telegram.tokenbot,
