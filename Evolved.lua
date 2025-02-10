@@ -31,12 +31,7 @@ local default_config = {
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
-        user = "@ne_sakuta",
-        slapuved = 1,
-        ipbanuved = 1,
-        vkacheno = 1,
-        noipban = 1,
-        ipban = 1
+        user = "@your_username",
     }
 }
 
@@ -684,64 +679,56 @@ function sampev.onSetPlayerPos(position)
 end
 
 function slapuved()
-	if cfg.telegram.slapuved == 1 then
-		msg = ([[
-		[EVOLVED]
+	msg = ([[
+	[EVOLVED]
 				
-		слапнули.					
-		Nick: %s
-        Server: %s
-		User: %s
-		]]):format(getBotNick(), servername, cfg.telegram.user)
-		newTask(sendtg, false, msg)
-	end
+	слапнули.					
+	Nick: %s
+    Server: %s
+	User: %s
+	]]):format(getBotNick(), servername, cfg.telegram.user)
+	newTask(sendtg, false, msg)
 end
 
 function vkacheno()
-    if cfg.telegram and cfg.telegram.vkacheno == 1 then
-        local msg = ([[  
-        [EVOLVED]  
+    local msg = ([[  
+    [EVOLVED]  
 
-        Аккаунт вкачен. 
-        Nick: %s
-        LVL: %s
-        Server: %s
-        User: %s  
-        ]]):format(getBotNick(), getBotScore(), servername, cfg.telegram.user)
+    Аккаунт вкачен. 
+    Nick: %s
+    LVL: %s
+    Server: %s
+    User: %s  
+    ]]):format(getBotNick(), getBotScore(), servername, cfg.telegram.user)
 
-        sendtg(msg)
-    end
+    sendtg(msg)
 end
 
 function noipban()
-	if cfg.telegram.noipban == 1 then
-		msg = ([[
-		[EVOLVED]
+	msg = ([[
+	[EVOLVED]
 		
-		Аккаунт заблокировали.	
-		Nick: %s
-        Server: %s
-		User: %s
-		]]):format(getBotNick(), servername, cfg.telegram.user)
-		newTask(sendtg, false, msg)
-	end
+	Аккаунт заблокировали.	
+	Nick: %s
+    Server: %s
+	User: %s
+	]]):format(getBotNick(), servername, cfg.telegram.user)
+	newTask(sendtg, false, msg)
 	generatenick()
 end
 
 function ipban()
-	if cfg.telegram.ipbanuved == 1 then
-		msg = ([[
-		[EVOLVED]
+	msg = ([[
+	[EVOLVED]
 		
-		Аккаунт заблокировали по IP.	
-		Nick: %s
-        IP: %s
-        Server: %s
-        User: %s
+	Аккаунт заблокировали по IP.	
+    Nick: %s
+    IP: %s
+    Server: %s
+    User: %s
 		
-		]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
-		newTask(sendtg, false, msg)
-	end
+	]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+	newTask(sendtg, false, msg)
     generatenick()
 end
 
