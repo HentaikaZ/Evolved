@@ -55,16 +55,28 @@ function checkAndLoadIni()
         return nil  -- Если не удалось создать директорию, возвращаем nil
     end
 
-    -- Загружаем конфиг
-    local config = ini.load(nil, "E-Settings")
-    local needSave = false
-
-    if not config then
+    -- Проверка наличия INI файла
+    local config
+    if not lfs.attributes(config_path) then
         print("[INFO] INI файл отсутствует. Создаём новый.")
         config = default_config
-        needSave = true
+        -- Сохраняем новый INI файл
+        local success, err = pcall(function()
+            ini.save(config, config_path)
+        end)
+
+        if not success then
+            print("[ERROR] Ошибка при создании INI файла: " .. err)
+            return nil
+        else
+            print("[INFO] INI файл успешно создан.")
+        end
     else
-        -- Проверяем наличие параметров, добавляем недостающие
+        -- Загружаем конфиг
+        config = ini.load(nil, "E-Settings")
+        local needSave = false
+
+        -- Если конфиг загружен, проверяем параметры и добавляем недостающие
         for section, params in pairs(default_config) do
             if not config[section] then
                 config[section] = {}
@@ -95,22 +107,22 @@ function checkAndLoadIni()
                 needSave = true
             end
         end
-    end
 
-    -- Сохраняем изменения, если они были
-    if needSave then
-        print("[INFO] Попытка сохранить INI файл в путь: " .. config_path)  -- Выводим путь для отладки
-        local success, err = pcall(function()
-            ini.save(config, config_path)
-        end)
+        -- Сохраняем изменения, если они были
+        if needSave then
+            print("[INFO] Попытка сохранить INI файл в путь: " .. config_path)
+            local success, err = pcall(function()
+                ini.save(config, config_path)
+            end)
 
-        if not success then
-            print("[ERROR] Ошибка при сохранении INI файла: " .. err)
+            if not success then
+                print("[ERROR] Ошибка при сохранении INI файла: " .. err)
+            else
+                print("[INFO] INI файл обновлён.")
+            end
         else
-            print("[INFO] INI файл обновлён.")
+            print("[INFO] INI файл загружен без изменений.")
         end
-    else
-        print("[INFO] INI файл загружен без изменений.")
     end
 
     return config
