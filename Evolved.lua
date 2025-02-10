@@ -13,13 +13,12 @@ local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 local inicfg = require('inicfg')
-local lfs = require('lfs')  -- For working with the file system
+local lfs = require("lfs")  -- Для работы с файловой системой
 
--- Config file path
+local config_path = "config/E-Settings.ini"
 local config_dir = "config"
-local config_path = config_dir .. "/E-Settings.ini"
 
--- Default INI structure
+-- Ожидаемая структура ini файла
 local default_config = {
     main = {
         password = "12341234",
@@ -32,36 +31,37 @@ local default_config = {
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
-        user = "@your_username",
+        user = "@ne_sakuta",
         slapuved = 1,
         ipbanuved = 1,
         vkacheno = 1,
         noipban = 1,
-        ipban = 1,
+        ipban = 1
     }
 }
 
--- Ensure the config directory exists
+-- Функция для проверки существования папки
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
-        print("[INFO] Directory '" .. dir .. "' not found. Creating...")
+        print("[INFO] Директория '" .. dir .. "' не найдена. Создаём...")
         lfs.mkdir(dir)
     end
 end
 
--- Check and load INI file
-local function checkAndLoadIni()
-    ensureDirectoryExists(config_dir)
-    
-    local config = inicfg.load(default_config, config_path)
+-- Функция для проверки и обновления ini файла
+function checkAndLoadIni()
+    ensureDirectoryExists(config_dir)  -- Проверяем и создаём папку config, если её нет
+
+    local config = inicfg.load(nil, 'E-Settings')
     local needSave = false
 
     if not config then
-        print("[INFO] INI file missing. Creating new one.")
+        print("[INFO] INI файл отсутствует. Создаём новый.")
         config = default_config
         needSave = true
     else
+        -- Проверяем наличие всех параметров, добавляем недостающие
         for section, params in pairs(default_config) do
             if not config[section] then
                 config[section] = {}
@@ -69,7 +69,7 @@ local function checkAndLoadIni()
             end
             for key, value in pairs(params) do
                 if config[section][key] == nil then
-                    print("[INFO] Added new parameter: " .. section .. "." .. key)
+                    print("[INFO] Добавлен новый параметр: " .. section .. "." .. key)
                     config[section][key] = value
                     needSave = true
                 end
@@ -79,27 +79,25 @@ local function checkAndLoadIni()
 
     if needSave then
         inicfg.save(config, config_path)
-        print("[INFO] INI file updated.")
+        print("[INFO] INI файл обновлён.")
     else
-        print("[INFO] INI file loaded without changes.")
+        print("[INFO] INI файл загружен без изменений.")
     end
 
     return config
 end
 
--- Load config
-local config = checkAndLoadIni()
+-- Загружаем конфиг
+local cfg = checkAndLoadIni()
 
--- Telegram config
 local configtg = {
-    token = config.telegram.tokenbot,
-    chat_id = config.telegram.chatid
+    token = cfg.telegram.tokenbot,
+    chat_id = cfg.telegram.chatid
 }
 
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
 
--- клавиши
 local specialKey = nil
 local SPECIAL_KEYS = {
     Y = 1,
