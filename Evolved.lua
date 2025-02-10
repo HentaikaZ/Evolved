@@ -31,7 +31,7 @@ local default_config = {
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
-        user = "@ne_sakuta"
+        user = "@your_username"
     }
 }
 
