@@ -15,6 +15,49 @@ local socket = require 'socket'
 local ini = require("inicfg")
 local lfs = require("lfs")  -- Работа с файловой системой
 
+-- КЛАВИШИ
+
+function sendKey(id)
+    key = id
+	print("sended key: "..id)
+    updateSync()
+end
+
+function sendSKey(skeyid)
+	skey = skeyid
+	print("sended special key: "..skeyid)
+	updateSync()
+ end
+
+
+function onRunCommand(cmd)
+    if cmd:find("^!key %d+$") then
+        sendKey(tonumber(cmd:match("%d+")))
+        return false
+    end
+    if cmd:find("^!skey %d+$") then
+	    sendSKey(tonumber(cmd:match("%d+")))
+	    return false
+        end
+    if cmd:find("^!td %d+$") then
+        sendClickTextdraw(tonumber(cmd:match("%d+")))
+        print("sended texdraw click: "..tonumber(cmd:match("%d+")))
+        return false
+    end
+end
+
+function sampev.onSendPlayerSync(data)
+    if key then
+        data.keysData = key
+        key = nil
+    end
+	if skey then
+        data.specialKey = skey
+        skey = nil
+    end
+end
+
+-- CONFIG
 local config_dir = "config"
 local config_path = config_dir .. "/E-Settings.ini"
 
@@ -153,41 +196,6 @@ local configtg = {
 
 math.randomseed(os.time() * os.clock() * math.random())
 math.random(); math.random(); math.random()
-
--- нажатие клавиш
-function sendKey(id)
-    key = id
-    updateSync() -- принудительно отправляем пакет синхронизации с кнопками
-end
-
--- Y, N, H
-function sendSpecialKey(id)
-    skey = id
-    updateSync()
-end
-
-function sampev.onSendPlayerSync(data)
-    if key then
-        data.keysData = key -- в исходящей синхронизации подставляем свою кнопку
-        key = nil -- чистим, чтобы клавиша не была зажата
-    end
-    if skey then
-        data.specialKey = skey -- ( Y, N, H )
-        skey = nil
-    end
-end
-
--- то же самое, что и в функции выше, только еще и для авто
-function sampev.onSendVehicleSync(data)
-    if key then
-        data.keysData = key
-        key = nil
-    end
-    if skey then
-        data.specialKey = skey
-        skey = nil
-    end
-end
 
 -- Proxy
 local proxys = {}
@@ -850,13 +858,7 @@ function onRunCommand(cmd)
 		runRoute(cmd)
 		return false
 	end
-    if cmd:find("^!key %d+$") then
-        sendKey(tonumber(cmd:match("%d+")))
-        return false
-    elseif cmd:find("^!skey %d+$") then
-        sendSpecialKey(tonumber(cmd:match("%d+")))
-        return false
-    end
+
 end
 
 function fspawn()
