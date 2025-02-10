@@ -13,9 +13,10 @@ local json = require('dkjson')
 local ffi = require('ffi')
 local socket = require 'socket'
 local ini = require("inicfg")
-local lfs = require("lfs")  -- Для работы с файловой системой
-local config_path = "config/E-Settings.ini"
+local lfs = require("lfs")  -- Работа с файловой системой
+
 local config_dir = "config"
+local config_path = config_dir .. "/E-Settings.ini"
 
 -- Ожидаемая структура ini файла
 local default_config = {
@@ -34,7 +35,7 @@ local default_config = {
     }
 }
 
--- Функция для проверки существования папки
+-- Проверка существования папки
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
@@ -43,11 +44,12 @@ local function ensureDirectoryExists(dir)
     end
 end
 
--- Функция для проверки и обновления ini файла
+-- Проверка и загрузка ini файла
 function checkAndLoadIni()
-    ensureDirectoryExists(config_dir)  -- Проверяем и создаём папку config, если её нет
+    ensureDirectoryExists(config_dir)  -- Создаём папку, если её нет
 
-    local config = ini.load(config_path)
+    -- Загружаем конфиг
+    local config = ini.load(nil, "E-Settings")
     local needSave = false
 
     if not config then
@@ -55,7 +57,7 @@ function checkAndLoadIni()
         config = default_config
         needSave = true
     else
-        -- Проверяем наличие всех параметров, добавляем недостающие, удаляем лишние
+        -- Проверяем наличие параметров, добавляем недостающие
         for section, params in pairs(default_config) do
             if not config[section] then
                 config[section] = {}
@@ -63,7 +65,7 @@ function checkAndLoadIni()
             end
             for key, value in pairs(params) do
                 if config[section][key] == nil then
-                    print("[INFO] Добавлен новый параметр: " .. section .. "." .. key)
+                    print("[INFO] Добавлен параметр: " .. section .. "." .. key)
                     config[section][key] = value
                     needSave = true
                 end
@@ -88,8 +90,9 @@ function checkAndLoadIni()
         end
     end
 
+    -- Сохраняем изменения, если они были
     if needSave then
-        ini.save(config, config_path)
+        assert(ini.save(config, config_path), "[ERROR] Ошибка при сохранении INI файла")
         print("[INFO] INI файл обновлён.")
     else
         print("[INFO] INI файл загружен без изменений.")
@@ -98,8 +101,9 @@ function checkAndLoadIni()
     return config
 end
 
--- Загружаем конфиг
-local config = checkAndLoadIni()
+-- Загружаем конфигурацию
+local cfg = checkAndLoadIni()
+
 
 -- telegramm
 
