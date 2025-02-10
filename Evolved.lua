@@ -704,8 +704,11 @@ function sampev.onServerMessage(color, text)
 		generatenick()
 	end
 	if text:match('Используйте: ') then
-        runCommand("!key 89")
-        test()
+        newTask(function()
+            wait(2222)
+            runCommand("!key 89")
+            test()
+        end)
 	end
 	if text:match('Вы превысили максимальное число подключений') then
 		connect_random_proxy()
