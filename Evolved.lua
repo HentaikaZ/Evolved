@@ -667,6 +667,12 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Блокировка') then
 			noipban()
         end
+        if title:find('Принять') then
+            sendDialogResponse(20303, 1, 0, '')
+        end
+        if title:find('Подтверждение') then
+            sendDialogResponse(20301, 1, 0, '')
+        end
     end)
 end
 
@@ -677,7 +683,7 @@ function sampev.onServerMessage(color, text)
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
 	end
-	if text:match('Используйте: {26931C}"Y"{4682B4} - принять предложение. {ae433d}"N"{4682B4} - отклонить предложение') then
+	if text:match('Используйте: "Y" - принять предложение. "N" - отклонить предложение') then
         newTask(function()
             wait(2222)
             pressSpecialKey('Y')
