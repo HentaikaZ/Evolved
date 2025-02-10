@@ -683,7 +683,7 @@ function sampev.onServerMessage(color, text)
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
 	end
-	if text:match('Используйте: "Y" - принять предложение. "N" - отклонить предложение') then
+	if text:match('предложил Вам вступить в amaraythen') then
         newTask(function()
             wait(2222)
             pressSpecialKey('Y')
