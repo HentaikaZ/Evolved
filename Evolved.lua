@@ -588,7 +588,7 @@ function sampev.onShowTextDraw(id, data)
         print('[EVOLVED] Появились на спавне семьи.')
     else
         sendClickTextdraw(2084) -- 2084 дефолт спавн, 2080 спавн семьи
-        print('[EVOLVED] Появились на дефолт спавне, спавн семьи отключен.')
+        print('[EVOLVED] Появились на дефолт спавне, так как спавн семьи отключен.')
 	end
 	if id == 2164 then
 		sendClickTextdraw(2164)
