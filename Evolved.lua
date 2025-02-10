@@ -40,13 +40,20 @@ local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
         print("[INFO] Директория '" .. dir .. "' не найдена. Создаём...")
-        lfs.mkdir(dir)
+        local success, err = lfs.mkdir(dir)
+        if not success then
+            print("[ERROR] Не удалось создать директорию: " .. err)
+            return false
+        end
     end
+    return true
 end
 
 -- Проверка и загрузка ini файла
 function checkAndLoadIni()
-    ensureDirectoryExists(config_dir)  -- Создаём папку, если её нет
+    if not ensureDirectoryExists(config_dir) then
+        return nil  -- Если не удалось создать директорию, возвращаем nil
+    end
 
     -- Загружаем конфиг
     local config = ini.load(nil, "E-Settings")
@@ -92,8 +99,15 @@ function checkAndLoadIni()
 
     -- Сохраняем изменения, если они были
     if needSave then
-        assert(ini.save(config, config_path), "[ERROR] Ошибка при сохранении INI файла")
-        print("[INFO] INI файл обновлён.")
+        local success, err = pcall(function()
+            assert(ini.save(config, config_path))
+        end)
+
+        if not success then
+            print("[ERROR] Ошибка при сохранении INI файла: " .. err)
+        else
+            print("[INFO] INI файл обновлён.")
+        end
     else
         print("[INFO] INI файл загружен без изменений.")
     end
@@ -103,7 +117,6 @@ end
 
 -- Загружаем конфигурацию
 local cfg = checkAndLoadIni()
-
 
 -- telegramm
 
