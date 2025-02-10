@@ -70,7 +70,7 @@ local default_config = {
         ipbanuved = 1,
         vkacheno = 1,
         noipban = 1,
-        ipban = 1,
+        ipban = 1
     }
 }
 
