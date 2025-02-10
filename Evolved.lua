@@ -46,6 +46,71 @@ function sampev.onSendPlayerSync(data)
 	end
 end
 
+-- config
+local ini = require("inicfg")
+local config_path = "config/E-Settings.ini"
+
+-- Ожидаемая структура ini файла
+local default_config = {
+    main = {
+        password = "12341234",
+        randomnick = 0,
+        finishLVL = 3,
+        proxy = 0,
+        runspawn = 1,
+        famspawn = 0
+    },
+    telegram = {
+        tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
+        chatid = "-1002199217342",
+        user = "@your_username",
+        slapuved = 1,
+        ipbanuved = 1,
+        vkacheno = 1,
+        noipban = 1,
+        ipban = 1
+    }
+}
+
+-- Функция для проверки и обновления ini файла
+function checkAndLoadIni()
+    local config = ini.load(config_path)
+    local needSave = false
+
+    if not config then
+        print("[INFO] INI файл отсутствует. Создаём новый.")
+        config = default_config
+        needSave = true
+    else
+        -- Проверяем наличие всех параметров, добавляем недостающие
+        for section, params in pairs(default_config) do
+            if not config[section] then
+                config[section] = {}
+                needSave = true
+            end
+            for key, value in pairs(params) do
+                if config[section][key] == nil then
+                    print("[INFO] Добавлен новый параметр: " .. section .. "." .. key)
+                    config[section][key] = value
+                    needSave = true
+                end
+            end
+        end
+    end
+
+    if needSave then
+        ini.save(config, config_path)
+        print("[INFO] INI файл обновлён.")
+    else
+        print("[INFO] INI файл загружен без изменений.")
+    end
+
+    return config
+end
+
+-- Загружаем конфиг
+local config = checkAndLoadIni()
+
 -- Proxy
 local proxys = {}
 local my_proxy_ip
