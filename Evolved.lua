@@ -48,7 +48,9 @@ end
 
 -- config
 local ini = require("inicfg")
+local lfs = require("lfs")  -- Для работы с файловой системой
 local config_path = "config/E-Settings.ini"
+local config_dir = "config"
 
 -- Ожидаемая структура ini файла
 local default_config = {
@@ -63,17 +65,28 @@ local default_config = {
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
-        user = "@your_username",
+        user = "@ne_sakuta",
         slapuved = 1,
         ipbanuved = 1,
         vkacheno = 1,
         noipban = 1,
-        ipban = 1
+        ipban = 1,
     }
 }
 
+-- Функция для проверки существования папки
+local function ensureDirectoryExists(dir)
+    local attr = lfs.attributes(dir)
+    if not attr then
+        print("[INFO] Директория '" .. dir .. "' не найдена. Создаём...")
+        lfs.mkdir(dir)
+    end
+end
+
 -- Функция для проверки и обновления ini файла
 function checkAndLoadIni()
+    ensureDirectoryExists(config_dir)  -- Проверяем и создаём папку config, если её нет
+
     local config = ini.load(config_path)
     local needSave = false
 
