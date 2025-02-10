@@ -688,10 +688,10 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
 			noipban()
         end
         if title:find('Принять') then
-            sendDialogResponse(20303, 1, 0, '')
+            sendDialogResponse(id, 1, 0, '')
         end
         if title:find('Подтверждение') then
-            sendDialogResponse(20301, 1, 0, '')
+            sendDialogResponse(id, 1, 0, '')
         end
     end)
 end
@@ -702,14 +702,7 @@ function sampev.onServerMessage(color, text)
 	end
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
-	end
-	if text:match('Используйте: ') then
-        newTask(function()
-            wait(2222)
-            runCommand("!key 89")
-            test()
-        end)
-	end
+    end
 	if text:match('Вы превысили максимальное число подключений') then
 		connect_random_proxy()
 	end
