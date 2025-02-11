@@ -938,6 +938,10 @@ function gruzchik()
 end
 
 -- побег со спавна
+local frozen = false
+local freeze_timer = 0
+local resume_delay = 120000 -- 2 минуты в миллисекундах
+
 function pobeg()
     if cfg.main.runspawn == 1 then
         newTask(function()
@@ -955,6 +959,35 @@ function pobeg()
                 print('\x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m')
             end
         end)
+    end
+end
+
+function onFreeze()
+    if rep then
+        rep = false -- Останавливаем маршрут
+        print('\x1b[0;36mБег остановлен из-за фриза.\x1b[0;37m')
+        frozen = true
+        freeze_timer = os.time() * 1000 -- Запоминаем время фриза
+    end
+end
+
+function onUnfreeze()
+    if frozen then
+        newTask(function()
+            print('\x1b[0;36mФриз снят. Ожидание перед продолжением...\x1b[0;37m')
+            wait(resume_delay)
+            rep = true -- Возобновляем маршрут
+            print('\x1b[0;36mПродолжаем маршрут после ожидания.\x1b[0;37m')
+            frozen = false
+        end)
+    end
+end
+
+function sampev.onTogglePlayerControllable(controllable)
+    if controllable then
+        onUnfreeze()
+    else
+        onFreeze()
     end
 end
 
