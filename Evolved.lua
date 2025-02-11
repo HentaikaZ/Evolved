@@ -688,10 +688,10 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
 			noipban()
         end
         if title:find('Принять') then
-            sendDialogResponse(id, 1, 1, '')
+            sendDialogResponse(id, 1, 0, 'Приглашение в семью')
         end
         if title:find('Подтверждение') then
-            sendDialogResponse(id, 1, 0, '')
+            sendDialogResponse(id, 1, 0, 'Вы даёте своё согласие на предложение от игрока Sakuta_Chan?')
         end
     end)
 end
