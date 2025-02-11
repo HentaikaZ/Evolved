@@ -29,7 +29,8 @@ local default_config = {
         finishLVL = 3,
         proxy = 0,
         runspawn = 1,
-        famspawn = 0
+        famspawn = 0,
+        referal = '#warrior'
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -528,7 +529,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             sendDialogResponse(id, 1, 0, 'nomail@mail.ru')
         end
         if title:find('Приглашение') then
-            sendDialogResponse(id, 1, 0, '#warrior')
+            sendDialogResponse(id, 1, 0, tostring(cfg.main.referal))
         end
         if title:find('Пол') then
             sendDialogResponse(id, 1, 0, '')
