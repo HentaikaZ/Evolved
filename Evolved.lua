@@ -668,8 +668,7 @@ function sampev.onServerMessage(color, text)
 		generatenick()
 	end
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
-        cfg.main.famspawn = 0
-        reconnect(1111)
+        newTask(sendClickTextdraw, 2080, id)
     end
 end
 
