@@ -43,10 +43,10 @@ local default_config = {
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
-        print("\x1b[0;36m[INFO] Директория '" .. dir .. "' не найдена. Создаём...\x1b[0;36m]")
+        print("\x1b[0;36m[INFO] Директория '" .. dir .. "' не найдена. Создаём...\x1b[0;37m")
         local success, err = lfs.mkdir(dir)
         if not success then
-            print("\x1b[0;36m[ERROR] Не удалось создать директорию: '" .. err .. "'\x1b[0;36m]")
+            print("\x1b[0;36m[ERROR] Не удалось создать директорию: '" .. err .. "'\x1b[0;37m")
             return false
         end
     end
@@ -62,18 +62,18 @@ function checkAndLoadIni()
     -- Проверка наличия INI файла
     local config
     if not lfs.attributes(config_path) then
-        print("\x1b[0;36m[INFO] INI файл отсутствует. Создаём новый.\x1b[0;36m]")
+        print("\x1b[0;36m[INFO] INI файл отсутствует. Создаём новый.\x1b[0;37m")
         config = default_config
 
         -- Печатаем дополнительные отладочные данные для проверки
-        print("\x1b[0;36m[INFO] Путь для сохранения файла: '" .. config_path .. "' \x1b[0;36m]")
-        print("\x1b[0;36m[INFO] Проверка прав на запись в папку...\x1b[0;36m]")
+        print("\x1b[0;36m[INFO] Путь для сохранения файла: '" .. config_path .. "' \x1b[0;37m")
+        print("\x1b[0;36m[INFO] Проверка прав на запись в папку...\x1b[0;37m")
         local test_file = io.open(config_path, "w")
         if test_file then
             test_file:close()
-            print("\x1b[0;36m[INFO] Права на запись в папку проверены. Продолжаем.\x1b[0;36m]")
+            print("\x1b[0;36m[INFO] Права на запись в папку проверены. Продолжаем.\x1b[0;37m")
         else
-            print("\x1b[0;36m[ERROR] Нет прав на запись в папку. Проверьте разрешения.\x1b[0;36m]")
+            print("\x1b[0;36m[ERROR] Нет прав на запись в папку. Проверьте разрешения.\x1b[0;37m")
             return nil
         end
 
@@ -83,10 +83,10 @@ function checkAndLoadIni()
         end)
 
         if not success then
-            print("\x1b[0;36m[ERROR] Ошибка при создании INI файла: '" .. err .. "'\x1b[0;36m]")
+            print("\x1b[0;36m[ERROR] Ошибка при создании INI файла: '" .. err .. "'\x1b[0;37m")
             return nil
         else
-            print("\x1b[0;36m[INFO] INI файл успешно создан.\x1b[0;36m]")
+            print("\x1b[0;36m[INFO] INI файл успешно создан.\x1b[0;37m]")
         end
     else
         -- Загружаем конфиг
@@ -101,7 +101,7 @@ function checkAndLoadIni()
             end
             for key, value in pairs(params) do
                 if config[section][key] == nil then
-                    print("\x1b[0;36m[INFO] Добавлен параметр: " .. section .. "." .. key .. "\x1b[0;36m]")
+                    print("\x1b[0;36m[INFO] Добавлен параметр: " .. section .. "." .. key .. "\x1b[0;37m")
                     config[section][key] = value
                     needSave = true
                 end
@@ -113,13 +113,13 @@ function checkAndLoadIni()
             if default_config[section] then
                 for key in pairs(params) do
                     if default_config[section][key] == nil then
-                        print("\x1b[0;36m[INFO] Удалён лишний параметр: " .. section .. "." .. key .. "\x1b[0;36m]")
+                        print("\x1b[0;36m[INFO] Удалён лишний параметр: " .. section .. "." .. key .. "\x1b[0;37m")
                         config[section][key] = nil
                         needSave = true
                     end
                 end
             else
-                print("\x1b[0;36m[INFO] Удалён лишний раздел: " .. section .. "\x1b[0;36m]")
+                print("\x1b[0;36m[INFO] Удалён лишний раздел: " .. section .. "\x1b[0;37m")
                 config[section] = nil
                 needSave = true
             end
@@ -127,18 +127,18 @@ function checkAndLoadIni()
 
         -- Сохраняем изменения, если они были
         if needSave then
-            print("\x1b[0;36m[INFO] Попытка сохранить INI файл в путь: " .. config_path .. "\x1b[0;36m]")
+            print("\x1b[0;36m[INFO] Попытка сохранить INI файл в путь: " .. config_path .. "\x1b[0;37m")
             local success, err = pcall(function()
                 ini.save(config, config_path)
             end)
 
             if not success then
-                print("\x1b[0;36m[ERROR] Ошибка при сохранении INI файла: " .. err .. "\x1b[0;36m]")
+                print("\x1b[0;36m[ERROR] Ошибка при сохранении INI файла: " .. err .. "\x1b[0;37m")
             else
-                print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;36m]")
+                print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;37m")
             end
         else
-            print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;36m")
+            print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;37m")
         end
     end
 
@@ -182,7 +182,7 @@ function saveProxyUsage(proxy_usage)
         file:write(json.encode(proxy_usage, {indent = true}))
         file:close()
     else
-        print("\x1b[0;36m[Ошибка] Не удалось сохранить статистику по прокси.\x1b[0;36m]")
+        print("\x1b[0;36m[Ошибка] Не удалось сохранить статистику по прокси.\x1b[0;36m")
     end
 end
 
@@ -210,7 +210,7 @@ function checkProxyLimit(proxy_ip, server_ip)
     
     if proxy_usage[proxy_ip] and proxy_usage[proxy_ip][server_ip] then
         if proxy_usage[proxy_ip][server_ip].count >= 2 then
-            print("\x1b[0;36m[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip .. " на сервере " .. server_ip .. ".\x1b[0;36m]")
+            print("\x1b[0;36m[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip .. " на сервере " .. server_ip .. ".\x1b[0;37m")
             return false
         end
     end
@@ -232,7 +232,7 @@ function connect_random_proxy()
         proxyConnect(new_proxy.ip, new_proxy.user, new_proxy.pass)
         updateProxyUsage(my_proxy_ip, server_ip)  -- Обновляем статистику использования прокси
     else
-        print("\x1b[0;36m[Ошибка] Подключение с этим прокси невозможно из-за ограничения на количество подключений.\x1b[0;36m]")
+        print("\x1b[0;36m[Ошибка] Подключение с этим прокси невозможно из-за ограничения на количество подключений.\x1b[0;37m")
     end
 end
 
@@ -295,11 +295,11 @@ local function loadAllowedSerials()
         if data and data.allowed_serials then
             return data.allowed_serials
         else
-            print("\x1b[0;36m[Ошибка] Формат данных с GitHub некорректен.\x1b[0;36m]")
+            print("\x1b[0;36m[Ошибка] Формат данных с GitHub некорректен.\x1b[0;37m")
             return nil
         end
     else
-        print("\x1b[0;36m[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.\x1b[0;36m]")
+        print("\x1b[0;36m[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.\x1b[0;37m")
         return nil
     end
 end
@@ -335,7 +335,7 @@ end
 local function saveSerialsToFile(serials)
     local file = io.open("scripts/HWID.json", "w")
     if not file then
-        print("\x1b[0;36m[Ошибка] Не удалось открыть файл для записи серийных номеров.\x1b[0;36m]")
+        print("\x1b[0;36m[Ошибка] Не удалось открыть файл для записи серийных номеров.\x1b[0;37m")
         return
     end
     file:write(json.encode(serials, {indent = true}))
@@ -349,7 +349,7 @@ local function addSerialToFile(serial)
     -- Проверяем, есть ли уже этот серийный номер в файле
     for _, existingSerial in ipairs(serials) do
         if existingSerial == serial then
-            print("\x1b[0;36mСерийный номер уже сохранен.\x1b[0;36m]")
+            print("\x1b[0;36mСерийный номер уже сохранен.\x1b[0;37m")
             return  -- Если серийный номер уже есть, ничего не делаем
         end
     end
@@ -357,7 +357,7 @@ local function addSerialToFile(serial)
     -- Если нет, добавляем новый серийный номер
     table.insert(serials, serial)
     saveSerialsToFile(serials)
-    print("\x1b[0;36mСерийный номер добавлен и сохранен.\x1b[0;36m]")
+    print("\x1b[0;36mСерийный номер добавлен и сохранен.\x1b[0;37m")
 end
 
 -- Получаем текущий серийный номер процессора
@@ -368,9 +368,9 @@ addSerialToFile(currentSerial)
 
 -- Проверяем, разрешен ли серийный номер
 if checkIfSerialAllowed(currentSerial) then
-    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;36m]")
+    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m]")
 else
-    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;36m]")
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
     return  -- Просто прекращаем выполнение скрипта без завершения программы
 end
 
@@ -483,7 +483,7 @@ local function writeToFile(fileName, text)
         file:write(text .. "\n")  -- записываем текст с новой строки
         file:close()  -- закрываем файл
     else
-        print("\x1b[0;36mНе удалось открыть файл для записи: " .. fileName .. "\x1b[37m]")
+        print("\x1b[0;36mНе удалось открыть файл для записи: " .. fileName .. "\x1b[37m")
     end
 end
 
@@ -495,17 +495,17 @@ local function checkAndWriteLevel()
         -- Уровень, с которым сравниваем
         local requiredLevel = tonumber(cfg.main.finishLVL)
 
-        print("\x1b[0;36mТекущий уровень: " .. score .. "\x1b[37m]")
-        print("\x1b[0;36mНеобходимый уровень: " .. requiredLevel .. "\x1b[37m]")
+        print("\x1b[0;36mТекущий уровень: " .. score .. "\x1b[37m")
+        print("\x1b[0;36mНеобходимый уровень: " .. requiredLevel .. "\x1b[37m")
 
         -- Проверка уровня
         if score >= requiredLevel then
-            print("\x1b[0;36mУровень достаточен, записываю в файл...\x1b[0;36m]")  -- Логируем запись в файл
+            print("\x1b[0;36mУровень достаточен, записываю в файл...\x1b[0;37m")  -- Логируем запись в файл
             writeToFile("config\\accounts.txt", ("%s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score, servername))
             vkacheno()
             generatenick()
         else
-            print("\x1b[0;36mУровень недостаточен для записи.\x1b[0;36m]")
+            print("\x1b[0;36mУровень недостаточен для записи.\x1b[0;37m")
         end
         
         -- Пауза на 30 секунд
@@ -548,7 +548,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
 		end
         if id == 4423 then 
             sendDialogResponse(4423, 1, 0, "")
-            printm("\x1b[0;36mУстроился на работу грузчика!\x1b[0;36m]")
+            printm("\x1b[0;36mУстроился на работу грузчика!\x1b[0;37m")
             gruzchik()
             return false
         end
@@ -611,10 +611,10 @@ function sampev.onShowTextDraw(id, data)
 	if id == 2080 then
         if cfg.main.famspawn == 1 then
 		    sendClickTextdraw(2080)
-            print('\x1b[0;36mПоявились на спавне семьи.\x1b[0;36m]')
+            print('\x1b[0;36mПоявились на спавне семьи.\x1b[0;37m')
         else
             sendClickTextdraw(2084) -- 2084 дефолт спавн, 2080 спавн семьи
-            print('\x1b[0;36mПоявились на дефолт спавне, так как спавн семьи отключен.\x1b[0;36m]')
+            print('\x1b[0;36mПоявились на дефолт спавне, так как спавн семьи отключен.\x1b[0;37m')
         end
 	end
 	if id == 2164 then
@@ -736,7 +736,7 @@ end
 
 -- грузщики 
 function printm(text)
-	print("\x1b[0;36m[EVOLVED]:\x1b[37m \x1b[0;32m"..text.."\x1b[37m]")
+	print("\x1b[0;36m[EVOLVED]:\x1b[37m \x1b[0;32m"..text.."\x1b[37m")
 end
 
 function tp(toX, toY, toZ, noExitCar) 
@@ -965,15 +965,15 @@ function pobeg()
             if frozen then return end -- Проверяем, не фриз ли
             local x, y = getBotPosition()
             if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
-                print('\x1b[0;36mВы на ЖДСФ спавне.\x1b[0;37m]')
+                print('\x1b[0;36mВы на ЖДСФ спавне.\x1b[0;37m')
                 local put = random(1,15)
                 runRoute('!play sf'..put)
             elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- Los Santos spawn
-                print('\x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m]')
+                print('\x1b[0;36mВы на ЖДЛС спавне.\x1b[0;37m')
                 local put = random(1,15)
                 runRoute('!play ls'..put)
             else
-                print('\x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m]')
+                print('\x1b[0;36mCкрипт не смог определить спавн.\x1b[0;37m')
             end
         end)
     end
@@ -984,16 +984,16 @@ function sampev.onTogglePlayerControllable(controllable)
         if controllable then
             frozen = false
             newTask(function()
-                print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m]')
+                print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m')
                 wait(freeze_wait_time)
                 if rep then
-                    print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m]')
+                    print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m')
                 end
             end)
         else
             frozen = true
             rep = false
-            print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m]')
+            print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m')
         end
     end
 end
@@ -1002,14 +1002,14 @@ function sampev.onSetPlayerPos(position)
     if rep and not slapped then -- Проверка выполняется только если маршрут запущен
         local posx, posy, posz = getBotPosition()
         if position.x == posx and position.y == posy and position.z ~= posz then
-            print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m]')
+            print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m')
             slapped = true
             rep = false
             newTask(function()
                 wait(slap_wait_time)
                 slapped = false
                 if rep then
-                    print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m]')
+                    print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m')
                 end
             end)
         end
@@ -1059,7 +1059,7 @@ function check_update()
                 rep = false
                 setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
                 setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-                print('\x1b[0;36mМаршрут закончен.\x1b[0;36m]')
+                print('\x1b[0;36mМаршрут закончен.\x1b[0;37m')
                 packet = {}
             end
             counter = 1
@@ -1215,7 +1215,7 @@ function sampev.onSendSpawn()
         if cfg.main.runspawn == 1 and not frozen then
             pobeg()
         else
-            print('\x1b[0;36m[INFO] Побег со спавна отключен или персонаж заморожен.\x1b[0;36m]')
+            print('\x1b[0;36m[INFO] Побег со спавна отключен или персонаж заморожен.\x1b[0;37m')
         end
     end)
 end
