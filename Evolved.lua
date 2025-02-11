@@ -945,6 +945,7 @@ end
 
 local rep = false
 local loop = false
+local frozen = false
 local packet, veh = {}, {}
 local counter = 0
 
@@ -975,6 +976,18 @@ function pobeg()
     end
 end
 
+function sampev.onTogglePlayerControllable(controllable)
+    if controllable then
+        frozen = false
+        print('\x1b[0;36mПерсонаж разморожен.\x1b[0;37m')
+    else
+        frozen = true
+        rep = false
+        print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m')
+    end
+end
+
+
 function sampev.onSendVehicleSync(data)
 	if rep then return false end
 end
@@ -989,49 +1002,47 @@ end
 
 
 function check_update()
-	if rep then
-		local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
-		if ok then
-			if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
-			setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-			counter = counter + 1
-			if counter%20 == 0 then
-				local aok = fillBitStream(3)
-				if aok then 
-					bitstream.aim:sendPacket()
-				else 
-					err()
-				end
-			end
-		else
-			err()
-		end
-					
-		bitstream.onfoot:reset()
-		bitstream.incar:reset()
-		bitstream.aim:reset()
-					
-		if counter == #packet then
-			if not loop then
-				rep = false
-				setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-				setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-				print('route end. stoping!')
-				packet = {}
-			end
-			counter = 1
-		end
-	end
+    if rep and not frozen then
+        local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
+        if ok then
+            if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
+            setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+            counter = counter + 1
+            if counter % 20 == 0 then
+                local aok = fillBitStream(3)
+                if aok then 
+                    bitstream.aim:sendPacket()
+                else 
+                    err()
+                end
+            end
+        else
+            err()
+        end
+        
+        bitstream.onfoot:reset()
+        bitstream.incar:reset()
+        bitstream.aim:reset()
+        
+        if counter == #packet then
+            if not loop then
+                rep = false
+                setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+                setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
+                print('\x1b[0;36mМаршрут закончен.\x1b[0;36m')
+                packet = {}
+            end
+            counter = 1
+        end
+    end
 end
 
 newTask(function()
-	while true do
-		check_update()
-		wait(50)
-	end
+    while true do
+        check_update()
+        wait(50)
+    end
 end)
-
-local print = function(arg) return print('[Route Player]: '..arg) end
 
 function err()
 	rep = false
@@ -1174,7 +1185,7 @@ function sampev.onSendSpawn()
         if cfg.main.runspawn == 1 and not frozen then
             pobeg()
         else
-            print('\x1b[0;36m[INFO] Побег со спавна отключен или бот заморожен.\x1b[0;36m')
+            print('\x1b[0;36m[INFO] Побег со спавна отключен или персонаж заморожен.\x1b[0;36m')
         end
     end)
 end
