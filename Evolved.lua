@@ -649,7 +649,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             sendDialogResponse(id, 1, 0, 'Приглашение в семью')
         end
         if title:find('Подтверждение') then
-            sendDialogResponse(id, 1, 0, 'Вы даёте своё согласие на предложение от игрока Sakuta_Chan?')
+            sendDialogResponse(id, 1, 0, 'Вы даёте своё согласие на предложение от игрока')
         end
     end)
 end
