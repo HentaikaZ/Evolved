@@ -588,10 +588,10 @@ function onprintLog(text)
 	if text:match('^%[NET%] Bad nickname$') then
 		generatenick()
 	end
-	if text:match('[NET] You are banned. Reconnecting') then
-		count = count + 1
-		if count == 20 then
-			ipban()
+	if text:match('You are banned.') then
+		ipban()
+        if cfg.main.proxy == 1 then
+            connect_random_proxy()
         end
     end
     if text:match('[NET] Bad nickname') then
