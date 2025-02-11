@@ -688,10 +688,10 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
 			noipban()
         end
         if title:find('Принять') then
-            sendDialogResponse(20302, 1, 5, '')
+            sendDialogResponse(id, 1, 1, '')
         end
         if title:find('Подтверждение') then
-            sendDialogResponse(20301, 1, 0, '')
+            sendDialogResponse(id, 1, 0, '')
         end
     end)
 end
