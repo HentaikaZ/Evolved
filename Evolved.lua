@@ -691,7 +691,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             sendDialogResponse(20302, 1, 5, '')
         end
         if title:find('Подтверждение') then
-            sendDialogResponse(id, 1, 0, '')
+            sendDialogResponse(20301, 1, 0, '')
         end
     end)
 end
