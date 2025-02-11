@@ -667,6 +667,10 @@ function sampev.onServerMessage(color, text)
 	if text:match('^Вы исчерпали количество попыток%. Вы отключены от сервера$') then
 		generatenick()
 	end
+    if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
+        cfg.main.famspawn = 0
+        reconnect(1111)
+    end
 end
 
 -- RPC TEXT
