@@ -979,36 +979,40 @@ function pobeg()
 end
 
 function sampev.onTogglePlayerControllable(controllable)
-    if controllable then
-        newTask(function()
-            print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m')
-            wait(freeze_wait_time)
-            if not frozen then
-                rep = true
-                print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m')
-            end
-        end)
-    else
-        frozen = true
-        rep = false
-        print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m')
+    if rep then -- Проверка выполняется только если маршрут запущен
+        if controllable then
+            newTask(function()
+                print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m')
+                wait(freeze_wait_time)
+                if not frozen then
+                    rep = true
+                    print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m')
+                end
+            end)
+        else
+            frozen = true
+            rep = false
+            print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m')
+        end
     end
 end
 
 function sampev.onSetPlayerPos(position)
-    local posx, posy, posz = getBotPosition()
-    if position.x == posx and position.y == posy and position.z ~= posz and not slapped then
-        print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m')
-        slapped = true
-        rep = false
-        newTask(function()
-            wait(slap_wait_time)
-            slapped = false
-            if not frozen then
-                rep = true
-                print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m')
-            end
-        end)
+    if rep then -- Проверка выполняется только если маршрут запущен
+        local posx, posy, posz = getBotPosition()
+        if position.x == posx and position.y == posy and position.z ~= posz and not slapped then
+            print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m')
+            slapped = true
+            rep = false
+            newTask(function()
+                wait(slap_wait_time)
+                slapped = false
+                if not frozen then
+                    rep = true
+                    print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m')
+                end
+            end)
+        end
     end
 end
 
