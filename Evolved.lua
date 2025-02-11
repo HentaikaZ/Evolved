@@ -941,11 +941,16 @@ end
 local frozen = false
 local freeze_timer = 0
 local resume_delay = 120000 -- 2 ìèíóòû â ìèëëèñåêóíäàõ
+local rep = false
+local loop = false
+local packet, veh = {}, {}
+local counter = 0
 
 function pobeg()
-    if cfg.main.runspawn == 1 then
+    if cfg.main.runspawn == 1 and not frozen then
         newTask(function()
             wait(44444)
+            if frozen then return end -- Ïğîâåğÿåì, íå ôğèç ëè
             local x, y = getBotPosition()
             if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
                 print('\x1b[0;36mÂû íà ÆÄÑÔ ñïàâíå.\x1b[0;37m')
@@ -976,8 +981,10 @@ function onUnfreeze()
         newTask(function()
             print('\x1b[0;36mÔğèç ñíÿò. Îæèäàíèå ïåğåä ïğîäîëæåíèåì...\x1b[0;37m')
             wait(resume_delay)
-            rep = true -- Âîçîáíîâëÿåì ìàğøğóò
-            print('\x1b[0;36mÏğîäîëæàåì ìàğøğóò ïîñëå îæèäàíèÿ.\x1b[0;37m')
+            if not frozen then -- Ïğîâåğÿåì, íå çàìîğîçèëè ëè ñíîâà
+                rep = true -- Âîçîáíîâëÿåì ìàğøğóò
+                print('\x1b[0;36mÏğîäîëæàåì ìàğøğóò ïîñëå îæèäàíèÿ.\x1b[0;37m')
+            end
             frozen = false
         end)
     end
@@ -990,11 +997,6 @@ function sampev.onTogglePlayerControllable(controllable)
         onFreeze()
     end
 end
-
-local rep = false
-local loop = false
-local packet, veh = {}, {}
-local counter = 0
 
 local trailerId = 0
 
@@ -1018,46 +1020,46 @@ end
 
 
 function check_update()
-	if rep then
-		local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
-		if ok then
-			if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
-			setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-			counter = counter + 1
-			if counter%20 == 0 then
-				local aok = fillBitStream(3)
-				if aok then 
-					bitstream.aim:sendPacket()
-				else 
-					err()
-				end
-			end
-		else
-			err()
-		end
-					
-		bitstream.onfoot:reset()
-		bitstream.incar:reset()
-		bitstream.aim:reset()
-					
-		if counter == #packet then
-			if not loop then
-				rep = false
-				setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
-				setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-				print('\x1b[0;36mÌàğøğóò çàêîí÷åí.\x1b[0;36m')
-				packet = {}
-			end
-			counter = 1
-		end
-	end
+    if rep and not frozen then
+        local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
+        if ok then
+            if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
+            setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+            counter = counter + 1
+            if counter % 20 == 0 then
+                local aok = fillBitStream(3)
+                if aok then 
+                    bitstream.aim:sendPacket()
+                else 
+                    err()
+                end
+            end
+        else
+            err()
+        end
+        
+        bitstream.onfoot:reset()
+        bitstream.incar:reset()
+        bitstream.aim:reset()
+        
+        if counter == #packet then
+            if not loop then
+                rep = false
+                setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
+                setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
+                print('\x1b[0;36mÌàğøğóò çàêîí÷åí.\x1b[0;36m')
+                packet = {}
+            end
+            counter = 1
+        end
+    end
 end
 
 newTask(function()
-	while true do
-		check_update()
-		wait(60)
-	end
+    while true do
+        check_update()
+        wait(60)
+    end
 end)
 
 function err()
@@ -1241,10 +1243,10 @@ end
 function sampev.onSendSpawn()
     newTask(function()
         wait(11111)
-        if cfg.main.runspawn == 1 then
+        if cfg.main.runspawn == 1 and not frozen then
             pobeg()
         else
-            printm("\x1b[0;36m[INFO] Ïîáåã ñî ñïàâíà îòêëş÷åí.\x1b[0;36m")
+            print('\x1b[0;36m[INFO] Ïîáåã ñî ñïàâíà îòêëş÷åí èëè áîò çàìîğîæåí.\x1b[0;36m')
         end
     end)
 end
