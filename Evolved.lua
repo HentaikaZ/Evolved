@@ -588,11 +588,8 @@ function onprintLog(text)
 	if text:match('^%[NET%] Bad nickname$') then
 		generatenick()
 	end
-	if text:match('[NET] You are banned.') then
+	if text:match('[NET] You are banned. Reconnecting in 15 seconds.') then
 		ipban()
-        if cfg.main.proxy == 1 then
-            connect_random_proxy()
-        end
     end
     if text:match('[NET] Bad nickname') then
         generatenick()
@@ -685,6 +682,7 @@ function ipban()
 		
 	]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
 	newTask(sendtg, false, msg)
+    connect_random_proxy()
     generatenick()
 end
 
