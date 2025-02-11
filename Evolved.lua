@@ -15,6 +15,8 @@ local socket = require 'socket'
 local ini = require("inicfg")
 local lfs = require("lfs")  -- Работа с файловой системой
 
+local print = function(arg) return print('[\x1b[0;33mEVOLVED\x1b[37m]  '..arg) end
+
 -- CONFIG
 local config_dir = "config"
 local config_path = config_dir .. "/E-Settings.ini"
@@ -40,10 +42,10 @@ local default_config = {
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
-        print("[INFO] Директория '" .. dir .. "' не найдена. Создаём...")
+        print("\x1b[0;36m[INFO] Директория '" .. dir .. "' не найдена. Создаём...\x1b[0;36m")
         local success, err = lfs.mkdir(dir)
         if not success then
-            print("[ERROR] Не удалось создать директорию: " .. err)
+            print("\x1b[0;36m[ERROR] Не удалось создать директорию: '" .. err .. "'\x1b[0;36m")
             return false
         end
     end
@@ -59,18 +61,18 @@ function checkAndLoadIni()
     -- Проверка наличия INI файла
     local config
     if not lfs.attributes(config_path) then
-        print("[INFO] INI файл отсутствует. Создаём новый.")
+        print("\x1b[0;36m[INFO] INI файл отсутствует. Создаём новый.\x1b[0;36m")
         config = default_config
 
         -- Печатаем дополнительные отладочные данные для проверки
-        print("[INFO] Путь для сохранения файла: " .. config_path)
-        print("[INFO] Проверка прав на запись в папку...")
+        print("\x1b[0;36m[INFO] Путь для сохранения файла: '" .. config_path .. "' \x1b[0;36m")
+        print("\x1b[0;36m[INFO] Проверка прав на запись в папку...\x1b[0;36m")
         local test_file = io.open(config_path, "w")
         if test_file then
             test_file:close()
-            print("[INFO] Права на запись в папку проверены. Продолжаем.")
+            print("\x1b[0;36m[INFO] Права на запись в папку проверены. Продолжаем.\x1b[0;36m")
         else
-            print("[ERROR] Нет прав на запись в папку. Проверьте разрешения.")
+            print("\x1b[0;36m[ERROR] Нет прав на запись в папку. Проверьте разрешения.\x1b[0;36m")
             return nil
         end
 
@@ -80,7 +82,7 @@ function checkAndLoadIni()
         end)
 
         if not success then
-            print("[ERROR] Ошибка при создании INI файла: " .. err)
+            print("\x1b[0;36m[ERROR] Ошибка при создании INI файла: '" .. err .. "'\x1b[0;36m")
             return nil
         else
             print("[INFO] INI файл успешно создан.")
@@ -98,7 +100,7 @@ function checkAndLoadIni()
             end
             for key, value in pairs(params) do
                 if config[section][key] == nil then
-                    print("[INFO] Добавлен параметр: " .. section .. "." .. key)
+                    print("\x1b[0;36m[INFO] Добавлен параметр: " .. section .. "." .. key .. "\x1b[0;36m")
                     config[section][key] = value
                     needSave = true
                 end
@@ -110,13 +112,13 @@ function checkAndLoadIni()
             if default_config[section] then
                 for key in pairs(params) do
                     if default_config[section][key] == nil then
-                        print("[INFO] Удалён лишний параметр: " .. section .. "." .. key)
+                        print("\x1b[0;36m[INFO] Удалён лишний параметр: " .. section .. "." .. key .. "\x1b[0;36m")
                         config[section][key] = nil
                         needSave = true
                     end
                 end
             else
-                print("[INFO] Удалён лишний раздел: " .. section)
+                print("\x1b[0;36m[INFO] Удалён лишний раздел: " .. section .. "\x1b[0;36m")
                 config[section] = nil
                 needSave = true
             end
@@ -124,18 +126,18 @@ function checkAndLoadIni()
 
         -- Сохраняем изменения, если они были
         if needSave then
-            print("[INFO] Попытка сохранить INI файл в путь: " .. config_path)
+            print("\x1b[0;36m[INFO] Попытка сохранить INI файл в путь: " .. config_path .. "\x1b[0;36m")
             local success, err = pcall(function()
                 ini.save(config, config_path)
             end)
 
             if not success then
-                print("[ERROR] Ошибка при сохранении INI файла: " .. err)
+                print("\x1b[0;36m[ERROR] Ошибка при сохранении INI файла: " .. err .. "\x1b[0;36m")
             else
-                print("[INFO] INI файл обновлён.")
+                print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;36m")
             end
         else
-            print("[INFO] INI файл загружен без изменений.")
+            print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;36m")
         end
     end
 
@@ -179,7 +181,7 @@ function saveProxyUsage(proxy_usage)
         file:write(json.encode(proxy_usage, {indent = true}))
         file:close()
     else
-        print("[Ошибка] Не удалось сохранить статистику по прокси.")
+        print("\x1b[0;36m[Ошибка] Не удалось сохранить статистику по прокси.\x1b[0;36m")
     end
 end
 
@@ -207,7 +209,7 @@ function checkProxyLimit(proxy_ip, server_ip)
     
     if proxy_usage[proxy_ip] and proxy_usage[proxy_ip][server_ip] then
         if proxy_usage[proxy_ip][server_ip].count >= 2 then
-            print("[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip .. " на сервере " .. server_ip)
+            print("\x1b[0;36m[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip .. " на сервере " .. server_ip .. ".\x1b[0;36m")
             return false
         end
     end
@@ -229,7 +231,7 @@ function connect_random_proxy()
         proxyConnect(new_proxy.ip, new_proxy.user, new_proxy.pass)
         updateProxyUsage(my_proxy_ip, server_ip)  -- Обновляем статистику использования прокси
     else
-        print("[Ошибка] Подключение с этим прокси невозможно из-за ограничения на количество подключений.")
+        print("\x1b[0;36m[Ошибка] Подключение с этим прокси невозможно из-за ограничения на количество подключений.\x1b[0;36m")
     end
 end
 
@@ -292,11 +294,11 @@ local function loadAllowedSerials()
         if data and data.allowed_serials then
             return data.allowed_serials
         else
-            print("[Ошибка] Формат данных с GitHub некорректен.")
+            print("\x1b[0;36m[Ошибка] Формат данных с GitHub некорректен.\x1b[0;36m")
             return nil
         end
     else
-        print("[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.")
+        print("\x1b[0;36m[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.\x1b[0;36m")
         return nil
     end
 end
@@ -332,7 +334,7 @@ end
 local function saveSerialsToFile(serials)
     local file = io.open("scripts/HWID.json", "w")
     if not file then
-        print("[Ошибка] Не удалось открыть файл для записи серийных номеров.")
+        print("\x1b[0;36m[Ошибка] Не удалось открыть файл для записи серийных номеров.\x1b[0;36m")
         return
     end
     file:write(json.encode(serials, {indent = true}))
@@ -346,7 +348,7 @@ local function addSerialToFile(serial)
     -- Проверяем, есть ли уже этот серийный номер в файле
     for _, existingSerial in ipairs(serials) do
         if existingSerial == serial then
-            print("Серийный номер уже сохранен.")
+            print("\x1b[0;36mСерийный номер уже сохранен.\x1b[0;36m")
             return  -- Если серийный номер уже есть, ничего не делаем
         end
     end
@@ -354,97 +356,7 @@ local function addSerialToFile(serial)
     -- Если нет, добавляем новый серийный номер
     table.insert(serials, serial)
     saveSerialsToFile(serials)
-    print("Серийный номер добавлен и сохранен.")
-end
-
--- Функция для автообновления
-local UPDATE_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/Evolved.lua"
-local VERSION_URL = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/version.json"  -- URL для версии
-local LOCAL_SCRIPT_PATH = "scripts/Evolved.lua"
-local VERSION_FILE = "scripts/version.json" -- Используем JSON файл для хранения версии
-
--- Функция для чтения версии из JSON файла
-local function readVersion()
-    local file = io.open(VERSION_FILE, "r")
-    if not file then
-        return "3.0.0" -- Если файла нет, возвращаем дефолтную версию
-    end
-    local data = file:read("*all")
-    file:close()
-    
-    local versionData = json.decode(data)
-    return versionData and versionData.version or "3.0.0" -- Возвращаем версию, если она есть, или дефолт
-end
-
--- Функция для записи версии в JSON файл
-local function writeVersion(newVersion)
-    local file = io.open(VERSION_FILE, "w")
-    if not file then
-        print("[Ошибка] Не удалось открыть файл для записи версии.")
-        return
-    end
-    local versionData = { version = newVersion }
-    file:write(json.encode(versionData, {indent = true}))
-    file:close()
-end
-
--- Чтение текущей версии
-local CURRENT_VERSION = readVersion()
-
--- Функция для получения версии из файла version.json
-local function getRemoteVersion()
-    local response = requests.get(VERSION_URL)
-    if response.status_code == 200 then
-        local versionData = json.decode(response.text)
-        return versionData and versionData.version or nil
-    else
-        print("[Ошибка] Не удалось загрузить файл версии.")
-        return nil
-    end
-end
-
--- Функция для сравнения версий
-local function isVersionNewer(newVersion, currentVersion)
-    local function splitVersion(version)
-        local major, minor, patch = version:match("(%d+)%.(%d+)%.(%d+)")
-        return tonumber(major), tonumber(minor), tonumber(patch)
-    end
-
-    local newMajor, newMinor, newPatch = splitVersion(newVersion)
-    local currentMajor, currentMinor, currentPatch = splitVersion(currentVersion)
-
-    if newMajor > currentMajor then return true end
-    if newMajor == currentMajor and newMinor > currentMinor then return true end
-    if newMajor == currentMajor and newMinor == currentMinor and newPatch > currentPatch then return true end
-
-    return false
-end
-
--- Функция автообновления
-function autoUpdate()
-    local remoteVersion = getRemoteVersion()
-    if not remoteVersion then
-        print("[Ошибка] Не удалось получить версию с удалённого источника.")
-        return
-    end
-
-    print(string.format("[Обновление] Удалённая версия: %s, Локальная версия: %s", remoteVersion, CURRENT_VERSION))
-
-    if isVersionNewer(remoteVersion, CURRENT_VERSION) then
-        local response = requests.get(UPDATE_URL)
-        if response.status_code == 200 then
-            local newScript = response.text
-            local localFile = io.open(LOCAL_SCRIPT_PATH, "w")
-            localFile:write(newScript)
-            localFile:close()
-            writeVersion(remoteVersion) -- Обновляем локальную версию
-            print(string.format("[Обновление] Обновление завершено: новая версия %s установлена. Перезагрузите скрипт.", remoteVersion))
-        else
-            print("[Ошибка] Не удалось загрузить обновлённый скрипт.")
-        end
-    else
-        print("[Обновление] Установлена последняя версия скрипта.")
-    end
+    print("\x1b[0;36mСерийный номер добавлен и сохранен.\x1b[0;36m")
 end
 
 -- Получаем текущий серийный номер процессора
@@ -455,14 +367,11 @@ addSerialToFile(currentSerial)
 
 -- Проверяем, разрешен ли серийный номер
 if checkIfSerialAllowed(currentSerial) then
-    print("Серийный номер разрешен.")
+    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;36m")
 else
-    print("Серийный номер не разрешен, выполнение скрипта приостановлено.")
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;36m")
     return  -- Просто прекращаем выполнение скрипта без завершения программы
 end
-
--- Вызов функции обновления при запуске
-autoUpdate()
 
 -- Загрузка скрипта
 function onLoad()
@@ -585,17 +494,17 @@ local function checkAndWriteLevel()
         -- Уровень, с которым сравниваем
         local requiredLevel = tonumber(cfg.main.finishLVL)
 
-        print("Текущий уровень: " .. score)
-        print("Необходимый уровень: " .. requiredLevel)
+        print("\x1b[0;36mТекущий уровень: " .. score .. "\x1b[37m")
+        print("Необходимый уровень: " .. requiredLevel .. "\x1b[37m")
 
         -- Проверка уровня
         if score >= requiredLevel then
-            print("Уровень достаточен, записываю в файл...")  -- Логируем запись в файл
+            print("\x1b[0;36mУровень достаточен, записываю в файл...\x1b[0;36m")  -- Логируем запись в файл
             writeToFile("config\\accounts.txt", ("%s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score, servername))
             vkacheno()
             generatenick()
         else
-            print("Уровень недостаточен для записи.")
+            print("\x1b[0;36mУровень недостаточен для записи.\x1b[0;36m")
         end
         
         -- Пауза на 30 секунд
@@ -638,7 +547,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
 		end
         if id == 4423 then 
             sendDialogResponse(4423, 1, 0, "")
-            printm("Устроился на работу грузчика!")
+            printm("\x1b[0;36mУстроился на работу грузчика!\x1b[0;36m")
             gruzchik()
             return false
         end
@@ -701,10 +610,10 @@ function sampev.onShowTextDraw(id, data)
 	if id == 2080 then
         if cfg.main.famspawn == 1 then
 		    sendClickTextdraw(2080)
-            print('[EVOLVED] Появились на спавне семьи.')
+            print('\x1b[0;36m[EVOLVED] Появились на спавне семьи.\x1b[0;36m')
         else
             sendClickTextdraw(2084) -- 2084 дефолт спавн, 2080 спавн семьи
-            print('[EVOLVED] Появились на дефолт спавне, так как спавн семьи отключен.')
+            print('\x1b[0;36m[EVOLVED] Появились на дефолт спавне, так как спавн семьи отключен.\x1b[0;36m')
         end
 	end
 	if id == 2164 then
@@ -1102,7 +1011,7 @@ function check_update()
 				rep = false
 				setBotPosition(packet[counter].x, packet[counter].y, packet[counter].z)
 				setBotQuaternion(packet[counter].qw, packet[counter].qx, packet[counter].qy, packet[counter].qz)
-				print('Маршрут закончен.')
+				print('\x1b[0;36mМаршрут закончен.\x1b[0;36m')
 				packet = {}
 			end
 			counter = 1
@@ -1117,13 +1026,11 @@ newTask(function()
 	end
 end)
 
-local print = function(arg) return print('\x1b[0;33mEVOLVED\x1b[37m] '..arg) end
-
 function err()
 	rep = false
 	packet = {}
 	counter = 1
-	print('Ошибка чтения маршрута.')
+	print('\x1b[0;36mОшибка чтения маршрута.\x1b[0;36m')
 end
 
 
@@ -1193,12 +1100,12 @@ function runRoute(act)
             local time = #packet * 0.06 / 60
             local timesec = #packet * 0.06 - math.floor(time) * 60
             local timems = #packet * 60
-            print('Запущен маршрут: "'..act:match('!play (.*)')..'". Длительность маршрута: '..math.floor(time)..' минут '..math.floor(timesec)..' секунд. В мс: '..timems)
+            print('\x1b[0;36mЗапущен маршрут: "'..act:match('!play (.*)')..'". Длительность маршрута: '..math.floor(time)..' минут '..math.floor(timesec)..' секунд. В мс: '..timems..'\x1b[0;37')
             counter = 1
             rep = true
             loop = false
         else
-            print('Такой записи нет.')
+            print('\x1b[0;36mТакой записи нет.\x1b[0;36m')
         end
     elseif act:find('!loop') then
         if rep then loop = not loop; print(loop and 'Зацикливание текущего маршрута.' or 'Зацикливание прекращено.') else print('Маршрут не проигрывается.') end
@@ -1303,7 +1210,7 @@ function sampev.onSendSpawn()
         if cfg.main.runspawn == 1 then
             pobeg()
         else
-            printm("[INFO] Побег со спавна отключен.")
+            printm("\x1b[0;36m[INFO] Побег со спавна отключен.\x1b[0;36m")
         end
     end)
 end
