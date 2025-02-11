@@ -942,12 +942,14 @@ function gruzchik()
 end
 
 -- побег со спавна
-
 local rep = false
 local loop = false
 local frozen = false
+local slapped = false
 local packet, veh = {}, {}
 local counter = 0
+local slap_wait_time = 5000 -- 5 секунд ожидания при слапе
+local freeze_wait_time = 20000 -- 20 секунд ожидания после разморозки
 
 local bitstream = {
 	onfoot = bitStream.new(),
@@ -978,14 +980,38 @@ end
 
 function sampev.onTogglePlayerControllable(controllable)
     if controllable then
-        frozen = false
-        print('\x1b[0;36mПерсонаж разморожен.\x1b[0;37m')
+        newTask(function()
+            print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m')
+            wait(freeze_wait_time)
+            if not frozen then
+                rep = true
+                print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m')
+            end
+        end)
     else
         frozen = true
         rep = false
         print('\x1b[0;36mПерсонаж заморожен, бег остановлен.\x1b[0;37m')
     end
 end
+
+function sampev.onSetPlayerPos(position)
+    local posx, posy, posz = getBotPosition()
+    if position.x == posx and position.y == posy and position.z ~= posz and not slapped then
+        print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m')
+        slapped = true
+        rep = false
+        newTask(function()
+            wait(slap_wait_time)
+            slapped = false
+            if not frozen then
+                rep = true
+                print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m')
+            end
+        end)
+    end
+end
+
 
 
 function sampev.onSendVehicleSync(data)
@@ -1002,7 +1028,7 @@ end
 
 
 function check_update()
-    if rep and not frozen then
+    if rep and not frozen and not slapped then
         local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
         if ok then
             if getBotVehicle() ~= 0 then bitstream.incar:sendPacket() else bitstream.onfoot:sendPacket() end
