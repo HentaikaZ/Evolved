@@ -138,7 +138,7 @@ function checkAndLoadIni()
                 print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;36m]")
             end
         else
-            print("\x1b[0;36m[INFO] INI файл загружен без изменений.")
+            print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;36m")
         end
     end
 
