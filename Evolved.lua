@@ -29,23 +29,6 @@ function sendSKey(skeyid)
 	updateSync()
  end
 
-
-function onRunCommand(cmd)
-    if cmd:find("^!key %d+$") then
-        sendKey(tonumber(cmd:match("%d+")))
-        return false
-    end
-    if cmd:find("^!skey %d+$") then
-	    sendSKey(tonumber(cmd:match("%d+")))
-	    return false
-        end
-    if cmd:find("^!td %d+$") then
-        sendClickTextdraw(tonumber(cmd:match("%d+")))
-        print("sended texdraw click: "..tonumber(cmd:match("%d+")))
-        return false
-    end
-end
-
 function sampev.onSendPlayerSync(data)
     if key then
         data.keysData = key
@@ -709,6 +692,12 @@ function sampev.onServerMessage(color, text)
 	if text:match('^Вы исчерпали количество попыток%. Вы отключены от сервера$') then
 		generatenick()
 	end
+    if text:match('Используйте: ') then
+        newTask(function()
+            wait(2222)
+            sendSKey(1)
+        end)
+    end
 end
 
 -- RPC TEXT
@@ -847,6 +836,8 @@ function onRunCommand(cmd)
         print('\x1b[0;32mОбьясняю как работают уведомления и некоторые true or false: 1 - Да, 0 - Нет.\x1b[37m')
         print('\x1b[0;32m!quest - Команда выполняет первый квест из квестовой линии.\x1b[37m')
         print('\x1b[0;32m!fspawn - Команда устанавливает спавн на семейный штаб.\x1b[37m')
+        print('\x1b[0;32m!key - Имитация нажатия клавиши\x1b[37m')
+        print('\x1b[0;32m!skey - 1 - Y, 2 - N\x1b[37m')
         print('\x1b[0;32mЕсли есть предложения, пишите, реализую, время от времени буду обновлять скрипт.\x1b[37m')
         print('\x1b[0;36m========================== AMARAYTHEN | Evolved by Hentaikazz ==========================\x1b[37m')
     end
@@ -854,7 +845,19 @@ function onRunCommand(cmd)
 		runRoute(cmd)
 		return false
 	end
-
+    if cmd:find("^!key %d+$") then
+        sendKey(tonumber(cmd:match("%d+")))
+        return false
+    end
+    if cmd:find("^!skey %d+$") then
+	    sendSKey(tonumber(cmd:match("%d+")))
+	    return false
+        end
+    if cmd:find("^!td %d+$") then
+        sendClickTextdraw(tonumber(cmd:match("%d+")))
+        print("sended texdraw click: "..tonumber(cmd:match("%d+")))
+        return false
+    end
 end
 
 function fspawn()
