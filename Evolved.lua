@@ -471,7 +471,7 @@ function generatenick()
     local surname = names_and_surnames[random(5163, 81533)]
     local nick = ('%s_%s'):format(name, surname)
     setBotNick(nick)
-	print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÈçìåíèëè íèê íà: \x1b[0;32m'..getBotNick()..'\x1b[37m.')
+	print('\x1b[0;36mÈçìåíèëè íèê íà: \x1b[0;32m'..getBotNick()..'\x1b[37m.')
 	reconnect(1)
 end
 
@@ -482,7 +482,7 @@ local function writeToFile(fileName, text)
         file:write(text .. "\n")  -- çàïèñûâàåì òåêñò ñ íîâîé ñòğîêè
         file:close()  -- çàêğûâàåì ôàéë
     else
-        print("Íå óäàëîñü îòêğûòü ôàéë äëÿ çàïèñè: " .. fileName)
+        print("\x1b[0;36mÍå óäàëîñü îòêğûòü ôàéë äëÿ çàïèñè: " .. fileName .. "\x1b[37m")
     end
 end
 
@@ -495,7 +495,7 @@ local function checkAndWriteLevel()
         local requiredLevel = tonumber(cfg.main.finishLVL)
 
         print("\x1b[0;36mÒåêóùèé óğîâåíü: " .. score .. "\x1b[37m")
-        print("Íåîáõîäèìûé óğîâåíü: " .. requiredLevel .. "\x1b[37m")
+        print("\x1b[0;36mÍåîáõîäèìûé óğîâåíü: " .. requiredLevel .. "\x1b[37m")
 
         -- Ïğîâåğêà óğîâíÿ
         if score >= requiredLevel then
@@ -610,10 +610,10 @@ function sampev.onShowTextDraw(id, data)
 	if id == 2080 then
         if cfg.main.famspawn == 1 then
 		    sendClickTextdraw(2080)
-            print('\x1b[0;36m[EVOLVED] Ïîÿâèëèñü íà ñïàâíå ñåìüè.\x1b[0;36m')
+            print('\x1b[0;36mÏîÿâèëèñü íà ñïàâíå ñåìüè.\x1b[0;36m')
         else
             sendClickTextdraw(2084) -- 2084 äåôîëò ñïàâí, 2080 ñïàâí ñåìüè
-            print('\x1b[0;36m[EVOLVED] Ïîÿâèëèñü íà äåôîëò ñïàâíå, òàê êàê ñïàâí ñåìüè îòêëş÷åí.\x1b[0;36m')
+            print('\x1b[0;36mÏîÿâèëèñü íà äåôîëò ñïàâíå, òàê êàê ñïàâí ñåìüè îòêëş÷åí.\x1b[0;36m')
         end
 	end
 	if id == 2164 then
@@ -943,15 +943,15 @@ function pobeg()
             wait(44444)
             local x, y = getBotPosition()
             if x >= -1950 and x <= -1999 and y >= 170 and y <= 100 then -- San Fierro spawn
-                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄÑÔ ñïàâíå.\x1b[0;37m')
+                print('\x1b[0;36mÂû íà ÆÄÑÔ ñïàâíå.\x1b[0;37m')
                 local put = random(1,15)
                 runRoute('!play sf'..put)
             elseif x >= 1000 and x <= 1200 and y >= -1900 and y <= -1700 then  -- Los Santos spawn
-                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mÂû íà ÆÄËÑ ñïàâíå.\x1b[0;37m')
+                print('\x1b[0;36mÂû íà ÆÄËÑ ñïàâíå.\x1b[0;37m')
                 local put = random(1,15)
                 runRoute('!play ls'..put)
             else
-                print('[\x1b[0;33mEVOLVED\x1b[37m] \x1b[0;36mCêğèïò íå ñìîã îïğåäåëèòü ñïàâí.\x1b[0;37m')
+                print('\x1b[0;36mCêğèïò íå ñìîã îïğåäåëèòü ñïàâí.\x1b[0;37m')
             end
         end)
     end
