@@ -942,6 +942,7 @@ function gruzchik()
 end
 
 -- побег со спавна
+-- побег со спавна
 local rep = false
 local loop = false
 local frozen = false
@@ -981,11 +982,11 @@ end
 function sampev.onTogglePlayerControllable(controllable)
     if rep then -- Проверка выполняется только если маршрут запущен
         if controllable then
+            frozen = false
             newTask(function()
                 print('\x1b[0;36mПерсонаж разморожен. Ожидание 20 секунд перед продолжением...\x1b[0;37m')
                 wait(freeze_wait_time)
-                if not frozen then
-                    rep = true
+                if rep then
                     print('\x1b[0;36mПродолжаем маршрут.\x1b[0;37m')
                 end
             end)
@@ -998,17 +999,16 @@ function sampev.onTogglePlayerControllable(controllable)
 end
 
 function sampev.onSetPlayerPos(position)
-    if rep then -- Проверка выполняется только если маршрут запущен
+    if rep and not slapped then -- Проверка выполняется только если маршрут запущен
         local posx, posy, posz = getBotPosition()
-        if position.x == posx and position.y == posy and position.z ~= posz and not slapped then
+        if position.x == posx and position.y == posy and position.z ~= posz then
             print('\x1b[0;36mSlap detected! Остановка на 5 секунд...\x1b[0;37m')
             slapped = true
             rep = false
             newTask(function()
                 wait(slap_wait_time)
                 slapped = false
-                if not frozen then
-                    rep = true
+                if rep then
                     print('\x1b[0;36mПродолжаем маршрут после слапа.\x1b[0;37m')
                 end
             end)
