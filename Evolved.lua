@@ -523,18 +523,23 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find("{FFFFFF}Регистрация | {ae433d}Создание пароля") then
             sendDialogResponse(id, 1, 0, tostring(cfg.main.password)) -- Преобразование в строку
         end
+        wait(888)
         if title:find('Правила сервера') then
             sendDialogResponse(id, 1, 0, '')
         end
+        wait(888)
         if title:find('E-mail') then
             sendDialogResponse(id, 1, 0, 'nomail@mail.ru')
         end
+        wait(888)
         if title:find('Приглашение') then
             sendDialogResponse(id, 1, 0, tostring(cfg.main.referal))
         end
+        wait(888)
         if title:find('Пол') then
             sendDialogResponse(id, 1, 0, '')
         end
+        wait(888)
         if title:find('Ввод пароля') then
             sendDialogResponse(id, 1, 0, tostring(cfg.main.password))
         end
