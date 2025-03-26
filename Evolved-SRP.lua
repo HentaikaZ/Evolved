@@ -289,7 +289,7 @@ end
 
 -- Функция для загрузки разрешенных серийных номеров с GitHub
 local function loadAllowedSerials()
-    local url = "https://github.com/HentaikaZ/Evolved/raw/refs/heads/main/HWID.json"
+    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
     local response = requests.get(url)
     if response.status_code == 200 then
         local data = json.decode(response.text)
@@ -374,6 +374,9 @@ else
     print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
     return  -- Просто прекращаем выполнение скрипта без завершения программы
 end
+
+-------------------------------------------------------------------------ЗАЩИТА-------------------------------------------------------------------------
+
 
 -- Загрузка скрипта
 function onLoad()
