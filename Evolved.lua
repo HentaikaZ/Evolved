@@ -30,8 +30,8 @@ local default_config = {
         proxy = 0,
         runspawn = 1,
         famspawn = 0,
-        referal = '#warrior'
-    
+        referal = '#warrior',
+        reconnect = 0
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -583,8 +583,10 @@ function sampev.onServerMessage(color, text)
         newTask(sendClickTextdraw, 2080, id)
     end
     if text:match("Время сейчас: ") then
-        wait(30000)
-    	reconnect(2940000)
+        if cfg.main.reconnect == 1 then
+            wait(30000)
+            reconnect(2940000)
+        end
     end
 end
 
