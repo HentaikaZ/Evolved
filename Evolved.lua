@@ -599,18 +599,18 @@ function onprintLog(text)
 	if text:match('^%[NET%] Bad nickname$') then
 		generatenick()
 	end
-	if text:match('[NET] You are banned. Reconnecting in 15 seconds.') then
+	if text:match('You are banned. Reconnecting in 15 seconds.') then
 		ipban()
         test()
     end
     if text:match('[NET] Bad nickname') then
         generatenick()
     end
-    if text:match('[PROXY] ERROR: Command not supported') then
+    if text:match('ERROR: Command not supported') then
         print('\x1b[0;36m[PROXY] Ошибка: Команда не поддерживается. Переподключение к прокси...\x1b[0;37m')
         connect_random_proxy()
     end
-    if text:match('[14:34:34] [PROXY] ERROR: Authentication failed. (WSAError: 0000274C)') then
+    if text:match('ERROR: Authentication failed. (WSAError: 0000274C)') then
         print('\x1b[0;36m[PROXY] Ошибка: Аутентификация не удалась. Переподключение к прокси...\x1b[0;37m')
         connect_random_proxy()
     end
