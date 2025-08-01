@@ -601,7 +601,6 @@ function onPrintLog(text)
 	end
 	if text:match('You are banned. Reconnecting in 15 seconds.') then
 		ipban()
-        test()
     end
     if text:match('[NET] Bad nickname') then
         generatenick()
