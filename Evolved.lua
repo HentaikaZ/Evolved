@@ -581,6 +581,9 @@ function sampev.onServerMessage(color, text)
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2080, id)
     end
+    if text:match("Время сейчас: ") then
+    	reconnect(2940000)
+    end
 end
 
 -- RPC TEXT
@@ -1341,3 +1344,4 @@ function sampev.onInterpolateCamera(set_pos, from_pos, dest_pos, time, mode)
         setBotPosition(dest_pos.x, dest_pos.y, dest_pos.z)
     end
 end
+
