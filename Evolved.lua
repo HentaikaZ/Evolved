@@ -606,6 +606,10 @@ function onprintLog(text)
     if text:match('[NET] Bad nickname') then
         generatenick()
     end
+    if text:match('[PROXY] ERROR: Command not supported') then
+        print('\x1b[0;36m[PROXY] Ошибка: Команда не поддерживается. Переподключение к прокси...\x1b[0;37m')
+        connect_random_proxy()
+    end
 end
 
 -----Текстдравы
