@@ -387,7 +387,11 @@ function onLoad()
             local lvl = getBotScore()
             local nick = getBotNick()
             local money = getBotMoney()
-            setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..'')
+            if cfg.main.proxy == 1 then 
+                setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..' | PROXY: '..my_proxy_ip)
+            else
+                setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..' | PROXY: OFF')
+            end
         end
         local score = getBotScore()
         if score == cfg.main.finishLVL and napisal == true then
