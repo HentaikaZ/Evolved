@@ -597,14 +597,11 @@ end
 
 -- RPC TEXT
 function onPrintLog(text)
-	if text:match('^%[NET%] Bad nickname$') then
+	if text:match(' Bad nickname') then
 		generatenick()
 	end
 	if text:match('You are banned. Reconnecting in 15 seconds.') then
 		ipban()
-    end
-    if text:match('[NET] Bad nickname') then
-        generatenick()
     end
     if text:match('ERROR: Command not supported') then
         print('\x1b[0;36m[PROXY] Ошибка: Команда не поддерживается. Переподключение к прокси...\x1b[0;37m')
