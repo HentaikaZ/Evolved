@@ -31,6 +31,7 @@ local default_config = {
         runspawn = 1,
         famspawn = 0,
         referal = '#warrior'
+    
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -582,6 +583,7 @@ function sampev.onServerMessage(color, text)
         newTask(sendClickTextdraw, 2080, id)
     end
     if text:match("Время сейчас: ") then
+        wait(30000)
     	reconnect(2940000)
     end
 end
@@ -1344,4 +1346,3 @@ function sampev.onInterpolateCamera(set_pos, from_pos, dest_pos, time, mode)
         setBotPosition(dest_pos.x, dest_pos.y, dest_pos.z)
     end
 end
-
