@@ -595,7 +595,7 @@ function sampev.onServerMessage(color, text)
 end
 
 -- RPC TEXT
-function onprintLog(text)
+function onPrintLog(text)
 	if text:match('^%[NET%] Bad nickname$') then
 		generatenick()
 	end
