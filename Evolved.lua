@@ -420,10 +420,10 @@ function onConnect()
     if serverip == '185.169.134.68:7777' then
         servername = ('Evolve 02')
     end
-    if serverip == 's1.evolve-rp.net' then
+    if serverip == 's1.evolve-rp.net:7777' then
         servername = ('Evolve 01')
     end
-    if serverip == 's2.evolve-rp.net' then
+    if serverip == 's2.evolve-rp.net:7777' then
         servername = ('Evolve 02')
     end
 end
