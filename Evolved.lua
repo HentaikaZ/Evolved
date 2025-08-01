@@ -586,12 +586,13 @@ function sampev.onServerMessage(color, text)
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2080, id)
     end
+    newTask(function()
     if text:match("Время сейчас: ") then
         if cfg.main.reconnect == 1 then
             wait(30000)
             reconnect(2940000)
         end
-    end
+    end)
 end
 
 -- RPC TEXT
