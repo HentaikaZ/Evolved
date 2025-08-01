@@ -610,6 +610,10 @@ function onprintLog(text)
         print('\x1b[0;36m[PROXY] Ошибка: Команда не поддерживается. Переподключение к прокси...\x1b[0;37m')
         connect_random_proxy()
     end
+    if text:match('[14:34:34] [PROXY] ERROR: Authentication failed. (WSAError: 0000274C)') then
+        print('\x1b[0;36m[PROXY] Ошибка: Аутентификация не удалась. Переподключение к прокси...\x1b[0;37m')
+        connect_random_proxy()
+    end
 end
 
 -----Текстдравы
