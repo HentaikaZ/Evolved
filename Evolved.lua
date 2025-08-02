@@ -37,6 +37,9 @@ local default_config = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
         chatid = "-1002199217342",
         user = "@your_username"
+    },
+    notifications = {
+        ipban = 1
     }
 }
 
@@ -405,7 +408,7 @@ function onLoad()
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
     print('			\x1b[0;33m        EVOLVED\x1b[37m  - \x1b[0;32mАКТИВИРОВАН\x1b[37m           ')
-    print('                      \x1b[0;33m        Made for FROSTBITTEN                       \x1b[37m                                         ')
+    print('                      \x1b[0;33m        Заебали просить обнову, хуесосы!              \x1b[37m                                         ')
     print('')
     print('                   \x1b[37m   \x1b[0;32mfor help use !evolved | <3 \x1b[37m             ')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
@@ -676,16 +679,18 @@ function vkacheno()
 end
 
 function noipban()
-	msg = ([[
-	[EVOLVED]
+    if cfg.notifications.ipban == 1 then
+	    msg = ([[
+	    [EVOLVED]
 		
-	Аккаунт заблокировали.	
-	Nick: %s
-    Server: %s
-	User: %s
-	]]):format(getBotNick(), servername, cfg.telegram.user)
-	newTask(sendtg, false, msg)
-	generatenick()
+	    Аккаунт заблокировали.	
+	    Nick: %s
+        Server: %s
+	    User: %s
+	    ]]):format(getBotNick(), servername, cfg.telegram.user)
+	    newTask(sendtg, false, msg)
+	    generatenick()
+    end
 end
 
 function ipban()
@@ -736,7 +741,7 @@ function onRunCommand(cmd)
         print('\x1b[0;32m!quest - Команда выполняет первый квест из квестовой линии.\x1b[37m')
         print('\x1b[0;32m!fspawn - Команда устанавливает спавн на семейный штаб.\x1b[37m')
         print('\x1b[0;32mЕсли есть предложения, пишите, реализую, время от времени буду обновлять скрипт.\x1b[37m')
-        print('\x1b[0;36m========================== FROSTBITTEN | Evolved  ==========================\x1b[37m')
+        print('\x1b[0;36m========================== Evolved  ==========================\x1b[37m')
     end
     if cmd:find('!play') or cmd:find('!stop') or cmd:find('!loop') then
 		runRoute(cmd)
