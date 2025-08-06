@@ -593,7 +593,7 @@ function sampev.onServerMessage(color, text)
         newTask(function()
             if cfg.main.reconnect == 1 then
                 wait(30000)
-                reconnect(2940000)
+                reconnect(3240000)
             end
         end)
     end
