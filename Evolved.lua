@@ -709,20 +709,18 @@ function ipban()
         connect_random_proxy()
         generatenick()
     else
-        if proxy == 0 then
-            msg = ([[
-	        [EVOLVED]
+        msg = ([[
+	    [EVOLVED]
 		
-	        Аккаунт заблокировали по IP.	
-            Nick: %s
-            IP: proxy off
-            Server: %s
-            User: %s
+	    Аккаунт заблокировали по IP.	
+        Nick: %s
+        IP: proxy off
+        Server: %s
+        User: %s
 		
-	        ]]):format(getBotNick(), servername, cfg.telegram.user)
-	        newTask(sendtg, false, msg)
-            generatenick()
-        end
+	    ]]):format(getBotNick(), servername, cfg.telegram.user)
+	    newTask(sendtg, false, msg)
+        generatenick()
     end
 end
 
