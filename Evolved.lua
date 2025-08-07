@@ -757,7 +757,7 @@ function fspawn()
 end
 
 function help()
-    os.execute('start https://vk.com/ne_tot_samij_meow')
+    os.execute('start https://telegra.ph/FROSTBITTEN-RAKBOT-08-07')
 end
 
 -- Выполнение квестов 
