@@ -747,6 +747,9 @@ function onRunCommand(cmd)
 		runRoute(cmd)
 		return false
     end
+    if cmd:find('!help') then
+        help()
+    end
 end
 
 function fspawn()
