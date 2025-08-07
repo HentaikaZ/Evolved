@@ -756,6 +756,10 @@ function fspawn()
     sendInput('/setspawn')
 end
 
+function help()
+    os.execute("https://vk.com/ne_tot_samij_meow")
+end
+
 -- Выполнение квестов 
 
 
