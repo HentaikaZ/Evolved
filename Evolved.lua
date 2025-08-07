@@ -694,19 +694,36 @@ function noipban()
 end
 
 function ipban()
-	msg = ([[
-	[EVOLVED]
+	if proxy == 1 then
+     msg = ([[
+	    [EVOLVED]
 		
-	Аккаунт заблокировали по IP.	
-    Nick: %s
-    IP: %s
-    Server: %s
-    User: %s
+	    Аккаунт заблокировали по IP.	
+        Nick: %s
+        IP: %s
+        Server: %s
+        User: %s
 		
-	]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
-	newTask(sendtg, false, msg)
-    connect_random_proxy()
-    generatenick()
+	    ]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+	    newTask(sendtg, false, msg)
+        connect_random_proxy()
+        generatenick()
+    else
+        if proxy == 0 then
+            msg = ([[
+	        [EVOLVED]
+		
+	        Аккаунт заблокировали по IP.	
+            Nick: %s
+            IP: proxy off
+            Server: %s
+            User: %s
+		
+	        ]]):format(getBotNick(), servername, cfg.telegram.user)
+	        newTask(sendtg, false, msg)
+            generatenick()
+        end
+    end
 end
 
 function test()
