@@ -408,7 +408,7 @@ function onLoad()
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
     print('		\x1b[0;33m             EVOLVED\x1b[37m  - \x1b[0;32m¿ “»¬»–Œ¬¿Õ\x1b[37m            ')
-    print('                 \x1b[0;33m  FROST EDITION      ne_sakuta. ft koxanovvv           \x1b[37m                                         ')
+    print('                 \x1b[0;33m      creator rakbot - ne_sakuta. ft koxanovvv           \x1b[37m                                         ')
     print('')
     print('                   \x1b[37m   \x1b[0;32mfor help use !evolved | <3 \x1b[37m             ')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
@@ -772,7 +772,7 @@ function fspawn()
 end
 
 function help()
-    os.execute('start https://telegra.ph/FROSTBITTEN-RAKBOT-08-07')
+    os.execute('start https://telegra.ph/Instrukciya-po-rakbotu-08-07')
 end
 
 -- ¬˚ÔÓÎÌÂÌËÂ Í‚ÂÒÚÓ‚ 
