@@ -31,7 +31,7 @@ local default_config = {
         runspawn = 0,
         famspawn = 0,
         referal = 'Hentai_Chan',
-        reconnect = 1
+        reconnect = 0
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
