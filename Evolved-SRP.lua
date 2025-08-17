@@ -389,7 +389,7 @@ function onLoad()
             local lvl = getBotScore()
             local nick = getBotNick()
             local money = getBotMoney()
-            setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..'')
+            setWindowTitle('[SAMP RP] '..nick..' | Level: '..lvl..'')
         end
         local score = getBotScore()
         if score == cfg.main.finishLVL and napisal == true then
