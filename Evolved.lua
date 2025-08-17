@@ -482,7 +482,7 @@ function generatenick()
     local nick = ('%s_%s'):format(name, surname)
     setBotNick(nick)
 	print('\x1b[0;36mИзменили ник на: \x1b[0;32m'..getBotNick()..'\x1b[37m]')
-	reconnect(1)
+	reconnect(5000)
 end
 
 -- Функция для записи в файл
@@ -592,7 +592,7 @@ function sampev.onServerMessage(color, text)
     if text:match("Время сейчас: ") then
         newTask(function()
             if cfg.main.reconnect == 1 then
-                wait(40000) --- ждать после пд 40 секунд
+                wait(25000) --- ждать после пд 25 секунд
                 reconnect(3240000) --- время захода 54-я минута
             end
         end)
