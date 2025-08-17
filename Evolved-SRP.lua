@@ -619,7 +619,7 @@ end
 
 function slapuved()
 	msg = ([[
-	[EVOLVED]
+	[SRP]
 				
 	слапнули.					
 	Nick: %s
@@ -631,7 +631,7 @@ end
 
 function vkacheno()
     local msg = ([[  
-    [EVOLVED]  
+    [SRP]  
 
     Аккаунт вкачен. 
     Nick: %s
@@ -645,7 +645,7 @@ end
 
 function noipban()
 	msg = ([[
-	[EVOLVED]
+	[SRP]
 		
 	Аккаунт заблокировали.	
 	Nick: %s
@@ -658,7 +658,7 @@ end
 
 function ipban()
 	msg = ([[
-	[EVOLVED]
+	[SRP]
 		
 	Аккаунт заблокировали по IP.	
     Nick: %s
@@ -674,7 +674,7 @@ end
 
 function test()
     msg = ([[
-	[EVOLVED]
+	[SRP]
 		
 	    ТЕСТОВОЕ УВЕДОМЛЕНИЕ О РАБОТЕ.
         	
