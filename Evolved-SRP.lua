@@ -15,7 +15,7 @@ local socket = require 'socket'
 local ini = require("inicfg")
 local lfs = require("lfs")  -- Работа с файловой системой
 
-local print = function(arg) return print('[\x1b[0;33mEVOLVED\x1b[37m]  '..arg) end
+local print = function(arg) return print('[\x1b[0;33mSRP\x1b[37m]  '..arg) end
 
 -- CONFIG
 local config_dir = "config"
