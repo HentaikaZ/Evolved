@@ -30,7 +30,8 @@ local default_config = {
         proxy = 0,
         runspawn = 0,
         famspawn = 0,
-        referal = 'Hentai_Chan'
+        referal = 'Hentai_Chan',
+        reconnect = 1
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -396,6 +397,11 @@ function onLoad()
             sampstoreupload()
             napisal = false
         end
+        if cfg.main.proxy == 1 then 
+            setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..' | PROXY: '..my_proxy_ip)
+        else
+            setWindowTitle('[EVOLVED] '..nick..' | Level: '..lvl..' | PROXY: OFF')
+        end
     end)
     if cfg.main.randomnick == 1 then
         generatenick()
@@ -565,6 +571,14 @@ function sampev.onServerMessage(color, text)
 	end
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2080, id)
+    end
+    if text:match("Время сейчас: ") then
+        newTask(function()
+            if cfg.main.reconnect == 1 then
+                wait(25000) --- ждать после пд 25 секунд
+                reconnect(3240000) --- время захода 54-я минута
+            end
+        end)
     end
 end
 
