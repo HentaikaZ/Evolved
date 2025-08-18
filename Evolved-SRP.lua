@@ -693,6 +693,37 @@ function ipban()
     generatenick()
 end
 
+function ipban()
+	if proxy == 1 then
+     msg = ([[
+	    [SRP]
+		
+	    Аккаунт заблокировали по IP.	
+        Nick: %s
+        IP: %s
+        Server: %s
+        User: %s
+		
+	    ]]):format(getBotNick(), my_proxy_ip, servername, cfg.telegram.user)
+	    newTask(sendtg, false, msg)
+        connect_random_proxy()
+        generatenick()
+    else
+        msg = ([[
+	    [SRP]
+		
+	    Аккаунт заблокировали по IP.	
+        Nick: %s
+        IP: proxy off
+        Server: %s
+        User: %s
+		
+	    ]]):format(getBotNick(), servername, cfg.telegram.user)
+	    newTask(sendtg, false, msg)
+        generatenick()
+    end
+end
+
 function test()
     msg = ([[
 	[SRP]
