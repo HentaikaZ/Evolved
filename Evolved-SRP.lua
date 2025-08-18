@@ -553,6 +553,9 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Авторизация') then
             sendDialogResponse(id, 1, 3, tostring(cfg.main.password))
         end
+        if title:find('Внимание!') then
+		    noipban()
+        end
     end)
 end
 
