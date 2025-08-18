@@ -554,10 +554,7 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
             sendDialogResponse(id, 1, 3, tostring(cfg.main.password))
         end
         if title:find('Внимание!') then
-		    noipban()
-        end
-        if title:find('Ваш IP адрес заблокирован') then
-            ipban()
+            generatenick()
         end
     end)
 end
@@ -586,7 +583,11 @@ function sampev.onServerMessage(color, text)
             end
         end)
     end
+    if text:match('Ваш IP адрес заблокирован') then
+        ipban()
+    end
 end
+
 
 -- RPC TEXT
 function onprintLog(text)
