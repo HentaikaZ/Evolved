@@ -556,6 +556,9 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Внимание!') then
 		    noipban()
         end
+        if title:find('Ваш IP адрес заблокирован') then
+            ipban()
+        end
     end)
 end
 
