@@ -489,7 +489,7 @@ function generatenick()
     local nick = ('%s_%s'):format(name, surname)
     setBotNick(nick)
 	print('\x1b[0;36mИзменили ник на: \x1b[0;32m'..getBotNick()..'\x1b[37m]')
-	reconnect(5000)
+	reconnect(50)
 end
 
 -- Функция для записи в файл
