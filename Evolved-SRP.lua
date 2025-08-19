@@ -575,7 +575,7 @@ function sampev.onServerMessage(color, text)
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2080, id)
     end
-    if text:match("Время сейчас: ") then
+    if text:match("--------===[ КЛИЕНТ БАНКА SA ]===-------") then
         newTask(function()
             if cfg.main.reconnect == 1 then
                 wait(25000) --- ждать после пд 25 секунд
