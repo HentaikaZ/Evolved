@@ -517,8 +517,8 @@ local function checkAndWriteLevel()
             print("\x1b[0;36mУровень недостаточен для записи.\x1b[0;37m")
         end
         
-        -- Пауза на 30 секунд
-        wait(30000)  -- 30000 миллисекунд = 30 секунд
+        -- Пауза на 20 секунд
+        wait(20000)  -- 20000 миллисекунд = 20 секунд
     end
 end
 
@@ -592,8 +592,8 @@ function sampev.onServerMessage(color, text)
     if text:match("Время сейчас: ") then
         newTask(function()
             if cfg.main.reconnect == 1 then
-                wait(25000) --- ждать после пд 25 секунд
-                reconnect(3240000) --- время захода 54-я минута
+                wait(360000) --- ждать после пейдея = 5 минут
+                reconnect(3500000) --- время захода 59-я минута
             end
         end)
     end
