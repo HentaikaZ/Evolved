@@ -592,8 +592,8 @@ function sampev.onServerMessage(color, text)
     if text:match("Время сейчас: ") then
         newTask(function()
             if cfg.main.reconnect == 1 then
-                wait(360000) --- ждать после пейдея = 5 минут
-                reconnect(3500000) --- время захода 59-я минута
+                wait(25000) --- ждать после пейдея = 25 секунд
+                reconnect(3240000) --- время захода 54 минута
             end
         end)
     end
