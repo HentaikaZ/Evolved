@@ -576,7 +576,7 @@ end
 -----Собития на текст
 function sampev.onServerMessage(color, text)
 	if text:match('Добро пожаловать на {ae433d}Evolve Role Play') then
-        writeToFile("config\\everything.txt", ("%s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), getBotScore, servername))
+        writeToFile("config\\everything.txt", ("%s | %s | %s | %s"):format(getBotNick(), tostring(cfg.main.password), score, servername))
     end
 	if text:match('Вы ввели неверный пароль!') then
 		generatenick()
