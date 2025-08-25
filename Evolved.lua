@@ -677,6 +677,9 @@ function vkacheno()
     ]]):format(getBotNick(), getBotScore(), servername, cfg.telegram.user)
 
     sendtg(msg)
+
+    -- После отправки сообщения перезагружаем скрипт
+    reloadScript()
 end
 
 function noipban()
