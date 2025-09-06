@@ -616,6 +616,9 @@ function onPrintLog(text)
         print('\x1b[0;36m[PROXY] Ошибка: Аутентификация не удалась. Переподключение к прокси...\x1b[0;37m')
         connect_random_proxy()
     end
+    if text:match('Server closed the connection.')
+        reconnect(300000)
+    end
 end
 
 -----Текстдравы
