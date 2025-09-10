@@ -570,8 +570,8 @@ function sampev.onShowDialog(id, style, title, btn1, btn2, text)
         if title:find('Подтверждение') then
             sendDialogResponse(id, 1, 0, 'Вы даёте своё согласие на предложение от игрока')
         end
-         if text:find("предложил Вам вступить в frostbitten.") then
-            sampSendDialogResponse(id, 1, 0)
+        if text:find("предложил Вам вступить в frostbitten.") then
+            sendDialogResponse(id, 1, 0)
             return false
         end
     end)
