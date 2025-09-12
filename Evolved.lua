@@ -408,7 +408,7 @@ function onLoad()
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
     print('')
     print('		\x1b[0;33m             EVOLVED\x1b[37m  - \x1b[0;32mАКТИВИРОВАН\x1b[37m            ')
-    print('              \x1b[0;33m       Для всех от - ne_sakuta. ft .M F I                         \x1b[37m                                         ')
+    print('             \x1b[0;33m       Для всех от - ne_sakuta. ft .M F I                        \x1b[37m                                         ')
     print('')
     print('                   \x1b[37m   \x1b[0;32mfor help use !evolved | <3 \x1b[37m             ')
     print('\x1b[0;36m------------------------------------------------------------------------\x1b[37m')
@@ -602,6 +602,9 @@ function sampev.onServerMessage(color, text)
             end
         end)
     end
+    if text:match('Server closed the connection.') then
+        reconnect(300000) -- перезаход через 5 минут
+    end
 end
 
 -- RPC TEXT
@@ -619,9 +622,6 @@ function onPrintLog(text)
     if text:match('ERROR: Authentication failed. (WSAError: 0000274C)') then
         print('\x1b[0;36m[PROXY] Ошибка: Аутентификация не удалась. Переподключение к прокси...\x1b[0;37m')
         connect_random_proxy()
-    end
-    if text:match('Server closed the connection.') then
-        reconnect(300000)
     end
 end
 
