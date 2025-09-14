@@ -602,7 +602,7 @@ function sampev.onServerMessage(color, text)
             end
         end)
     end
-    if text:match('Server closed the connection.') then
+    if text:match('Соединение с сервером разорвано') then
         reconnect(300000) -- перезаход через 5 минут
     end
 end
