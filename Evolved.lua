@@ -691,7 +691,7 @@ function noipban()
 	    msg = ([[
 	    [EVOLVED]
 		
-	    Аккаунт заблокировали.	
+	    сын шлюхи забанил аккаунт.	
 	    Nick: %s
         Server: %s
 	    User: %s
@@ -706,7 +706,7 @@ function ipban()
      msg = ([[
 	    [EVOLVED]
 		
-	    Аккаунт заблокировали по IP.	
+	    сын шлюхи забанил аккаунт по IP.	
         Nick: %s
         IP: %s
         Server: %s
@@ -720,7 +720,7 @@ function ipban()
         msg = ([[
 	    [EVOLVED]
 		
-	    Аккаунт заблокировали по IP.	
+	    сын шлюхи забанил аккаунт по IP.	
         Nick: %s
         IP: proxy off
         Server: %s
