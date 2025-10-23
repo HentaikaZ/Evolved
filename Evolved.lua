@@ -518,7 +518,7 @@ local function checkAndWriteLevel()
         end
         
         -- Пауза на 20 секунд
-        wait(20000)  -- 20000 миллисекунд = 20 секунд
+        wait(30000)  -- 30000 миллисекунд = 30 секунд
     end
 end
 
