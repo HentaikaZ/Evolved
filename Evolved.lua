@@ -596,9 +596,19 @@ function sampev.onServerMessage(color, text)
     end
     if text:match("¬рем€ сейчас: ") then
         newTask(function()
-            if cfg.main.reconnect == 1 then
+            if cfg.main.reconnect and cfg.main.proxy == 1 then
+                print('\x1b[0;36m[INFO] –еконнект с прокси...\x1b[0;37m')
+                connect_random_proxy()
                 wait(35000) --- ждать после пейде€ = 35 секунд
                 reconnect(3240000) --- врем€ захода 54 минута
+            else
+                if cfg.main.reconnect == 1 then
+                    if cfg.main.proxy == 0 then
+                        print('\x1b[0;36m[INFO] –еконнект без прокси...\x1b[0;37m')
+                        wait(35000) --- ждать после пейде€ = 35 секунд
+                        reconnect(3240000) --- врем€ захода 54 минута
+                    end
+                end
             end
         end)
     end
