@@ -609,7 +609,10 @@ function sampev.onServerMessage(color, text)
         end)
     end
     if text:match('Соединение с сервером разорвано') then
-        reconnect(300000) -- перезаход через 5 минут
+        newTask(function()
+            wait(35000) --- ждать 35 секунд после кика
+            reconnect(300000) -- перезаход через 5 минут
+        end)
     end
 end
 
