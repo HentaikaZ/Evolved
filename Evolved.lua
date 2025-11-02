@@ -27,11 +27,11 @@ local default_config = {
         password = "12341234",
         randomnick = 0,
         finishLVL = 3,
-        proxy = 0,
         runspawn = 1,
         famspawn = 0,
         referal = '#warrior',
-        reconnect = 0
+        reconnect = 0,
+        proxy = 0
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -224,6 +224,10 @@ end
 
 -- Функция для подключения с прокси
 function connect_random_proxy()
+    if cfg.main.proxy == 0 then
+        print("\x1b[0;36m[INFO] Использование прокси отключено в настройках.\x1b[0;37m")
+        return
+    end
     if isProxyConnected() then
         proxyDisconnect()
     end
@@ -592,19 +596,11 @@ function sampev.onServerMessage(color, text)
     end
     if text:match("Время сейчас: ") then
         newTask(function()
-            if cfg.main.reconnect and cfg.main.proxy == 1 then
-                print('\x1b[0;36m[INFO] Реконнект с прокси...\x1b[0;37m')
-                connect_random_proxy()
+            if cfg.main.reconnect == 1 then
+                print('\x1b[0;36m[INFO] Реконнекти...\x1b[0;37m')
                 wait(35000) --- ждать после пейдея = 35 секунд
                 reconnect(3240000) --- время захода 54 минута
-            else
-                if cfg.main.reconnect == 1 then
-                    if cfg.main.proxy == 0 then
-                        print('\x1b[0;36m[INFO] Реконнект без прокси...\x1b[0;37m')
-                        wait(35000) --- ждать после пейдея = 35 секунд
-                        reconnect(3240000) --- время захода 54 минута
-                    end
-                end
+                connect_random_proxy()
             end
         end)
     end
