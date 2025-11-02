@@ -597,8 +597,8 @@ function sampev.onServerMessage(color, text)
     if text:match("Время сейчас: ") then
         newTask(function()
             if cfg.main.reconnect == 1 then
-                print('\x1b[0;36m[INFO] Реконнекти...\x1b[0;37m')
                 wait(35000) --- ждать после пейдея = 35 секунд
+                print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
                 reconnect(3240000) --- время захода 54 минута
                 connect_random_proxy()
             end
@@ -778,6 +778,16 @@ function onRunCommand(cmd)
     end
     if cmd:find('!help') then
         help()
+    end
+    if cmd:find('!testrec') then
+        newTask(function()
+            if cfg.main.reconnect == 1 then
+                wait(35000) --- ждать после пейдея = 35 секунд
+                print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
+                reconnect(10000) --- время захода 10 секунд
+                connect_random_proxy()
+            end
+        end)
     end
 end
 
