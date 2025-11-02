@@ -728,7 +728,8 @@ function testrec()
             wait(35000) --- ждать после пейдея = 35 секунд
             print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
             reconnect(10000) --- время захода 10 секунд
-            wait(10000)
+            proxyDisconnect()
+            wait(9000)
             connect_random_proxy()
         end
     end)
