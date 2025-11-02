@@ -167,60 +167,6 @@ local proxys = {}
 local my_proxy_ip
 
 -- Функция для загрузки статистики использования прокси из JSON
-function loadProxyUsage()
-    local file = io.open("scripts/proxy_usage.json", "r")
-    if not file then
-        return {}  -- Если файл не существует, возвращаем пустую таблицу
-    end
-    local data = file:read("*all")
-    file:close()
-    
-    local proxy_usage = json.decode(data)
-    return proxy_usage or {}  -- Возвращаем пустую таблицу, если данные невалидны
-end
-
--- Функция для сохранения статистики использования прокси в JSON
-function saveProxyUsage(proxy_usage)
-    local file = io.open("scripts/proxy_usage.json", "w")
-    if file then
-        file:write(json.encode(proxy_usage, {indent = true}))
-        file:close()
-    else
-        print("\x1b[0;36m[Ошибка] Не удалось сохранить статистику по прокси.\x1b[0;36m")
-    end
-end
-
--- Функция для обновления статистики использования прокси
-function updateProxyUsage(proxy_ip, server_ip)
-    local proxy_usage = loadProxyUsage()
-    
-    if not proxy_usage[proxy_ip] then
-        proxy_usage[proxy_ip] = {}
-    end
-    
-    if proxy_usage[proxy_ip][server_ip] then
-        proxy_usage[proxy_ip][server_ip].count = proxy_usage[proxy_ip][server_ip].count + 1
-        proxy_usage[proxy_ip][server_ip].last_used = os.time()
-    else
-        proxy_usage[proxy_ip][server_ip] = { count = 1, last_used = os.time() }
-    end
-
-    saveProxyUsage(proxy_usage)
-end
-
--- Функция для проверки лимита подключений по прокси и серверу
-function checkProxyLimit(proxy_ip, server_ip)
-    local proxy_usage = loadProxyUsage()
-    
-    if proxy_usage[proxy_ip] and proxy_usage[proxy_ip][server_ip] then
-        if proxy_usage[proxy_ip][server_ip].count >= 2 then
-            print("\x1b[0;36m[Ошибка] Превышено максимальное количество подключений для IP: " .. proxy_ip .. " на сервере " .. server_ip .. ".\x1b[0;37m")
-            connect_random_proxy()
-            return false
-        end
-    end
-    return true
-end
 
 -- Функция для подключения с прокси
 function connect_random_proxy()
@@ -790,6 +736,7 @@ function testrec()
             wait(35000) --- ждать после пейдея = 35 секунд
             print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
             reconnect(10000) --- время захода 10 секунд
+            wait(10000)
             connect_random_proxy()
         end
     end)
