@@ -727,10 +727,10 @@ function testrec()
         if cfg.main.reconnect == 1 then
             wait(35000) --- ждать после пейдея = 35 секунд
             print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
-            reconnect(10000) --- время захода 10 секунд
-            proxyDisconnect()
-            wait(9000)
+            disconnect()
+            wait(5000)
             connect_random_proxy()
+            reconnect(10000) --- время захода 10 секунд
         end
     end)
 end
