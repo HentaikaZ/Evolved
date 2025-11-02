@@ -780,15 +780,19 @@ function onRunCommand(cmd)
         help()
     end
     if cmd:find('!testrec') then
-        newTask(function()
-            if cfg.main.reconnect == 1 then
-                wait(35000) --- ждать после пейдея = 35 секунд
-                print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
-                reconnect(10000) --- время захода 10 секунд
-                connect_random_proxy()
-            end
-        end)
+        testrec()
     end
+end
+
+function testrec()
+    newTask(function()
+        if cfg.main.reconnect == 1 then
+            wait(35000) --- ждать после пейдея = 35 секунд
+            print('\x1b[0;36m[INFO] Реконнект...\x1b[0;37m')
+            reconnect(10000) --- время захода 10 секунд
+            connect_random_proxy()
+        end
+    end)
 end
 
 function fspawn()
