@@ -181,14 +181,6 @@ function connect_random_proxy()
     local new_proxy = proxys[math.random(1, #proxys)]
     my_proxy_ip = new_proxy.ip
     server_ip = getServerAddress()
-
-    -- Проверяем лимит подключений
-    if checkProxyLimit(my_proxy_ip, server_ip) then
-        proxyConnect(new_proxy.ip, new_proxy.user, new_proxy.pass)
-        updateProxyUsage(my_proxy_ip, server_ip)  -- Обновляем статистику использования прокси
-    else
-        print("\x1b[0;36m[Ошибка] Подключение с этим прокси невозможно из-за ограничения на количество подключений.\x1b[0;37m")
-    end
 end
 
 -- Функция для разделения строки на части
