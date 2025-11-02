@@ -645,7 +645,7 @@ function sampev.onShowTextDraw(id, data)
 		    sendClickTextdraw(2080)
             print('\x1b[0;36mПоявились на спавне семьи.\x1b[0;37m')
         else
-            sendClickTextdraw(2084) -- 2084 дефолт спавн, 2080 спавн семьи
+            sendClickTextdraw(2083) -- 2084 дефолт спавн, 2080 спавн семьи
             print('\x1b[0;36mПоявились на дефолт спавне, так как спавн семьи отключен.\x1b[0;37m')
         end
 	end
