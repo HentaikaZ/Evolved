@@ -641,8 +641,8 @@ function sampev.onShowTextDraw(id, data)
     elseif data.selectable and data.text == 'selecticon3' and data.position.x == 233.0 and data.position.y == 337.0 then
         newTask(sendClickTextdraw, 6000, id)
     end
-	if id == 394 then
-        sendClickTextdraw(394)
+	if id == 408 then
+        sendClickTextdraw(408)
     end
 	if id == 2080 then
         if cfg.main.famspawn == 1 then
