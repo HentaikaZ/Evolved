@@ -52,15 +52,15 @@ local router = {
 
 printm = function(text, color)
     if color == "green" then
-        printm('\x1b[32m[ '..visuals.name..' ]: \x1b[37m'..text)
+        print('\x1b[32m[ '..visuals.name..' ]: \x1b[37m'..text)
     elseif color == "blue" then
-        printm('\x1b[0;36m[ '..visuals.name..' ]: \x1b[37m'..text)
+        print('\x1b[0;36m[ '..visuals.name..' ]: \x1b[37m'..text)
     elseif color == "yellow" then
-        printm('\x1b[33m[ '..visuals.name..' ]: \x1b[37m'..text)
+        print('\x1b[33m[ '..visuals.name..' ]: \x1b[37m'..text)
     elseif color == "red" then
-        printm('\x1b[0;31m[ '..visuals.name..' ]: \x1b[37m'..text)
+        print('\x1b[0;31m[ '..visuals.name..' ]: \x1b[37m'..text)
     elseif color == "purple" then
-        printm('\x1b[1;35m[ '..visuals.name..' ]: \x1b[37m'..text)
+        print('\x1b[1;35m[ '..visuals.name..' ]: \x1b[37m'..text)
     end
 end
 
