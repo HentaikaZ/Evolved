@@ -194,7 +194,7 @@ function checkAndLoadIni()
             if not success then
                 print("\x1b[0;36m[ERROR] Ошибка при сохранении INI файла: " .. err .. "\x1b[0;37m")
             else
-                print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;37m")
+                printm("[INFO] INI файл обновлён.", 'green')
             end
         else
             print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;37m")
