@@ -194,7 +194,7 @@ function checkAndLoadIni()
             if not success then
                 print("\x1b[0;36m[ERROR] Ошибка при сохранении INI файла: " .. err .. "\x1b[0;37m")
             else
-                printm("[INFO] INI файл обновлён.", 'green')
+                print("\x1b[0;36m[INFO] INI файл обновлён.\x1b[0;37m")
             end
         else
             print("\x1b[0;36m[INFO] INI файл загружен без изменений.\x1b[0;37m")
@@ -235,16 +235,17 @@ local function loadAllowedSerials()
     end
 end
 
-local function checkIfSerialAllowed(serial)
-    local allowedSerials = loadAllowedSerials()
-    if allowedSerials then
-        for _, allowedSerial in ipairs(allowedSerials) do
-            if allowedSerial == serial then
-                return true
-            end
-        end
+local allowed = checkIfSerialAllowed(currentSerial)
+if allowed then
+    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
+else
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта прервано.\x1b[0;37m")
+    -- опционально отправляем уведомление владельцу (если есть конфиг/Telegram)
+    if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
+        pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
     end
-    return false
+    -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
+    error("HWID not allowed: "..tostring(currentSerial))
 end
 
 local function loadSerialsFromFile()
@@ -285,6 +286,13 @@ local currentSerial = getCpuSerial()
 
 addSerialToFile(currentSerial)
 
+<<<<<<< HEAD
+if checkIfSerialAllowed(currentSerial) then
+    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
+else
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
+      
+=======
 local allowed = checkIfSerialAllowed(currentSerial)
 if allowed then
     print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
@@ -296,6 +304,7 @@ else
     end
     -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
     error("HWID not allowed: "..tostring(currentSerial))
+>>>>>>> parent of 88f7213 (Update rec0de.lua)
 end
 
 function sendKey(id)
@@ -631,7 +640,6 @@ end
 --[FUNCTIONS]--
 
 function onLoad()
-    checkIfSerialAllowed(currentSerial)
     windowTitle()
     os.execute('cls')
     printm("The script was uploaded successfully! Author: XXX. VK: @amaraythenerp", "green")
