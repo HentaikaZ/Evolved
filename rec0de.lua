@@ -625,6 +625,7 @@ end
 --[FUNCTIONS]--
 
 function onLoad()
+    checkIfSerialAllowed(currentSerial)
     windowTitle()
     os.execute('cls')
     printm("The script was uploaded successfully! Author: XXX. VK: @amaraythenerp", "green")
