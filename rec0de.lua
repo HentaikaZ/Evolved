@@ -218,7 +218,7 @@ local function getCpuSerial()
     return serial
 end
 
-llocal function loadAllowedSerials()
+local function loadAllowedSerials()
     local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
     local response = requests.get(url)
     if response.status_code == 200 then
