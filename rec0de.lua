@@ -285,11 +285,17 @@ local currentSerial = getCpuSerial()
 
 addSerialToFile(currentSerial)
 
-if checkIfSerialAllowed(currentSerial) then
+local allowed = checkIfSerialAllowed(currentSerial)
+if allowed then
     print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
 else
-    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
-      
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта прервано.\x1b[0;37m")
+    -- опционально отправляем уведомление владельцу (если есть конфиг/Telegram)
+    if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
+        pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
+    end
+    -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
+    error("HWID not allowed: "..tostring(currentSerial))
 end
 
 function sendKey(id)
