@@ -93,7 +93,8 @@ local default_config = {
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
-        chatid = "-1002199217342"
+        chatid = "-1002199217342",
+        user = '@yourusername'
     },
     coords = {
         step = 2,
@@ -285,11 +286,17 @@ local currentSerial = getCpuSerial()
 
 addSerialToFile(currentSerial)
 
-if checkIfSerialAllowed(currentSerial) then
+local allowed = checkIfSerialAllowed(currentSerial)
+if allowed then
     print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
 else
-    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
-      
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта прервано.\x1b[0;37m")
+    -- опционально отправляем уведомление владельцу (если есть конфиг/Telegram)
+    if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
+        pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
+    end
+    -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
+    error("HWID not allowed: "..tostring(currentSerial))
 end
 
 function sendKey(id)
@@ -625,6 +632,7 @@ end
 --[FUNCTIONS]--
 
 function onLoad()
+    checkIfSerialAllowed(currentSerial)
     windowTitle()
     os.execute('cls')
     printm("The script was uploaded successfully! Author: XXX. VK: @amaraythenerp", "green")
@@ -1164,7 +1172,7 @@ mysplit = function(inputstr, sep)
 end
 
 sendTG = function(arg)
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney)
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *USER:* `$%d`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, cfg.telegram.user)
     async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
 
 end
