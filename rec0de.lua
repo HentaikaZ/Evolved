@@ -83,7 +83,6 @@ local proxys = { ["proxyList"] = {}, ["activeProxy"] = {}, ["errorCount"] = 0, [
 local default_config = {
     main = {
         password = "12341234",
-        randomnick = 0,
         finishLVL = 3,
         spawn_action = 'walk',
         referal = '#warrior',
@@ -1043,7 +1042,7 @@ loadProxyList = function()
 end
 
 changeProxy = function()
-    if #proxys.proxyList > 0 then
+    if #proxys.proxyList > 0 and cfg.main.proxy == 1 then
         proxyDisconnect()
         math.randomseed(os.time())
         local selectedProxy = proxys.proxyList[random(1, #proxys.proxyList)]
