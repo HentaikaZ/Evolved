@@ -1135,9 +1135,9 @@ function onConnect()
 end
 
 loadPositions = function()
-    local file = io.open("settings/coords.txt", "r")
+    local file = io.open("config/coords.txt", "r")
     if not file then
-        printm("Файл с координатами не найден: settings/coords.txt", "red")
+        printm("Файл с координатами не найден: config/coords.txt", "red")
         return {}
     end
     local positions = {}
