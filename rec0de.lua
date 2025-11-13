@@ -93,8 +93,7 @@ local default_config = {
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
-        chatid = "-1002199217342",
-        user = '@yourusername'
+        chatid = "-1002199217342"
     },
     coords = {
         step = 2,
@@ -112,64 +111,6 @@ cMoveSpeed = {
     z = tonumber(cfg and cfg.coords and cfg.coords.ms_z) or tonumber(default_config.coords.ms_z)
 }
 local ignorePrintCoord = {"^%[COORD%] Started%. Distance%: (%d+) m%.", "^%[COORD%] Done%!", "^%[COORD%] Stopped%."}
-
-sendTG = function(arg)
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *USER:* `%s`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, cfg.telegram.user)
-    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
-
-end
-
-encodeUrl = function(str)
-    str = str:gsub(' ', '%+')
-    str = str:gsub('\n', '%%0A')
-    return u8:encode(str, 'CP1251')
-end
-
-async_http_request = function(url, args, resolve, reject)
-    local runner = requestRunner()
-    if not reject then
-        reject = function()
-        end
-    end
-    newTask(function()
-        threadHandle(runner, url, args, resolve, reject)
-    end)
-end
-
-threadHandle = function(runner, url, args, resolve, reject)
-    local t = runner(url, args)
-    local r = t:get(0)
-    while not r do
-        r = t:get(0)
-        wait(0)
-    end
-    local status = t:status()
-    if status == 'completed' then
-        local ok, result = r[1], r[2]
-        if ok then
-            resolve(result)
-        else
-            reject(result)
-        end
-    elseif err then
-        reject(err)
-    elseif status == 'canceled' then
-        reject(status)
-    end
-    t:cancel(0)
-end
-
-requestRunner = function()
-    return effil.thread(function(u, a)
-        local https = require 'ssl.https'
-        local ok, result = pcall(https.request, u, a)
-        if ok then
-            return {true, result}
-        else
-            return {false, result}
-        end
-    end)
-end
 
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
@@ -346,14 +287,15 @@ addSerialToFile(currentSerial)
 
 local allowed = checkIfSerialAllowed(currentSerial)
 if allowed then
-    printm("Серийный номер разрешен. Продолжаем выполнение скрипта.", "green")
+    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
 else
-    printm("Серийный номер не разрешен, выполнение скрипта прервано.", "red")
+    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта прервано.\x1b[0;37m")
+    -- опционально отправляем уведомление владельцу (если есть конфиг/Telegram)
+    if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
+        pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
+    end
     -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
-    newTask(function()
-        wait(1000)  -- даём время на отправку уведомления
-        error("HWID not allowed: "..tostring(currentSerial))
-    end)
+    error("HWID not allowed: "..tostring(currentSerial))
 end
 
 function sendKey(id)
@@ -1226,6 +1168,64 @@ mysplit = function(inputstr, sep)
 		i = i + 1
 	end
 	return t
+end
+
+sendTG = function(arg)
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney)
+    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
+
+end
+
+encodeUrl = function(str)
+    str = str:gsub(' ', '%+')
+    str = str:gsub('\n', '%%0A')
+    return u8:encode(str, 'CP1251')
+end
+
+async_http_request = function(url, args, resolve, reject)
+    local runner = requestRunner()
+    if not reject then
+        reject = function()
+        end
+    end
+    newTask(function()
+        threadHandle(runner, url, args, resolve, reject)
+    end)
+end
+
+threadHandle = function(runner, url, args, resolve, reject)
+    local t = runner(url, args)
+    local r = t:get(0)
+    while not r do
+        r = t:get(0)
+        wait(0)
+    end
+    local status = t:status()
+    if status == 'completed' then
+        local ok, result = r[1], r[2]
+        if ok then
+            resolve(result)
+        else
+            reject(result)
+        end
+    elseif err then
+        reject(err)
+    elseif status == 'canceled' then
+        reject(status)
+    end
+    t:cancel(0)
+end
+
+requestRunner = function()
+    return effil.thread(function(u, a)
+        local https = require 'ssl.https'
+        local ok, result = pcall(https.request, u, a)
+        if ok then
+            return {true, result}
+        else
+            return {false, result}
+        end
+    end)
 end
 
 getHeadingFromVector2d = function(x, y)  
