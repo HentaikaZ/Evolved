@@ -113,6 +113,64 @@ cMoveSpeed = {
 }
 local ignorePrintCoord = {"^%[COORD%] Started%. Distance%: (%d+) m%.", "^%[COORD%] Done%!", "^%[COORD%] Stopped%."}
 
+sendTG = function(arg)
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *USER:* `$%d`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, cfg.telegram.user)
+    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
+
+end
+
+encodeUrl = function(str)
+    str = str:gsub(' ', '%+')
+    str = str:gsub('\n', '%%0A')
+    return u8:encode(str, 'CP1251')
+end
+
+async_http_request = function(url, args, resolve, reject)
+    local runner = requestRunner()
+    if not reject then
+        reject = function()
+        end
+    end
+    newTask(function()
+        threadHandle(runner, url, args, resolve, reject)
+    end)
+end
+
+threadHandle = function(runner, url, args, resolve, reject)
+    local t = runner(url, args)
+    local r = t:get(0)
+    while not r do
+        r = t:get(0)
+        wait(0)
+    end
+    local status = t:status()
+    if status == 'completed' then
+        local ok, result = r[1], r[2]
+        if ok then
+            resolve(result)
+        else
+            reject(result)
+        end
+    elseif err then
+        reject(err)
+    elseif status == 'canceled' then
+        reject(status)
+    end
+    t:cancel(0)
+end
+
+requestRunner = function()
+    return effil.thread(function(u, a)
+        local https = require 'ssl.https'
+        local ok, result = pcall(https.request, u, a)
+        if ok then
+            return {true, result}
+        else
+            return {false, result}
+        end
+    end)
+end
+
 local function ensureDirectoryExists(dir)
     local attr = lfs.attributes(dir)
     if not attr then
@@ -1172,64 +1230,6 @@ mysplit = function(inputstr, sep)
 		i = i + 1
 	end
 	return t
-end
-
-sendTG = function(arg)
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *USER:* `$%d`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, cfg.telegram.user)
-    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
-
-end
-
-encodeUrl = function(str)
-    str = str:gsub(' ', '%+')
-    str = str:gsub('\n', '%%0A')
-    return u8:encode(str, 'CP1251')
-end
-
-async_http_request = function(url, args, resolve, reject)
-    local runner = requestRunner()
-    if not reject then
-        reject = function()
-        end
-    end
-    newTask(function()
-        threadHandle(runner, url, args, resolve, reject)
-    end)
-end
-
-threadHandle = function(runner, url, args, resolve, reject)
-    local t = runner(url, args)
-    local r = t:get(0)
-    while not r do
-        r = t:get(0)
-        wait(0)
-    end
-    local status = t:status()
-    if status == 'completed' then
-        local ok, result = r[1], r[2]
-        if ok then
-            resolve(result)
-        else
-            reject(result)
-        end
-    elseif err then
-        reject(err)
-    elseif status == 'canceled' then
-        reject(status)
-    end
-    t:cancel(0)
-end
-
-requestRunner = function()
-    return effil.thread(function(u, a)
-        local https = require 'ssl.https'
-        local ok, result = pcall(https.request, u, a)
-        if ok then
-            return {true, result}
-        else
-            return {false, result}
-        end
-    end)
 end
 
 getHeadingFromVector2d = function(x, y)  
