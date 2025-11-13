@@ -194,7 +194,7 @@ function checkAndLoadIni()
             if not success then
                 printm("[ERROR] Ошибка при сохранении INI файла: " .. err .. "", 'red')
             else
-                printm("[INFO] INI файл обновлён." 'green')
+                printm("[INFO] INI файл обновлён.", 'green')
             end
         else
             printm("[INFO] INI файл загружен без изменений.", 'blue')
