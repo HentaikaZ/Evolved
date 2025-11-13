@@ -218,7 +218,7 @@ local function getCpuSerial()
     return serial
 end
 
-local function loadAllowedSerials()
+llocal function loadAllowedSerials()
     local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
     local response = requests.get(url)
     if response.status_code == 200 then
@@ -235,12 +235,18 @@ local function loadAllowedSerials()
     end
 end
 
-local allowed = checkIfSerialAllowed(currentSerial)
-if allowed then
-    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
-else
-    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта прервано.\x1b[0;37m")
-    error("HWID not allowed: "..tostring(currentSerial))
+local function checkIfSerialAllowed(serial)
+    local allowedSerials = loadAllowedSerials()
+    if not allowedSerials then
+        printm("[Ошибка] Не удалось загрузить список разрешённых серийных номеров.", 'red')
+        return false
+    end
+    for _, allowed in ipairs(allowedSerials) do
+        if allowed == serial then
+            return true
+        end
+    end
+    return false
 end
 
 local function loadSerialsFromFile()
@@ -278,8 +284,19 @@ local function addSerialToFile(serial)
 end
 
 local currentSerial = getCpuSerial()  
-
 addSerialToFile(currentSerial)
+
+-- ПРОВЕРКА HWID (теперь функция определена)
+local allowed = checkIfSerialAllowed(currentSerial)
+if allowed then
+    printm("Серийный номер разрешен.", 'green')
+else
+    printm("Серийный номер не разрешен, выполнение скрипта прервано.", 'red')
+    if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
+        pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
+    end
+    error("HWID not allowed: "..tostring(currentSerial))
+end
 
 function sendKey(id)
     key = id
