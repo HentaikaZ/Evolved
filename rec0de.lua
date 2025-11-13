@@ -351,7 +351,7 @@ else
     printm("Серийный номер не разрешен, выполнение скрипта прервано.", "red")
     -- опционально отправляем уведомление владельцу (если есть конфиг/Telegram)
     if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
-        sendTG("Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
+        sendTG(format("Попытка запуска с неразрешённым HWID: %s .", tostring(currentSerial)))
     end
     -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
     newTask(function()
