@@ -286,13 +286,6 @@ local currentSerial = getCpuSerial()
 
 addSerialToFile(currentSerial)
 
-<<<<<<< HEAD
-if checkIfSerialAllowed(currentSerial) then
-    print("\x1b[0;36mСерийный номер разрешен.\x1b[0;37m")
-else
-    print("\x1b[0;36mСерийный номер не разрешен, выполнение скрипта приостановлено.\x1b[0;37m")
-      
-=======
 local allowed = checkIfSerialAllowed(currentSerial)
 if allowed then
     printm("[Инфо] Серийный номер разрешен.", 'green')
@@ -304,7 +297,6 @@ else
     end
     -- Останавливаем выполнение скрипта — бросаем ошибку, чтобы прекратить дальнейшие задачи
     error("HWID not allowed: "..tostring(currentSerial))
->>>>>>> parent of 88f7213 (Update rec0de.lua)
 end
 
 function sendKey(id)
