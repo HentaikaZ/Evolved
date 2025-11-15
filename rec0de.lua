@@ -636,7 +636,7 @@ function onLoad()
     printm("The script was uploaded successfully! Author: XXX. VK: @amaraythenerp", "green")
     newTask(function() while true do updatePosition() wait(FailBot.SYNC_DELAY) end end)
     if getBotNick() == "nick" then newNick() end
-    loadProxyList()
+    if cfg.main.proxy == 1 then loadProxyList() else printm("Прокси не используются.", "yellow") end
     freezeCheckStartTime = os.time() -- Запоминаем время запуска
 end
 
