@@ -589,6 +589,7 @@ sampev.onSendPlayerSync = function(data)
 end
 
 sampev.onSetPlayerPos = function(pos)
+    if not controllable() then return end
     if router.rep then router.rep = false end
     anim.reset()
     FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
@@ -751,9 +752,6 @@ sampev.onShowDialog = function(id, style, title, btn1, btn2, text)
         if title:find('Игровой лаунчер') then
             sendDialogResponse(id, 1, 0, '')
         end
-        if title:find('Увольнение') then
-			sendDialogResponse(id, 1, 0, '')
-		end
         if title:find('Блокировка') then
 			noipban()
         end
@@ -923,10 +921,7 @@ sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapon
         end
         if action == "walk" then
             if int_id == 0 and getBotVehicle() == 0 then
-                if position.x >= 1700 and position.x <= 1800 and position.y >= -1950 and position.y <= -1850 then
-                    printm("Вы на старом спавне ЛС.", "purple")
-                    runRoute('!play ls/old/lsold'..random(1, 50))
-                elseif position.x >= 1000 and position.x <= 1200 and position.y >= -1900 and position.y <= -1700 then
+                if position.x >= 1000 and position.x <= 1200 and position.y >= -1900 and position.y <= -1700 then
                     printm("Вы на новом спавне ЛС.", "purple")
                     runRoute('!play ls/new/lsnew'..random(1, 50))
                 elseif position.x >= -2050 and position.x <= -1900 and position.y >= 50 and position.y <= 200 then
@@ -937,9 +932,6 @@ sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapon
                     printm('Вы на ЖД-ЛВ.', "purple")
                     coordStart(2858.7531738281, 1320.2512207031, 11.390625, 350, 5, true)
                     newTask(runRoute, 7000, '!play lv/lv'..random(1, 50))
-                elseif position.x >= -108 and position.x <= -61 and position.y >= 1204 and position.y <= 1241 then
-                    printm('Вы на ЖД-ФК.', "purple")
-                    runRoute('!play jkfk/jkfk'..random(1, 50))
                 else
                     printm("Скрипт не смог определить спавн. Маршрута не будет.", "yellow")
                 end
