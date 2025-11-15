@@ -1329,11 +1329,11 @@ end
 
 
 routefinished = function()
-	if cfg.main.runspawn == 1 then
-    	if getBotScore() <= 5 then
-			newTask(sendInput, random(5000, 20000), "/anim 5 13")
-        else
-            printm("На аккаунте "..getBotScore().." лвл (больше 5). Уверены что хотите продолжить прокачку?;(", "red")
+    if getBotScore() <= 5 then
+        printm("На аккаунте "..getBotScore().." лвл (больше 5). Уверены что хотите продолжить прокачку?;(", "red")
+    else
+        if cfg.main.runspawn == 1 then
+            newTask(sendInput, random(5000, 20000), "/anim 5 13")
         end
 	end
 end
