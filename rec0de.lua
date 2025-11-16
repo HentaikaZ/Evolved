@@ -1273,37 +1273,83 @@ samp_create_sync_data = function(sync_type, copy_from_player)
 end
 
 runToPosition = function(tox, toy, toz)
-    --printm("run: "..tox..", "..toy..", "..toz)
     newTask(function()
-        local bx, by = getBotPosition()
-        local angle = getHeadingFromVector2d((tox - bx), (toy - by))
-        local rad = -math.rad(angle)
-        local sinX, cosY = math.sin(rad), math.cos(rad)
-        local qz, qw = angleToQuaternion(angle)
-        local kfPos = 0.09
-        local kfSpeed = 30
-        while getDistanceBetweenCoords2d(bx, by, tox, toy) > 0.8 do
-            wait(0)
-            bx = (bx + sinX*kfPos)
-            by = (by + cosY*kfPos)
-            angle = getHeadingFromVector2d((tox - bx), (toy - by))
-            qz, qw = angleToQuaternion(angle)
-            rad = -math.rad(angle)
-            sinX, cosY = math.sin(rad), math.cos(rad)
+        local px, py, pz = getBotPosition()
+        local max_iters = 300
+        local step_len = 0.6            -- длина одного шага (уменьшить чтобы не телепортить через стены)
+        local moved_threshold = 0.12    -- минимальное сдвижение, чтобы считать, что не застряли
+
+        for i = 1, max_iters do
+            local dx, dy = tox - px, toy - py
+            local dist = math.sqrt(dx*dx + dy*dy)
+            if dist <= 0.8 then
+                return
+            end
+
+            local angle = getHeadingFromVector2d(dx, dy)
+            local seg = math.min(step_len, dist)
+            local rad = -math.rad(angle)
+            local nx = px + math.cos(rad) * seg
+            local ny = py + math.sin(rad) * seg
+
+            -- отправляем синк к ближайшей промежуточной точке (не делаем резких телепортов)
             local data = samp_create_sync_data("player")
-            data.upDownKeys = 65408   
+            data.upDownKeys = 65408
             data.keysData = 8
-            data.position.x, data.position.y, data.position.z = bx, by, toz
-            data.moveSpeed.x, data.moveSpeed.y = (sinX/kfSpeed), (cosY/kfSpeed)
-            data.quaternion[3], data.quaternion[0] = qz, qw      
+            data.position.x, data.position.y, data.position.z = nx, ny, toz
+            data.moveSpeed.x, data.moveSpeed.y = (math.cos(rad) / 30), (math.sin(rad) / 30)
+            local qz, qw = angleToQuaternion(angle)
+            data.quaternion[3], data.quaternion[0] = qz, qw
             data.health = getBotHealth()
             data.armor = getBotArmor()
             data.animationId = 1224
-            data.animationFlags = 32772        
+            data.animationFlags = 32772
             data.send()
-            setBotPosition(bx, by, toz)
-            setBotRotation(angle)                    
+
+            wait(180) -- даём серверу время обработать столкновения
+
+            local cur = { getBotPosition() }
+            local moved = getDistanceBetweenCoords2d(cur[1], cur[2], px, py)
+
+            if moved < moved_threshold then
+                -- попробуем несколько боковых манёвров, если упёрлись в стену
+                local sidestep_ok = false
+                for r = 1, 4 do
+                    local offset = 0.5 + 0.15 * r
+                    local side_ang = rad + (r % 2 == 0 and 1 or -1) * offset
+                    local sx = px + math.cos(side_ang) * seg
+                    local sy = py + math.sin(side_ang) * seg
+
+                    local sdata = samp_create_sync_data("player")
+                    sdata.upDownKeys = 65408
+                    sdata.keysData = 8
+                    sdata.position.x, sdata.position.y, sdata.position.z = sx, sy, toz
+                    sdata.moveSpeed.x, sdata.moveSpeed.y = (math.cos(side_ang) / 30), (math.sin(side_ang) / 30)
+                    local sqz, sqw = angleToQuaternion(math.deg(-side_ang))
+                    sdata.quaternion[3], sdata.quaternion[0] = sqz, sqw
+                    sdata.animationId = 1224
+                    sdata.animationFlags = 32772
+                    sdata.send()
+
+                    wait(240)
+                    local cur2 = { getBotPosition() }
+                    if getDistanceBetweenCoords2d(cur2[1], cur2[2], px, py) >= moved_threshold * 0.9 then
+                        px, py = cur2[1], cur2[2]
+                        sidestep_ok = true
+                        break
+                    end
+                end
+
+                if not sidestep_ok then
+                    printm("Заблокировано препятствием — прерываю движение.", "red")
+                    return
+                end
+            else
+                px, py = cur[1], cur[2]
+            end
         end
+
+        printm("Не удалось достичь точки (превышен лимит итераций).", "yellow")
     end)
 end
 
