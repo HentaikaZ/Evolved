@@ -100,56 +100,86 @@ local router = {
 
 local function pctDecode(s)
     if not s then return "" end
-    -- сначала превращаем %FF последовательности в байты UTF-8
-    local decoded = s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end)
-    -- затем пытаемс€ конвертировать UTF-8 в текущую кодировку (CP1251), безопасно
-    local ok, conv = pcall(u8.decode, u8, decoded)
-    if ok and conv then return conv end
-    return decoded
+    local orig = tostring(s)
+
+    -- 1) преобразуем %FF последовательности в байты (UTF-8)
+    local bytes = orig:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end)
+
+    -- 2) пробуем декодировать UTF-8 в локальную кодировку (через encoding.UTF8)
+    if u8 and type(u8.decode) == "function" then
+        local ok, conv = pcall(u8.decode, u8, bytes)
+        if ok and conv and conv ~= "" then
+            -- если в результате нет €вных маркеров замены (Ш) и не слишком много знаков вопроса Ч считаем успехом
+            if not conv:find("\239\191\189") and ( (not conv:find("%?")) or (#conv:gsub("[^%?]", "") < 2) ) then
+                return conv
+            end
+        end
+    end
+
+    -- 3) fallback: если u8 декодирование неудачно Ч пытаемс€ вернуть UTF-8 байты как есть (некоторые консоли это отобраз€т)
+    local ok_bytes = pcall(function() return bytes end)
+    if ok_bytes and bytes and bytes:find("%z") == nil then
+        -- убираем управл€ющие символы
+        local cleaned = bytes:gsub("[%c]", "")
+        if cleaned ~= "" then return cleaned end
+    end
+
+    -- 4) финальный fallback: человекочитаемый маркер на основе ключа в таблице emoji (если доступно)
+    if type(emoji) == "table" then
+        for k, v in pairs(emoji) do
+            if tostring(v) == orig then
+                return "[" .. string.upper(k) .. "]"
+            end
+        end
+    end
+
+    -- 5) последний вариант Ч короткий hex-плейсхолдер
+    local short = orig:gsub("%%", ""):sub(1, 12)
+    return "[" .. short .. "]"
 end
 
---  расивый вывод в консоль, эмодзи берутс€ в виде percent-hex из таблицы emoji
+--  расивый и надЄжный вывод в консоль (использует pctDecode дл€ эмодзи)
 printm = function(text, color)
     text = tostring(text or "")
-    local prefix = "[ " .. (visuals and visuals.name or "EVOLVED") .. " v" .. (visuals and visuals.version or "?.?") .. " ]"
-    local RESET = '\x1b[0m'
-    local colorCode = '\x1b[37m'
-    local emojiHex = emoji and emoji.info or "%E2%84%B9"
+    local visName = (visuals and visuals.name) and visuals.name or "EVOLVED"
+    local visVer  = (visuals and visuals.version) and visuals.version or "?.?"
+    local prefix  = "[ " .. visName .. " v" .. visVer .. " ]"
+    local ts = os.date("%H:%M:%S")
 
-    if color == "green" then
-        colorCode = '\x1b[32m'; emojiHex = emoji.check or emojiHex
-    elseif color == "blue" then
-        colorCode = '\x1b[0;36m'; emojiHex = emoji.info or emojiHex
-    elseif color == "yellow" then
-        colorCode = '\x1b[33m'; emojiHex = emoji.warning or emojiHex
-    elseif color == "red" then
-        colorCode = '\x1b[0;31m'; emojiHex = emoji.error or emojiHex
-    elseif color == "purple" then
-        colorCode = '\x1b[1;35m'; emojiHex = emoji.target or emojiHex
-    elseif color == "proxy" then
-        colorCode = '\x1b[0;36m'; emojiHex = emoji.network or emojiHex
+    -- выбираем percent-hex эмодзи из таблицы emoji (если есть) и цвет
+    local emojiHex = (emoji and emoji.info) or "%E2%84%B9"
+    local colorCode = '\27[37m' -- белый по-умолчанию
+
+    if color == "green" then colorCode = '\27[32m'; emojiHex = (emoji and emoji.check) or emojiHex
+    elseif color == "blue" then colorCode = '\27[0;36m'; emojiHex = (emoji and emoji.info) or emojiHex
+    elseif color == "yellow" then colorCode = '\27[33m'; emojiHex = (emoji and emoji.warning) or emojiHex
+    elseif color == "red" then colorCode = '\27[0;31m'; emojiHex = (emoji and emoji.error) or emojiHex
+    elseif color == "purple" then colorCode = '\27[1;35m'; emojiHex = (emoji and emoji.target) or emojiHex
+    elseif color == "proxy" then colorCode = '\27[0;36m'; emojiHex = (emoji and emoji.network) or emojiHex
     end
 
     local emojiStr = pctDecode(emojiHex)
-    local ts = os.date("%H:%M:%S")
-
-    -- многострочный текст Ч выравнивание
+    -- подготовка многострочного тела
     local bodyLines = {}
-    for line in (text .. "\n"):gmatch("(.-)\n") do
-        table.insert(bodyLines, "  " .. line)
-    end
+    for line in (text .. "\n"):gmatch("(.-)\n") do table.insert(bodyLines, line) end
 
-    -- рамка и вывод
-    local header = string.format("%s %s %s %s", ts, prefix, emojiStr, color and ("(" .. color .. ")") or "")
-    local sepLen = math.max(#header + 4, 40)
-    local sep = string.rep("?", sepLen)
+    -- вычисл€ем ширину рамки по самому длинному элементу
+    local header = string.format("%s | %s %s", ts, prefix, emojiStr)
+    local maxw = #header
+    for _, l in ipairs(bodyLines) do if #l > maxw then maxw = #l end end
+    maxw = math.max(maxw, 40)
 
+    local sep = string.rep("?", maxw + 2)
+    local RESET = '\27[0m'
+
+    -- вывод рамки и содержимого
     print(colorCode .. "?" .. sep .. "?" .. RESET)
-    print(colorCode .. "? " .. header .. string.rep(" ", sepLen - #header) .. " ?" .. RESET)
-    print(colorCode .. "?" .. string.rep("?", sepLen) .. "?" .. RESET)
+    local header_padded = header .. string.rep(" ", maxw - #header)
+    print(colorCode .. "? " .. header_padded .. " ?" .. RESET)
+    print(colorCode .. "?" .. string.rep("?", maxw + 2) .. "?" .. RESET)
     for _, l in ipairs(bodyLines) do
-        local padded = l .. string.rep(" ", sepLen - #l)
-        print(colorCode .. "? " .. padded .. " ?" .. RESET)
+        local pad = string.rep(" ", maxw - #l)
+        print(colorCode .. "? " .. l .. pad .. " ?" .. RESET)
     end
     print(colorCode .. "?" .. sep .. "?" .. RESET)
     print("")
