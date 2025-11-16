@@ -140,7 +140,8 @@ local default_config = {
         spawn_action = 'walk',
         referal = '#warrior',
         proxy = 0,
-        minimumID = 163
+        minimumID = 163,
+        payday = 0
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -723,9 +724,16 @@ sampev.onServerMessage = function(color, text)
         newTask(sendClickTextdraw, 2084, id)
         printm('Появились на дефолт спавне, так как спавн семьи отключен.', 'red')
     end
+    if text:match("Время сейчас: ") then
+        newTask(function()
+            if cfg.main.payday == 1 then
+                wait(35000) --- ждать после пейдея = 35 секунд
+                printm("У вас включен автоматический реконект до пейдея... Переподключаюсь.", "yellow")')
+                reconnect(3240000) --- время захода 54 минута
+            end
+        end)
+    end
 end
-
--- FIX THIS
 
 sampev.onShowTextDraw = function(id, data)
     if id == 408 then
