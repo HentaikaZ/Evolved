@@ -29,6 +29,7 @@ floor = math.floor
 encoding.default = "CP1251"
 u8 = encoding.UTF8
 
+local hasSpawned = false
 local freezeCheckStartTime = nil
 local counter = { ["banip"] = 0, ["bmoney"] = 0 }
 local visuals = {
@@ -638,20 +639,47 @@ sampev.onSendPlayerSync = function(data)
     end
 end
 
-sampev.onSetPlayerPos = function(x, y, z)
-    FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
+local isControllable = true
+
+sampev.onTogglePlayerControllable = function(controllable)
+    -- сохраняем состояние всегда, но игнорируем обработку "фриза" до первого спавна
+    isControllable = controllable
+    if not hasSpawned then
+        -- до спавна не логируем и не выполняем никаких действий
+        return
+    end
+
+    -- после спавна продолжаем прежнюю обработку (лог/уведомление)
+    if not controllable then
+        if freezeCheckStartTime and (os.time() - freezeCheckStartTime >= 20) then
+            printm("Админ зафризил бота.", "red")
+            pcall(sendTG, "Админ зафризил бота.")
+        else
+            printm("Бот был заморожен в течение первых 20 секунд (игнорируем).", "yellow")
+        end
+    end
+end
+
+sampev.onSetPlayerPos = function(pos)
+    -- если явно запрещено реагировать на изменение позиции — выходим
+    if isControllable == false then return end
+
+    if router.rep then router.rep = false end
     anim.reset()
+    FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
+
     if FailBot.state == 0 then
-        local botPos = {getBotPosition()}
+        local botPos = { getBotPosition() }
         if botPos[1] == FailBot.position.x and botPos[2] == FailBot.position.y and botPos[3] ~= FailBot.position.z then
             FailBot.targetPosition.x, FailBot.targetPosition.y = botPos[1], botPos[2]
+
             if botPos[3] <= FailBot.position.z then
-                print("Slap! 1 - Падение сверху вниз" .. (FailBot.shouldMoveForward and " с движением вперёд" or ""))
+                -- убрано отправление уведомлений и reconnect — просто корректируем таргет
                 FailBot.targetPosition.z = botPos[3]
             else
-                print("Slap! 2 - Падение вниз" .. (FailBot.shouldMoveForward and " с движением вперёд" or ""))
                 FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
             end
+
             FailBot.state = 1
             return false
         end
@@ -659,7 +687,9 @@ sampev.onSetPlayerPos = function(x, y, z)
 end
 
 sampev.onSendSpawn = function()
-	anim.reset()
+    -- отмечаем, что спавн произошёл; ресетим анимации как раньше
+    hasSpawned = true
+    anim.reset()
 end
 
 
@@ -839,18 +869,6 @@ sampev.onUpdateScoresAndPings = function()
             sendTG(format('Успешно достиг %s уровня, сохраняю аккаунт.', tostring(cfg.main.finishLVL)))
             saveAcc("a")
         end)
-    end
-end
-
-sampev.onTogglePlayerControllable = function(controllable)
-    if not controllable then
-        -- Проверяем, прошло ли 20 секунд с момента запуска
-        if os.time() - freezeCheckStartTime >= 20 then
-            printm("Админ зафризил бота.", "red")
-            sendTG("Админ зафризил бота.")
-        else
-            printm("Бот был заморожен в течение первых 20 секунд (игнорируем).", "yellow")
-        end
     end
 end
 
