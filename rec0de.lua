@@ -38,6 +38,7 @@ local visuals = {
     i = 1,
     direction = 1
 }
+
 local emoji = {
     ["muscle"] = "%F0%9F%92%AA",      -- ??
     ["planet"] = "%F0%9F%8C%90",      -- ??
@@ -92,86 +93,26 @@ local emoji = {
     ["thumbsdown"] = "%F0%9F%91%8E"   -- ??
 }
 
-local function pctDecode(s)
-    if not s then return "" end
-    -- Превращаем %FF последовательности в соответствующие байты
-    local decoded = s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end)
-    -- Конвертируем UTF-8 байты в текущую кодировку (CP1251) для корректного отображения в консоли
-    local ok, conv = pcall(u8.decode, u8, decoded)
-    if ok and conv then
-        return conv
-    end
-    return decoded
-end
-
-local function encodeUrlPreservePercents(str)
-    if not str then return "" end
-    -- Сохраняем последовательности вида %FF%AA... в плейсхолдеры
-    local placeholders = {}
-    local id = 0
-    str = str:gsub("((?:%%[0-9A-Fa-f][0-9A-Fa-f]){1,})", function(seq)
-        id = id + 1
-        placeholders[id] = seq
-        return "__EMO_PLACEHOLDER_" .. id .. "__"
-    end)
-    -- Обычный URL-энкодинг для оставшихся символов
-    str = tostring(str)
-    str = str:gsub("([^%w%-%_%.%~])", function(c) return string.format("%%%02X", string.byte(c)) end)
-    -- Восстанавливаем эмодзи-плейсхолдеры
-    for i = 1, id do
-        str = str:gsub("__EMO_PLACEHOLDER_" .. i .. "__", placeholders[i])
-    end
-    return str
-end
-
-local colorCodes = {
-    green = '\27[32m',
-    blue = '\27[0;36m',
-    yellow = '\27[33m',
-    red = '\27[0;31m',
-    purple = '\27[1;35m',
-    proxy = '\27[0;36m',
-    default = '\27[37m'
-}
-local RESET = '\27[0m'
-
 local router = {
 	["bitstream"] = { onfoot = bitStream.new(), incar = bitStream.new(), aim = bitStream.new() },
 	["rep"] = false, ["loop"] = false, ["packet"] = {}, ["veh"] = {}, ["counter"] = 0
 }
 
 printm = function(text, color)
-    color = color or "default"
-    local code = colorCodes[color] or colorCodes.default
-    local tstamp = os.date("%H:%M:%S")
-    local prefix = ("[ %s v%s ]"):format(visuals.name, visuals.version)
-    local em = emoji.info
-    if color == "green" then em = emoji.check
-    elseif color == "blue" then em = emoji.info
-    elseif color == "yellow" then em = emoji.warning
-    elseif color == "red" then em = emoji.error
-    elseif color == "purple" then em = emoji.target
-    elseif color == "proxy" then em = emoji.network end
-
-    local em_s = pctDecode(em)
-    local header = string.format("%s %s %s", tstamp, prefix, em_s)
-
-    local body = ""
-    if type(text) == "string" and text:find("\n") then
-        local lines = {}
-        for line in text:gmatch("[^\n]+") do
-            table.insert(lines, ("? %s"):format(line))
-        end
-        body = "\n" .. table.concat(lines, "\n")
-    else
-        body = " " .. tostring(text)
+    local prefix = "[ " .. visuals.name .. " ]"
+    if color == "green" then
+        print('\x1b[32m' .. prefix .. ' ? \x1b[37m' .. text)
+    elseif color == "blue" then
+        print('\x1b[0;36m' .. prefix .. ' ?? \x1b[37m' .. text)
+    elseif color == "yellow" then
+        print('\x1b[33m' .. prefix .. ' ?? \x1b[37m' .. text)
+    elseif color == "red" then
+        print('\x1b[0;31m' .. prefix .. ' ? \x1b[37m' .. text)
+    elseif color == "purple" then
+        print('\x1b[1;35m' .. prefix .. ' ?? \x1b[37m' .. text)
+    elseif color == "proxy" then
+        print('\x1b[0;36m' .. prefix .. ' ?? \x1b[37m' .. text)
     end
-
-    -- Простая рамка вокруг заголовка
-    local line = string.rep("?", math.max(10, #header + 2))
-    print(code .. "?" .. line .. "?" .. RESET)
-    print(code .. "? " .. header .. RESET .. body)
-    print(code .. "?" .. line .. "?" .. RESET)
 end
 
 local servers = {
@@ -1261,40 +1202,21 @@ mysplit = function(inputstr, sep)
 end
 
 sendTG = function(arg)
-    if not (cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid) then
-        printm("Telegram не настроен в конфиге — пропускаю отправку.", "yellow")
-        return
+    -- Экранируем спецсимволы Markdown для Телеграма
+    local function escapeTelegramMarkdown(text)
+        text = text:gsub('_', '\\_')   -- экранируем подчёркивание
+        text = text:gsub('%*', '\\*')  -- экранируем звёздочки
+        text = text:gsub('%[', '\\[')  -- экранируем [
+        text = text:gsub('%]', '\\]')  -- экранируем ]
+        text = text:gsub('%(', '\\(')  -- экранируем (
+        text = text:gsub('%)', '\\)')  -- экранируем )
+        text = text:gsub('`', '\\`')   -- экранируем обратные кавычки
+        return text
     end
-
-    local function escapeMarkdownSimple(text)
-        if not text then return "" end
-        -- минимальное экранирование для Markdown (осторожно, не полный набор)
-        local replacements = { ['_']='\\_', ['*']='\\*', ['[']='\\[', [']']='\\]', ['(']='\\(', [')']='\\)', ['`']='\\`' }
-        return (text:gsub("[_%*%[%]%(%`)%%]", replacements))
-    end
-
-    local userTag = escapeMarkdownSimple(tostring(cfg.telegram.user or "unknown"))
-    local nick = escapeMarkdownSimple(tostring(getBotNick() or "nil"))
-    local serverInfo = servers[getServerAddress()] and escapeMarkdownSimple(servers[getServerAddress()].name) or escapeMarkdownSimple(getServerAddress() or "unknown")
-
-    local lines = {}
-    table.insert(lines, emoji.rocket .. emoji.sparkle)
-    table.insert(lines, (emoji.muscle .. " *Ник:* `%s[%d]`"):format(escapeMarkdownSimple(getBotNick() or "nil"), getBotId() or 0))
-    table.insert(lines, (emoji.planet .. " *Сервер:* `%s`"):format(serverInfo))
-    table.insert(lines, (emoji.score .. " *Уровень:* `%d`"):format(getBotScore() or 0))
-    table.insert(lines, (emoji.money .. " *Деньги:* `$%d`"):format(counter.bmoney or 0))
-    table.insert(lines, (emoji.star .. " *User ID:* %s"):format(userTag))
-
-    if arg and tostring(arg) ~= "" then
-        table.insert(lines, "")
-        table.insert(lines, "*Сообщение:*")
-        table.insert(lines, "`" .. escapeMarkdownSimple(tostring(arg)) .. "`")
-    end
-
-    local text = table.concat(lines, "\n")
-
-    local url = 'https://api.telegram.org/bot' .. tostring(cfg.telegram.tokenbot) .. '/sendMessage?chat_id=' .. tostring(cfg.telegram.chatid) .. '&text=' .. encodeUrlPreservePercents(text) .. '&parse_mode=Markdown'
-    async_http_request(url, '', function(result) printm("Telegram: уведомление отправлено.", "green") end, function(err) printm("Telegram: ошибка отправки - " .. tostring(err), "red") end)
+    
+    local userTag = escapeTelegramMarkdown(tostring(cfg.telegram.user))
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* %s\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, userTag)
+    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
 end
 
 encodeUrl = function(str)
