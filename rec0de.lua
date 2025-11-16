@@ -754,7 +754,9 @@ sampev.onShowDialog = function(id, style, title, btn1, btn2, text)
             sendDialogResponse(id, 1, 0, '')
         end
         if title:find('Блокировка') then
-			noipban()
+			sendTG('Бот заблокирован на сервере! Подключаюсь с новым ником!')
+            printm('Бот заблокирован на сервере! Подключаюсь с новым ником!', 'red')
+            newTask(newNick, 5000)  -- Ждем 5 секунд перед сменой ника
         end
         if id == 2016 then
             sendDialogResponse(2016, 1, 0, "")
@@ -771,7 +773,9 @@ end
 
 sampev.onServerMessage = function(color, text)
     if text:find('Вы ввели неверный пароль!') then
-        newTask(newNick, 500)
+        printm('Неверный пароль, меняю ник.', 'red')
+        sendTG('Неверный пароль, меняю ник.')
+        newTask(newNick, 5000)  -- Ждем 5 секунд перед сменой ника
     end
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2084, id)
