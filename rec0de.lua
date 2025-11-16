@@ -811,7 +811,7 @@ end
 
 sampev.onSetInterior = function(id)
     if router.rep then runRoute("!stop") end
-    if id == 7 and cfg.main.spawn_action == "invis1" then
+    if id == 7 and cfg.main.spawn_action == "invis" and invisType == 1 then
         local pos = {getBotPosition()}
         tp(pos[1] + random(1000, 10000), pos[2] + random(1000, 10000), pos[3] + random(5000, 10000))
     end
