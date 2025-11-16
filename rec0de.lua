@@ -860,11 +860,9 @@ sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapon
                     runRoute('!play ls/new/lsnew'..random(1, 50))
                 elseif position.x >= -2050 and position.x <= -1900 and position.y >= 50 and position.y <= 200 then
                     printm("Вы на ЖД-СФ.", "purple")
-                    coordStart(-1970.7458496094, 137.8190612793, 27.687501907349, 350, 5, true)
                     newTask(runRoute, 7000, '!play sf/sf'..random(1, 50))
                 elseif position.x >= 2794 and position.x <= 2859 and position.y >= 1225 and position.y <= 1386 then
                     printm('Вы на ЖД-ЛВ.', "purple")
-                    coordStart(2858.7531738281, 1320.2512207031, 11.390625, 350, 5, true)
                     newTask(runRoute, 7000, '!play lv/lv'..random(1, 50))
                 else
                     printm("Скрипт не смог определить спавн. Маршрута не будет.", "yellow")
