@@ -98,64 +98,60 @@ local router = {
 	["rep"] = false, ["loop"] = false, ["packet"] = {}, ["veh"] = {}, ["counter"] = 0
 }
 
+local function pctDecode(s)
+    if not s then return "" end
+    -- сначала превращаем %FF последовательности в байты UTF-8
+    local decoded = s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end)
+    -- затем пытаемс€ конвертировать UTF-8 в текущую кодировку (CP1251), безопасно
+    local ok, conv = pcall(u8.decode, u8, decoded)
+    if ok and conv then return conv end
+    return decoded
+end
+
+--  расивый вывод в консоль, эмодзи берутс€ в виде percent-hex из таблицы emoji
 printm = function(text, color)
-    local prefix = "[ " .. visuals.name .. " v" .. visuals.version .. " ]"
-    local colorCode = ""
-    local emojiDecoded = ""
-    local decorLeft = ""
-    local decorRight = ""
-    
-    if color == "green" then
-        colorCode = '\x1b[32m'
-        emojiDecoded = (emoji.check:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    elseif color == "blue" then
-        colorCode = '\x1b[0;36m'
-        emojiDecoded = (emoji.info:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    elseif color == "yellow" then
-        colorCode = '\x1b[33m'
-        emojiDecoded = (emoji.warning:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    elseif color == "red" then
-        colorCode = '\x1b[0;31m'
-        emojiDecoded = (emoji.error:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    elseif color == "purple" then
-        colorCode = '\x1b[1;35m'
-        emojiDecoded = (emoji.target:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    elseif color == "proxy" then
-        colorCode = '\x1b[0;36m'
-        emojiDecoded = (emoji.network:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
-        decorLeft = "? "
-        decorRight = " ?"
-    else
-        colorCode = '\x1b[37m'
-        emojiDecoded = "Х"
-        decorLeft = "Х "
-        decorRight = " Х"
-    end
-    
-    local ts = os.date("%H:%M:%S")
+    text = tostring(text or "")
+    local prefix = "[ " .. (visuals and visuals.name or "EVOLVED") .. " v" .. (visuals and visuals.version or "?.?") .. " ]"
     local RESET = '\x1b[0m'
-    
-    --  расива€ рамка с эмодзи и декоративными элементами
-    local separator = "???????????????????????????????????????????????"
-    local header = colorCode .. "?" .. separator .. "?" .. RESET
-    local info_line = colorCode .. "? " .. decorLeft .. ts .. " | " .. prefix .. " " .. emojiDecoded .. decorRight .. " ?" .. RESET
-    local content_line = colorCode .. "? " .. text .. " ?" .. RESET
-    local footer = colorCode .. "?" .. separator .. "?" .. RESET
-    
-    print(header)
-    print(info_line)
-    print(content_line)
-    print(footer)
+    local colorCode = '\x1b[37m'
+    local emojiHex = emoji and emoji.info or "%E2%84%B9"
+
+    if color == "green" then
+        colorCode = '\x1b[32m'; emojiHex = emoji.check or emojiHex
+    elseif color == "blue" then
+        colorCode = '\x1b[0;36m'; emojiHex = emoji.info or emojiHex
+    elseif color == "yellow" then
+        colorCode = '\x1b[33m'; emojiHex = emoji.warning or emojiHex
+    elseif color == "red" then
+        colorCode = '\x1b[0;31m'; emojiHex = emoji.error or emojiHex
+    elseif color == "purple" then
+        colorCode = '\x1b[1;35m'; emojiHex = emoji.target or emojiHex
+    elseif color == "proxy" then
+        colorCode = '\x1b[0;36m'; emojiHex = emoji.network or emojiHex
+    end
+
+    local emojiStr = pctDecode(emojiHex)
+    local ts = os.date("%H:%M:%S")
+
+    -- многострочный текст Ч выравнивание
+    local bodyLines = {}
+    for line in (text .. "\n"):gmatch("(.-)\n") do
+        table.insert(bodyLines, "  " .. line)
+    end
+
+    -- рамка и вывод
+    local header = string.format("%s %s %s %s", ts, prefix, emojiStr, color and ("(" .. color .. ")") or "")
+    local sepLen = math.max(#header + 4, 40)
+    local sep = string.rep("?", sepLen)
+
+    print(colorCode .. "?" .. sep .. "?" .. RESET)
+    print(colorCode .. "? " .. header .. string.rep(" ", sepLen - #header) .. " ?" .. RESET)
+    print(colorCode .. "?" .. string.rep("?", sepLen) .. "?" .. RESET)
+    for _, l in ipairs(bodyLines) do
+        local padded = l .. string.rep(" ", sepLen - #l)
+        print(colorCode .. "? " .. padded .. " ?" .. RESET)
+    end
+    print(colorCode .. "?" .. sep .. "?" .. RESET)
     print("")
 end
 
