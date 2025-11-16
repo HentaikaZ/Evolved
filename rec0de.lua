@@ -99,20 +99,64 @@ local router = {
 }
 
 printm = function(text, color)
-    local prefix = "[ " .. visuals.name .. " ]"
+    local prefix = "[ " .. visuals.name .. " v" .. visuals.version .. " ]"
+    local colorCode = ""
+    local emojiDecoded = ""
+    local decorLeft = ""
+    local decorRight = ""
+    
     if color == "green" then
-        print('\x1b[32m' .. prefix .. ' ? \x1b[37m' .. text)
+        colorCode = '\x1b[32m'
+        emojiDecoded = (emoji.check:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
     elseif color == "blue" then
-        print('\x1b[0;36m' .. prefix .. ' ?? \x1b[37m' .. text)
+        colorCode = '\x1b[0;36m'
+        emojiDecoded = (emoji.info:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
     elseif color == "yellow" then
-        print('\x1b[33m' .. prefix .. ' ?? \x1b[37m' .. text)
+        colorCode = '\x1b[33m'
+        emojiDecoded = (emoji.warning:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
     elseif color == "red" then
-        print('\x1b[0;31m' .. prefix .. ' ? \x1b[37m' .. text)
+        colorCode = '\x1b[0;31m'
+        emojiDecoded = (emoji.error:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
     elseif color == "purple" then
-        print('\x1b[1;35m' .. prefix .. ' ?? \x1b[37m' .. text)
+        colorCode = '\x1b[1;35m'
+        emojiDecoded = (emoji.target:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
     elseif color == "proxy" then
-        print('\x1b[0;36m' .. prefix .. ' ?? \x1b[37m' .. text)
+        colorCode = '\x1b[0;36m'
+        emojiDecoded = (emoji.network:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+        decorLeft = "? "
+        decorRight = " ?"
+    else
+        colorCode = '\x1b[37m'
+        emojiDecoded = "Х"
+        decorLeft = "Х "
+        decorRight = " Х"
     end
+    
+    local ts = os.date("%H:%M:%S")
+    local RESET = '\x1b[0m'
+    
+    --  расива€ рамка с эмодзи и декоративными элементами
+    local separator = "???????????????????????????????????????????????"
+    local header = colorCode .. "?" .. separator .. "?" .. RESET
+    local info_line = colorCode .. "? " .. decorLeft .. ts .. " | " .. prefix .. " " .. emojiDecoded .. decorRight .. " ?" .. RESET
+    local content_line = colorCode .. "? " .. text .. " ?" .. RESET
+    local footer = colorCode .. "?" .. separator .. "?" .. RESET
+    
+    print(header)
+    print(info_line)
+    print(content_line)
+    print(footer)
+    print("")
 end
 
 local servers = {
