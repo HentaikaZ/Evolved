@@ -98,7 +98,8 @@ local default_config = {
         spawn_action = 'walk',
         referal = '#warrior',
         proxy = 0,
-        minimumID = 163
+        minimumID = 163,
+        slapaction = 0
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -507,6 +508,45 @@ getForwardVector = function(rotation)
 end
 
 updatePosition = function()
+    if FailBot.state ~= 1 then return end
+    if FailBot.fallStartTime == 0 then
+        FailBot.fallStartTime = os.clock()
+        local rotation = getBotRotation()
+        FailBot.forwardVector = getForwardVector(rotation)
+    end
+    if FailBot.targetPosition.z ~= FailBot.position.z then
+        FailBot.position.z = FailBot.position.z + FailBot.speed
+        if FailBot.shouldMoveForward then
+            local currentTime = os.clock()
+            local timeSinceFall = (currentTime - FailBot.fallStartTime) * 1000
+            if timeSinceFall >= FailBot.DELAY_BEFORE_MOVE then
+                if FailBot.currentForwardSpeed < FailBot.MAX_FORWARD_SPEED then
+                    FailBot.currentForwardSpeed = FailBot.currentForwardSpeed + FailBot.FORWARD_ACCELERATION
+                    if FailBot.currentForwardSpeed > FailBot.MAX_FORWARD_SPEED then
+                        FailBot.currentForwardSpeed = FailBot.MAX_FORWARD_SPEED
+                    end
+                end
+                FailBot.position.x = FailBot.position.x + FailBot.forwardVector.x * FailBot.currentForwardSpeed
+                FailBot.position.y = FailBot.position.y + FailBot.forwardVector.y * FailBot.currentForwardSpeed
+            end
+        end
+        FailBot.needSpeedFall = true
+        setBotPosition(FailBot.position.x, FailBot.position.y, FailBot.position.z)
+        updateSync()
+        FailBot.needSpeedFall = false
+        if FailBot.position.z <= FailBot.targetPosition.z then
+            local finalX = FailBot.position.x
+            local finalY = FailBot.position.y
+            setBotPosition(finalX, finalY, FailBot.targetPosition.z)
+            updateSync()
+            FailBot.state = 0
+            FailBot.speed = FailBot.INITIAL_SPEED
+            FailBot.forwardVector = {x = 0, y = 0}
+            FailBot.fallStartTime = 0
+            FailBot.currentForwardSpeed = 0
+        end
+    end
+endupdatePosition = function()
     if FailBot.state ~= 1 then return end
     if FailBot.fallStartTime == 0 then
         FailBot.fallStartTime = os.clock()
