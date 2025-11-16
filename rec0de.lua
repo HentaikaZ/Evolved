@@ -38,7 +38,7 @@ local visuals = {
     i = 1,
     direction = 1
 }
-ocal emoji = {
+local emoji = {
     ["muscle"] = "%F0%9F%92%AA",      -- ??
     ["planet"] = "%F0%9F%8C%90",      -- ??
     ["money"] = "%F0%9F%92%B5",       -- ??
