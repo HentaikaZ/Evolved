@@ -849,7 +849,7 @@ interiorwalk = function()
     end
 end
 
-local currentInvisMode = currentInvisMode or nil
+local currentInvisMode = nil
 
 sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapons, ammo)
     anim.reset()
