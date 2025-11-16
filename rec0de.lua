@@ -295,7 +295,7 @@ else
     if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
         pcall(sendTG, "Попытка запуска с неразрешённым HWID: "..tostring(currentSerial))
     end
-    error("HWID not allowed: "..tostring(currentSerial))
+    return
 end
 
 function sendKey(id)
@@ -756,7 +756,7 @@ sampev.onShowDialog = function(id, style, title, btn1, btn2, text)
         if title:find('Блокировка') then
 			sendTG('Бот заблокирован на сервере! Подключаюсь с новым ником!')
             printm('Бот заблокирован на сервере! Подключаюсь с новым ником!', 'red')
-            newTask(newNick, 5000)  -- Ждем 5 секунд перед сменой ника
+            newTask(newNick, 1)
         end
         if id == 2016 then
             sendDialogResponse(2016, 1, 0, "")
@@ -775,7 +775,7 @@ sampev.onServerMessage = function(color, text)
     if text:find('Вы ввели неверный пароль!') then
         printm('Неверный пароль, меняю ник.', 'red')
         sendTG('Неверный пароль, меняю ник.')
-        newTask(newNick, 5000)  -- Ждем 5 секунд перед сменой ника
+        newTask(newNick, 1)
     end
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
         newTask(sendClickTextdraw, 2084, id)
