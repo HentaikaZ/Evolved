@@ -1175,19 +1175,14 @@ mysplit = function(inputstr, sep)
 end
 
 sendTG = function(arg)
-    -- Экранируем спецсимволы Markdown для Телеграма
+    -- Экранируем спецсимволы Markdown для Телеграма (только для текста вне backticks)
     local function escapeTelegramMarkdown(text)
-        text = text:gsub('_', '\\_')   -- экранируем подчёркивание
-        text = text:gsub('%*', '\\*')  -- экранируем звёздочки
-        text = text:gsub('%[', '\\[')  -- экранируем [
-        text = text:gsub('%]', '\\]')  -- экранируем ]
-        text = text:gsub('%(', '\\(')  -- экранируем (
-        text = text:gsub('%)', '\\)')  -- экранируем )
-        text = text:gsub('`', '\\`')   -- экранируем обратные кавычки
+        -- Для текста внутри backticks не нужно экранировать
+        -- поэтому просто возвращаем как есть
         return text
     end
     
-    local userTag = escapeTelegramMarkdown(tostring(cfg.telegram.user))
+    local userTag = tostring(cfg.telegram.user)  -- Не экранируем тег юзера
     local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* `%s`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, userTag)
     async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
 end
