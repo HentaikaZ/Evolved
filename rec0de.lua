@@ -23,6 +23,7 @@ local ffi = require('ffi')
 local sampfuncs = require("sampfuncs")
 local json = require('dkjson')
 local lfs = require("lfs")
+local raknet = require("samp.raknet")
 random = math.random
 format = string.format
 floor = math.floor
