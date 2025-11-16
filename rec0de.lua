@@ -818,26 +818,56 @@ sampev.onSetInterior = function(id)
 end
 
 interiorwalk = function()
-    local rand = random(1, 6)
-    local pos = {getBotPosition()}
-    if rand == 1 then
-        runToPosition(pos[1] + random(0.5, 1.5), pos[2], pos[3])
-        printm("Отхожу вперед по X", "blue")
-    elseif rand == 2 then
-        runToPosition(pos[1], pos[2] + random(0.5, 1.5), pos[3])
-        printm("Отхожу вперед по Y", "blue")
-    elseif rand == 3 then
-        runToPosition(pos[1] + random(0.5, 1.5), pos[2] + random(0.5, 1.5), pos[3])
-        printm("Отхожу вперед по XY", "blue")
-    elseif rand == 4 then
-        runToPosition(pos[1] - random(0.5, 1.5), pos[2], pos[3])
-        printm("Отхожу назад по X", "blue")
-    elseif rand == 5 then
-        runToPosition(pos[1], pos[2] - random(0.5, 1.5), pos[3])
-        printm("Отхожу назад по Y", "blue")
-    elseif rand == 6 then
-        runToPosition(pos[1] - random(0.5, 1.5), pos[2] - random(0.5, 1.5), pos[3])
-        printm("Отхожу назад по XY", "blue")
+    local steps = random(10, 15)        -- число шагов
+    local minDist, maxDist = 1.0, 4.0   -- длина шага
+    local pos = { getBotPosition() }
+
+    for i = 1, steps do
+        -- случайное направление
+        local ang = random(0, 359)
+        local rad = math.rad(ang)
+        local dist = (random(math.floor(minDist * 100), math.floor(maxDist * 100)) / 100)
+        local nx = pos[1] + math.cos(rad) * dist
+        local ny = pos[2] + math.sin(rad) * dist
+        local nz = pos[3]
+
+        -- отправляемся к точке
+        runToPosition(nx, ny, nz)
+
+        -- ждём пока бот приблизится к цели или пока не истечёт таймаут
+        local waited = 0
+        local timeout = 8000 -- ms
+        local checkInterval = 200 -- ms
+        while waited < timeout do
+            wait(checkInterval)
+            waited = waited + checkInterval
+            local cur = { getBotPosition() }
+            local dx = cur[1] - nx
+            local dy = cur[2] - ny
+            if (dx*dx + dy*dy) <= 1.0 then -- расстояние^2 <= 1 -> приблизительно 1 метр
+                pos[1], pos[2], pos[3] = cur[1], cur[2], cur[3]
+                break
+            end
+        end
+
+        -- если таймаут, обновляем позицию реальной текущей координатой
+        if waited >= timeout then
+            local cur = { getBotPosition() }
+            pos[1], pos[2], pos[3] = cur[1], cur[2], cur[3]
+        end
+
+        -- лог направления
+        if nx > pos[1] and ny > pos[2] then
+            printm("Отхожу вперед по XY", "blue")
+        elseif nx > pos[1] and ny <= pos[2] then
+            printm("Отхожу вперед по X и назад по Y", "blue")
+        elseif nx <= pos[1] and ny > pos[2] then
+            printm("Отхожу назад по X и вперед по Y", "blue")
+        else
+            printm("Отхожу назад по XY", "blue")
+        end
+
+        wait(random(500, 1200)) -- пауза между шагами
     end
 end
 
