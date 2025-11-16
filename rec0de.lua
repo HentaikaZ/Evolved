@@ -547,47 +547,6 @@ getForwardVector = function(rotation)
     return {x = math.sin(angle), y = math.cos(angle)}
 end
 
-updatePosition = function()
-    if FailBot.state ~= 1 then return end
-    if FailBot.fallStartTime == 0 then
-        FailBot.fallStartTime = os.clock()
-        local rotation = getBotRotation()
-        FailBot.forwardVector = getForwardVector(rotation)
-    end
-    if FailBot.targetPosition.z ~= FailBot.position.z then
-        FailBot.position.z = FailBot.position.z + FailBot.speed
-        if FailBot.shouldMoveForward then
-            local currentTime = os.clock()
-            local timeSinceFall = (currentTime - FailBot.fallStartTime) * 1000
-            if timeSinceFall >= FailBot.DELAY_BEFORE_MOVE then
-                if FailBot.currentForwardSpeed < FailBot.MAX_FORWARD_SPEED then
-                    FailBot.currentForwardSpeed = FailBot.currentForwardSpeed + FailBot.FORWARD_ACCELERATION
-                    if FailBot.currentForwardSpeed > FailBot.MAX_FORWARD_SPEED then
-                        FailBot.currentForwardSpeed = FailBot.MAX_FORWARD_SPEED
-                    end
-                end
-                FailBot.position.x = FailBot.position.x + FailBot.forwardVector.x * FailBot.currentForwardSpeed
-                FailBot.position.y = FailBot.position.y + FailBot.forwardVector.y * FailBot.currentForwardSpeed
-            end
-        end
-        FailBot.needSpeedFall = true
-        setBotPosition(FailBot.position.x, FailBot.position.y, FailBot.position.z)
-        updateSync()
-        FailBot.needSpeedFall = false
-        if FailBot.position.z <= FailBot.targetPosition.z then
-            local finalX = FailBot.position.x
-            local finalY = FailBot.position.y
-            setBotPosition(finalX, finalY, FailBot.targetPosition.z)
-            updateSync()
-            FailBot.state = 0
-            FailBot.speed = FailBot.INITIAL_SPEED
-            FailBot.forwardVector = {x = 0, y = 0}
-            FailBot.fallStartTime = 0
-            FailBot.currentForwardSpeed = 0
-        end
-    end
-end
-
 sampev.onSendPlayerSync = function(data)
     e_temp.last_anim = data.animationId
 	if e_temp.send_speed then
@@ -606,36 +565,16 @@ sampev.onSendPlayerSync = function(data)
 		data.animation.flags.time = anim.flags.time
 		data.animation.flags.regular = false
 	end
-    if FailBot.needSpeed then
-        data.moveSpeed.z = 0.05
+    if key then
+    data.keysData = key
+    key = nil
     end
-    if FailBot.needSpeedFall then 
-        data.moveSpeed.z = FailBot.speed / 5
-        if FailBot.fallStartTime > 0 and FailBot.shouldMoveForward then
-            local timeSinceFall = (os.clock() - FailBot.fallStartTime) * 1000
-            if timeSinceFall >= FailBot.DELAY_BEFORE_MOVE then
-                data.moveSpeed.x = FailBot.forwardVector.x * FailBot.currentForwardSpeed
-                data.moveSpeed.y = FailBot.forwardVector.y * FailBot.currentForwardSpeed
-            end
-        end
-        FailBot.speed = FailBot.speed + FailBot.SPEED_DECREMENT
-        if FailBot.speed < FailBot.MIN_SPEED then
-            FailBot.speed = FailBot.MIN_SPEED
-        end
-        if FailBot.speed < FailBot.MIN_SPEED then
-            FailBot.speed = FailBot.MIN_SPEED
-        end
-        if key then
-        data.keysData = key
-        key = nil
-        end
-	    if skey then
-        data.specialKey = skey
-        skey = nil
-        end
-        if isCoordActive() and getBotInterior() == 0 then
-    	data.moveSpeed.x, data.moveSpeed.y, data.moveSpeed.z = cMoveSpeed.x, cMoveSpeed.y, cMoveSpeed.z
-        end
+	if skey then
+    data.specialKey = skey
+    skey = nil
+    end
+    if isCoordActive() and getBotInterior() == 0 then
+    data.moveSpeed.x, data.moveSpeed.y, data.moveSpeed.z = cMoveSpeed.x, cMoveSpeed.y, cMoveSpeed.z
     end
 end
 
@@ -657,28 +596,6 @@ sampev.onTogglePlayerControllable = function(controllable)
         else
             printm("Бот был заморожен в течение первых 20 секунд (игнорируем).", "yellow")
         end
-    end
-end
-
-sampev.onSetPlayerPos = function(pos)
-    if router.rep then router.rep = false end
-    anim.reset()
-    FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
-    if FailBot.state == 0 then
-        local botPos = {getBotPosition()}
-        if botPos[1] == FailBot.position.x and botPos[2] == FailBot.position.y and botPos[3] ~= FailBot.position.z then
-            FailBot.targetPosition.x, FailBot.targetPosition.y = botPos[1], botPos[2]
-            if botPos[3] <= FailBot.position.z then
-                printm("Слап! 1 - Падение сверху вниз"..(FailBot.shouldMoveForward and " с движением вперёд" or ""), "red")
-            else
-                FailBot.targetPosition.z = botPos[3]
-            end
-        else
-            printm("Слап! 2 - Падение вниз"..(FailBot.shouldMoveForward and " с движением вперёд" or ""), "red")
-            FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
-        end
-        FailBot.state = 1
-        return false
     end
 end
 
