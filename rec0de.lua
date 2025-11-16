@@ -818,56 +818,26 @@ sampev.onSetInterior = function(id)
 end
 
 interiorwalk = function()
-    local steps = random(10, 15)        -- число шагов
-    local minDist, maxDist = 1.0, 4.0   -- длина шага
-    local pos = { getBotPosition() }
-
-    for i = 1, steps do
-        -- случайное направление
-        local ang = random(0, 359)
-        local rad = math.rad(ang)
-        local dist = (random(math.floor(minDist * 100), math.floor(maxDist * 100)) / 100)
-        local nx = pos[1] + math.cos(rad) * dist
-        local ny = pos[2] + math.sin(rad) * dist
-        local nz = pos[3]
-
-        -- отправляемся к точке
-        runToPosition(nx, ny, nz)
-
-        -- ждём пока бот приблизится к цели или пока не истечёт таймаут
-        local waited = 0
-        local timeout = 8000 -- ms
-        local checkInterval = 200 -- ms
-        while waited < timeout do
-            wait(checkInterval)
-            waited = waited + checkInterval
-            local cur = { getBotPosition() }
-            local dx = cur[1] - nx
-            local dy = cur[2] - ny
-            if (dx*dx + dy*dy) <= 1.0 then -- расстояние^2 <= 1 -> приблизительно 1 метр
-                pos[1], pos[2], pos[3] = cur[1], cur[2], cur[3]
-                break
-            end
-        end
-
-        -- если таймаут, обновляем позицию реальной текущей координатой
-        if waited >= timeout then
-            local cur = { getBotPosition() }
-            pos[1], pos[2], pos[3] = cur[1], cur[2], cur[3]
-        end
-
-        -- лог направления
-        if nx > pos[1] and ny > pos[2] then
-            printm("Отхожу вперед по XY", "blue")
-        elseif nx > pos[1] and ny <= pos[2] then
-            printm("Отхожу вперед по X и назад по Y", "blue")
-        elseif nx <= pos[1] and ny > pos[2] then
-            printm("Отхожу назад по X и вперед по Y", "blue")
-        else
-            printm("Отхожу назад по XY", "blue")
-        end
-
-        wait(random(500, 1200)) -- пауза между шагами
+    local rand = random(1, 6)
+    local pos = {getBotPosition()}
+    if rand == 1 then
+        runToPosition(pos[1] + random(0.5, 1.5), pos[2], pos[3])
+        printm("Отхожу вперед по X", "blue")
+    elseif rand == 2 then
+        runToPosition(pos[1], pos[2] + random(0.5, 1.5), pos[3])
+        printm("Отхожу вперед по Y", "blue")
+    elseif rand == 3 then
+        runToPosition(pos[1] + random(0.5, 1.5), pos[2] + random(0.5, 1.5), pos[3])
+        printm("Отхожу вперед по XY", "blue")
+    elseif rand == 4 then
+        runToPosition(pos[1] - random(0.5, 1.5), pos[2], pos[3])
+        printm("Отхожу назад по X", "blue")
+    elseif rand == 5 then
+        runToPosition(pos[1], pos[2] - random(0.5, 1.5), pos[3])
+        printm("Отхожу назад по Y", "blue")
+    elseif rand == 6 then
+        runToPosition(pos[1] - random(0.5, 1.5), pos[2] - random(0.5, 1.5), pos[3])
+        printm("Отхожу назад по XY", "blue")
     end
 end
 
@@ -1273,83 +1243,37 @@ samp_create_sync_data = function(sync_type, copy_from_player)
 end
 
 runToPosition = function(tox, toy, toz)
+    --printm("run: "..tox..", "..toy..", "..toz)
     newTask(function()
-        local px, py, pz = getBotPosition()
-        local max_iters = 300
-        local step_len = 0.6            -- длина одного шага (уменьшить чтобы не телепортить через стены)
-        local moved_threshold = 0.12    -- минимальное сдвижение, чтобы считать, что не застряли
-
-        for i = 1, max_iters do
-            local dx, dy = tox - px, toy - py
-            local dist = math.sqrt(dx*dx + dy*dy)
-            if dist <= 0.8 then
-                return
-            end
-
-            local angle = getHeadingFromVector2d(dx, dy)
-            local seg = math.min(step_len, dist)
-            local rad = -math.rad(angle)
-            local nx = px + math.cos(rad) * seg
-            local ny = py + math.sin(rad) * seg
-
-            -- отправляем синк к ближайшей промежуточной точке (не делаем резких телепортов)
+        local bx, by = getBotPosition()
+        local angle = getHeadingFromVector2d((tox - bx), (toy - by))
+        local rad = -math.rad(angle)
+        local sinX, cosY = math.sin(rad), math.cos(rad)
+        local qz, qw = angleToQuaternion(angle)
+        local kfPos = 0.09
+        local kfSpeed = 30
+        while getDistanceBetweenCoords2d(bx, by, tox, toy) > 0.8 do
+            wait(0)
+            bx = (bx + sinX*kfPos)
+            by = (by + cosY*kfPos)
+            angle = getHeadingFromVector2d((tox - bx), (toy - by))
+            qz, qw = angleToQuaternion(angle)
+            rad = -math.rad(angle)
+            sinX, cosY = math.sin(rad), math.cos(rad)
             local data = samp_create_sync_data("player")
-            data.upDownKeys = 65408
+            data.upDownKeys = 65408   
             data.keysData = 8
-            data.position.x, data.position.y, data.position.z = nx, ny, toz
-            data.moveSpeed.x, data.moveSpeed.y = (math.cos(rad) / 30), (math.sin(rad) / 30)
-            local qz, qw = angleToQuaternion(angle)
-            data.quaternion[3], data.quaternion[0] = qz, qw
+            data.position.x, data.position.y, data.position.z = bx, by, toz
+            data.moveSpeed.x, data.moveSpeed.y = (sinX/kfSpeed), (cosY/kfSpeed)
+            data.quaternion[3], data.quaternion[0] = qz, qw      
             data.health = getBotHealth()
             data.armor = getBotArmor()
             data.animationId = 1224
-            data.animationFlags = 32772
+            data.animationFlags = 32772        
             data.send()
-
-            wait(180) -- даём серверу время обработать столкновения
-
-            local cur = { getBotPosition() }
-            local moved = getDistanceBetweenCoords2d(cur[1], cur[2], px, py)
-
-            if moved < moved_threshold then
-                -- попробуем несколько боковых манёвров, если упёрлись в стену
-                local sidestep_ok = false
-                for r = 1, 4 do
-                    local offset = 0.5 + 0.15 * r
-                    local side_ang = rad + (r % 2 == 0 and 1 or -1) * offset
-                    local sx = px + math.cos(side_ang) * seg
-                    local sy = py + math.sin(side_ang) * seg
-
-                    local sdata = samp_create_sync_data("player")
-                    sdata.upDownKeys = 65408
-                    sdata.keysData = 8
-                    sdata.position.x, sdata.position.y, sdata.position.z = sx, sy, toz
-                    sdata.moveSpeed.x, sdata.moveSpeed.y = (math.cos(side_ang) / 30), (math.sin(side_ang) / 30)
-                    local sqz, sqw = angleToQuaternion(math.deg(-side_ang))
-                    sdata.quaternion[3], sdata.quaternion[0] = sqz, sqw
-                    sdata.animationId = 1224
-                    sdata.animationFlags = 32772
-                    sdata.send()
-
-                    wait(240)
-                    local cur2 = { getBotPosition() }
-                    if getDistanceBetweenCoords2d(cur2[1], cur2[2], px, py) >= moved_threshold * 0.9 then
-                        px, py = cur2[1], cur2[2]
-                        sidestep_ok = true
-                        break
-                    end
-                end
-
-                if not sidestep_ok then
-                    printm("Заблокировано препятствием — прерываю движение.", "red")
-                    return
-                end
-            else
-                px, py = cur[1], cur[2]
-            end
+            setBotPosition(bx, by, toz)
+            setBotRotation(angle)                    
         end
-
-        printm("Не удалось достичь точки (превышен лимит итераций).", "yellow")
     end)
 end
 
