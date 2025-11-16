@@ -841,20 +841,21 @@ interiorwalk = function()
 end
 
 sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapons, ammo)
-    --printm(floor(position.x)..", "..floor(position.y)..", "..floor(position.z), "red")
     anim.reset()
     newTask(function()
         wait(1000)
         wait(random(5000, 10000))
         local int_id = getBotInterior()
         local action = cfg.main.spawn_action or ""
+        
         if int_id ~= 0 then
-            if action == "invis2" or action == "invis3" then
+            if action == "invis" then
                 printm("Инвиз недоступен. Бот должен быть в 0 интерьере.", "yellow")
             end
         end
+        
         if action == "walk" then
-            if int_id == 0 and getBotVehicle() == 0 then
+            if int_id == 1 and getBotVehicle() == 0 then
                 if position.x >= 1000 and position.x <= 1200 and position.y >= -1900 and position.y <= -1700 then
                     printm("Вы на новом спавне ЛС.", "purple")
                     runRoute('!play ls/new/lsnew'..random(1, 50))
@@ -867,7 +868,7 @@ sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapon
                 else
                     printm("Скрипт не смог определить спавн. Маршрута не будет.", "yellow")
                 end
-            elseif int_id == 218 or int_id == 217 then
+            elseif int_id == 0 or int_id == 217 then
                 interiorwalk()
             else
                 for i, v in pairs(organizations) do
@@ -891,14 +892,19 @@ sampev.onSetSpawnInfo = function(team, skin, _unused, position, rotation, weapon
             else
                 printm("Нет доступных позиций для телепортации, телепорта не будет.", "yellow")
             end
-        elseif action == "invis1" then
-            tp(2495.31, -1690.93, 14.77)
-        elseif action == "invis2" then
-            printm("Инвиз (2 мод) успешно активирован.", "green")
-            tp(random(5000, 10000), position.y, position.z + random(5000, 10000))
-        elseif action == "invis3" then
-            printm("Инвиз (3 мод) успешно активирован.", "green")
-            tp(position.x, position.y, position.z + random(5000, 10000))
+        elseif action == "invis" then
+            -- рандомно выбираем один из трёх инвизов
+            local invisType = random(1, 3)
+            if invisType == 1 then
+                printm("Инвиз (1 мод) успешно активирован.", "green")
+                tp(2495.31, -1690.93, 14.77)
+            elseif invisType == 2 then
+                printm("Инвиз (2 мод) успешно активирован.", "green")
+                tp(random(5000, 10000), position.y, position.z + random(5000, 10000))
+            elseif invisType == 3 then
+                printm("Инвиз (3 мод) успешно активирован.", "green")
+                tp(position.x, position.y, position.z + random(5000, 10000))
+            end
         elseif action == "death" and int_id == 0 then
             printm("Умираю.", "blue")
             input("!kill")
