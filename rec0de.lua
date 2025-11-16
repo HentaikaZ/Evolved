@@ -508,40 +508,6 @@ GetTaskStatus = function(task)
     return task ~= nil and task:isAlive() or false
 end
 
-
-
-local FailBot = {
-    state = 0, -- Текущее состояние бота (0 - неактивен, 1 или 2 - в процессе падения)
-    position = { -- Текущая позиция бота
-        x = 0,
-        y = 0,
-        z = 0
-    },
-    targetPosition = { -- Позиция куда должен упасть бот
-        x = 0,
-        y = 0,
-        z = 0
-    },
-    speed = -0.1, -- Текущая скорость падения
-    needSpeed = false, -- Флаг, нужно ли применять скорость (для синхронизации)
-    needSpeedFall = false, -- Флаг, находится ли бот в процессе падения
-    MIN_SPEED = -0.8, -- Максимальная (по модулю) скорость падения
-    SPEED_DECREMENT = -0.8, -- Шаг уменьшения скорости при падении
-    INITIAL_SPEED = -0.1, -- Начальная скорость падения
-    SYNC_DELAY = 90, -- Задержка между обновлениями позиции (в мс)    
-    forwardVector = { -- Вектор направления движения вперед
-        x = 0,
-        y = 0
-    },
-    fallStartTime = 0, -- Время начала падения (в секундах)
-    DELAY_BEFORE_MOVE = 100, -- Задержка перед началом движения вперед (в мс)
-    currentForwardSpeed = 0, -- Текущая скорость движения вперед
-    MAX_FORWARD_SPEED = 0.3, -- Максимальная скорость движения вперед
-    FORWARD_ACCELERATION = 0.03, -- Ускорение при движении вперед
-    FALL_DISTANCE = 60, -- Дистанция падения при слапе вниз
-    shouldMoveForward = false -- Флаг, нужно ли двигаться вперед при падении
-}
-
 getForwardVector = function(rotation)
     local angle = math.rad(360 - rotation)
     return {x = math.sin(angle), y = math.cos(angle)}
@@ -612,7 +578,6 @@ function onLoad()
     windowTitle()
     os.execute('cls')
     printm("The script was uploaded successfully! Author: XXX. VK: @amaraythenerp", "green")
-    newTask(function() while true do updatePosition() wait(FailBot.SYNC_DELAY) end end)
     if getBotNick() == "nick" then newNick() end
     if cfg.main.proxy == 1 then loadProxyList() else printm("Прокси не используются.", "yellow") end
     freezeCheckStartTime = os.time() -- Запоминаем время запуска
@@ -1339,38 +1304,45 @@ sampev.onVehicleStreamIn = function(vehid, data)
 end
 
 check_update = function()
-	if router.rep then
-		local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
-		if ok then
-			if getBotVehicle() ~= 0 then router.bitstream.incar:sendPacket() else router.bitstream.onfoot:sendPacket() end
-			setBotPosition(router.packet[router.counter].x, router.packet[router.counter].y, router.packet[router.counter].z)
-			router.counter = router.counter + 1
-			if router.counter%20 == 0 then
-				local aok = fillBitStream(3)
-				if aok then 
-					router.bitstream.aim:sendPacket()
-				else 
-					err()
-				end
-			end
-		else
-			err()
-		end
-		router.bitstream.onfoot:reset()
-		router.bitstream.incar:reset()
-		router.bitstream.aim:reset()
-		if router.counter == #router.packet then
-			if not router.loop then
-				router.rep = false
-				setBotPosition(router.packet[router.counter].x, router.packet[router.counter].y, router.packet[router.counter].z)
-				setBotQuaternion(router.packet[router.counter].qw, router.packet[router.counter].qx, router.packet[router.counter].qy, router.packet[router.counter].qz)
-				printm('Маршрут завершен.', "green")
+    -- Если бот заморожен, останавливаем маршрут
+    if not isControllable and router.rep then
+        router.rep = false
+        printm('Бот заморожен, маршрут остановлен.', "red")
+        return
+    end
+
+    if router.rep then
+        local ok = fillBitStream(getBotVehicle() ~= 0 and 2 or 1) 
+        if ok then
+            if getBotVehicle() ~= 0 then router.bitstream.incar:sendPacket() else router.bitstream.onfoot:sendPacket() end
+            setBotPosition(router.packet[router.counter].x, router.packet[router.counter].y, router.packet[router.counter].z)
+            router.counter = router.counter + 1
+            if router.counter%20 == 0 then
+                local aok = fillBitStream(3)
+                if aok then 
+                    router.bitstream.aim:sendPacket()
+                else 
+                    err()
+                end
+            end
+        else
+            err()
+        end
+        router.bitstream.onfoot:reset()
+        router.bitstream.incar:reset()
+        router.bitstream.aim:reset()
+        if router.counter == #router.packet then
+            if not router.loop then
+                router.rep = false
+                setBotPosition(router.packet[router.counter].x, router.packet[router.counter].y, router.packet[router.counter].z)
+                setBotQuaternion(router.packet[router.counter].qw, router.packet[router.counter].qx, router.packet[router.counter].qy, router.packet[router.counter].qz)
+                printm('Маршрут завершен.', "green")
                 routefinished()
-				router.packet = {}
-			end
-			router.counter = 1
-		end
-	end
+                router.packet = {}
+            end
+            router.counter = 1
+        end
+    end
 end
 
 newTask(function()
