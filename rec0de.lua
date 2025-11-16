@@ -94,7 +94,14 @@ local emoji = {
 
 local function pctDecode(s)
     if not s then return "" end
-    return (s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+    -- Превращаем %FF последовательности в соответствующие байты
+    local decoded = s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end)
+    -- Конвертируем UTF-8 байты в текущую кодировку (CP1251) для корректного отображения в консоли
+    local ok, conv = pcall(u8.decode, u8, decoded)
+    if ok and conv then
+        return conv
+    end
+    return decoded
 end
 
 local function encodeUrlPreservePercents(str)
