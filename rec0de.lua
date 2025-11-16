@@ -728,7 +728,7 @@ sampev.onServerMessage = function(color, text)
         newTask(function()
             if cfg.main.payday == 1 then
                 wait(35000) --- ждать после пейдея = 35 секунд
-                printm("У вас включен автоматический реконект до пейдея... Переподключаюсь.", "yellow")')
+                printm("У вас включен автоматический реконект до пейдея... Переподключаюсь.", "yellow")
                 reconnect(3240000) --- время захода 54 минута
             end
         end)
