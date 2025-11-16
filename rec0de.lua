@@ -39,10 +39,19 @@ local visuals = {
     ["direction"] = 1 
 }
 local emoji = {
-    ["muscle"] = "%F0%9F%A6%BE",
-	["planet"] = "%F0%9F%8C%90",
-    ["money"] = "%F0%9F%92%B5",
-    ["score"] = "%F0%9F%94%A2"
+    ["muscle"] = "%F0%9F%A6%BE",      -- ??
+    ["planet"] = "%F0%9F%8C%90",      -- ??
+    ["money"] = "%F0%9F%92%B5",       -- ??
+    ["score"] = "%F0%9F%94%A2",       -- ??
+    ["fire"] = "%F0%9F%94%A5",        -- ??
+    ["check"] = "%E2%9C%85",          -- ?
+    ["cross"] = "%E2%9D%8C",          -- ?
+    ["warning"] = "%E2%9A%A0",        -- ??
+    ["star"] = "%E2%AD%90",           -- ?
+    ["rocket"] = "%F0%9F%9A%80",      -- ??
+    ["error"] = "%F0%9F%92%A5",       -- ??
+    ["clock"] = "%F0%9F%95%90",       -- ??
+    ["success"] = "%F0%9F%8E%89"      -- ??
 }
 
 local router = {
@@ -1333,7 +1342,7 @@ end
 
 
 routefinished = function()
-    if getBotScore() <= 5 then
+    if getBotScore() >= 5 then
         printm("На аккаунте "..getBotScore().." лвл (больше 5). Уверены что хотите продолжить прокачку?;(", "red")
     else
         if cfg.main.runspawn == 1 then
