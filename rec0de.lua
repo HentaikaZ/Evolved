@@ -661,28 +661,24 @@ sampev.onTogglePlayerControllable = function(controllable)
 end
 
 sampev.onSetPlayerPos = function(pos)
-    -- если €вно запрещено реагировать на изменение позиции Ч выходим
-    if isControllable == false then return end
-
     if router.rep then router.rep = false end
     anim.reset()
     FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
-
     if FailBot.state == 0 then
-        local botPos = { getBotPosition() }
+        local botPos = {getBotPosition()}
         if botPos[1] == FailBot.position.x and botPos[2] == FailBot.position.y and botPos[3] ~= FailBot.position.z then
             FailBot.targetPosition.x, FailBot.targetPosition.y = botPos[1], botPos[2]
-
             if botPos[3] <= FailBot.position.z then
-                -- убрано отправление уведомлений и reconnect Ч просто корректируем таргет
-                FailBot.targetPosition.z = botPos[3]
+                printm("—лап! 1 - ѕадение сверху вниз"..(FailBot.shouldMoveForward and " с движением вперЄд" or ""), "red")
             else
-                FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
+                FailBot.targetPosition.z = botPos[3]
             end
-
-            FailBot.state = 1
-            return false
+        else
+            printm("—лап! 2 - ѕадение вниз"..(FailBot.shouldMoveForward and " с движением вперЄд" or ""), "red")
+            FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
         end
+        FailBot.state = 1
+        return false
     end
 end
 
