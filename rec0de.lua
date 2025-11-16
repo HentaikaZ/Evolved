@@ -98,8 +98,7 @@ local default_config = {
         spawn_action = 'walk',
         referal = '#warrior',
         proxy = 0,
-        minimumID = 163,
-        slapaction = 0
+        minimumID = 163
     },
     telegram = {
         tokenbot = "7015859286:AAGUQmfZjG46W44OG8viKGrU8nYgUI6OogQ",
@@ -638,34 +637,19 @@ sampev.onSendPlayerSync = function(data)
     end
 end
 
-sampev.onSetPlayerPos = function(pos)
-    if router.rep then router.rep = false end
-    anim.reset()
+sampev.onSetPlayerPos = function(x, y, z)
     FailBot.position.x, FailBot.position.y, FailBot.position.z = pos.x, pos.y, pos.z
+    anim.reset()
     if FailBot.state == 0 then
         local botPos = {getBotPosition()}
         if botPos[1] == FailBot.position.x and botPos[2] == FailBot.position.y and botPos[3] ~= FailBot.position.z then
             FailBot.targetPosition.x, FailBot.targetPosition.y = botPos[1], botPos[2]
             if botPos[3] <= FailBot.position.z then
-                printm("Слап! 1 - Падение сверху вниз"..(FailBot.shouldMoveForward and " с движением вперёд" or ""), "red")
-                if cfg.main.slapaction == 1 then
-                    if cfg.notifications.slapfix == 1 then
-                        sendTG("Бота слапнули, реконнекчусь", "red")
-                    end
-                    reconnect(random(30000, 60000))
-                else
-                    FailBot.targetPosition.z = botPos[3]
-                end
+                print("Slap! 1 - Падение сверху вниз" .. (FailBot.shouldMoveForward and " с движением вперёд" or ""))
+                FailBot.targetPosition.z = botPos[3]
             else
-                printm("Слап! 2 - Падение вниз"..(FailBot.shouldMoveForward and " с движением вперёд" or ""), "red")
-                if cfg.main.slapaction == 1 then
-                    if cfg.notifications.slapfix == 1 then
-                        sendTG("Бота слапнули, реконнекчусь", "red")
-                    end
-                    reconnect(random(30000, 60000))
-                else
-                    FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
-                end
+                print("Slap! 2 - Падение вниз" .. (FailBot.shouldMoveForward and " с движением вперёд" or ""))
+                FailBot.targetPosition.z = botPos[3] - FailBot.FALL_DISTANCE
             end
             FailBot.state = 1
             return false
