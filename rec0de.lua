@@ -31,28 +31,102 @@ u8 = encoding.UTF8
 
 local freezeCheckStartTime = nil
 local counter = { ["banip"] = 0, ["bmoney"] = 0 }
-local visuals = { 
-    ["name"] = "EVOLVED", 
-    ["version"] = "3.0", 
-    ["author"] = "XXX", 
-    ["i"] = 1, 
-    ["direction"] = 1 
+local visuals = {
+    name = "EVOLVED",
+    version = "3.0",
+    author = "XXX",
+    i = 1,
+    direction = 1
 }
-local emoji = {
-    ["muscle"] = "%F0%9F%A6%BE",      -- ??
+ocal emoji = {
+    ["muscle"] = "%F0%9F%92%AA",      -- ??
     ["planet"] = "%F0%9F%8C%90",      -- ??
     ["money"] = "%F0%9F%92%B5",       -- ??
     ["score"] = "%F0%9F%94%A2",       -- ??
     ["fire"] = "%F0%9F%94%A5",        -- ??
     ["check"] = "%E2%9C%85",          -- ?
     ["cross"] = "%E2%9D%8C",          -- ?
-    ["warning"] = "%E2%9A%A0",        -- ??
+    ["warning"] = "%E2%9A%A0",        -- ?
     ["star"] = "%E2%AD%90",           -- ?
     ["rocket"] = "%F0%9F%9A%80",      -- ??
     ["error"] = "%F0%9F%92%A5",       -- ??
     ["clock"] = "%F0%9F%95%90",       -- ??
-    ["success"] = "%F0%9F%8E%89"      -- ??
+    ["success"] = "%F0%9F%8E%89",     -- ??
+    ["heart"] = "%F0%9F%92%97",       -- ??
+    ["diamond"] = "%F0%9F%92%8E",     -- ??
+    ["gear"] = "%E2%9A%99",           -- ?
+    ["shield"] = "%F0%9F%9B%A1",      -- ??
+    ["target"] = "%F0%9F%8E%AF",      -- ??
+    ["bolt"] = "%E2%9A%A1",           -- ?
+    ["skull"] = "%F0%9F%92%80",       -- ??
+    ["crown"] = "%F0%9F%91%91",       -- ??
+    ["hourglass"] = "%E2%8F%B3",      -- ?
+    ["info"] = "%E2%84%B9",           -- ?
+    ["link"] = "%F0%9F%94%97",        -- ??
+    ["lock"] = "%F0%9F%94%92",        -- ??
+    ["unlock"] = "%F0%9F%94%93",      -- ??
+    ["key"] = "%F0%9F%94%91",         -- ??
+    ["ban"] = "%F0%9F%9A%AB",         -- ??
+    ["online"] = "%F0%9F%9F%A2",      -- ??
+    ["offline"] = "%F0%9F%94%B4",     -- ??
+    ["waiting"] = "%F0%9F%9F%A1",     -- ??
+    ["loading"] = "%F0%9F%94%84",     -- ??
+    ["download"] = "%F0%9F%93%A5",    -- ??
+    ["upload"] = "%F0%9F%93%A4",      -- ??
+    ["server"] = "%F0%9F%96%A5",      -- ??
+    ["network"] = "%F0%9F%8C%90",     -- ?? (повтор для сетевых сообщений)
+    ["party"] = "%F0%9F%8E%8A",       -- ??
+    ["sparkle"] = "%E2%9C%A8",        -- ?
+    ["eyes"] = "%F0%9F%91%80",        -- ??
+    ["confetti"] = "%F0%9F%8E%8A",    -- ?? (альтер)
+    ["camera"] = "%F0%9F%93%B8",      -- ??
+    ["medal"] = "%F0%9F%8F%85",       -- ??
+    ["gift"] = "%F0%9F%8E%81",        -- ??
+    ["note"] = "%F0%9F%93%9D",        -- ??
+    ["wave"] = "%F0%9F%91%8B",        -- ??
+    ["peace"] = "%E2%9C%8C",          -- ?
+    ["bug"] = "%F0%9F%90%9E",         -- ??
+    ["wrench"] = "%F0%9F%94%A7",      -- ??
+    ["magnify"] = "%F0%9F%94%8D",     -- ??
+    ["thumbsup"] = "%F0%9F%91%8D",    -- ??
+    ["thumbsdown"] = "%F0%9F%91%8E"   -- ??
 }
+
+local function pctDecode(s)
+    if not s then return "" end
+    return (s:gsub("%%(%x%x)", function(h) return string.char(tonumber(h, 16)) end))
+end
+
+local function encodeUrlPreservePercents(str)
+    if not str then return "" end
+    -- Сохраняем последовательности вида %FF%AA... в плейсхолдеры
+    local placeholders = {}
+    local id = 0
+    str = str:gsub("((?:%%[0-9A-Fa-f][0-9A-Fa-f]){1,})", function(seq)
+        id = id + 1
+        placeholders[id] = seq
+        return "__EMO_PLACEHOLDER_" .. id .. "__"
+    end)
+    -- Обычный URL-энкодинг для оставшихся символов
+    str = tostring(str)
+    str = str:gsub("([^%w%-%_%.%~])", function(c) return string.format("%%%02X", string.byte(c)) end)
+    -- Восстанавливаем эмодзи-плейсхолдеры
+    for i = 1, id do
+        str = str:gsub("__EMO_PLACEHOLDER_" .. i .. "__", placeholders[i])
+    end
+    return str
+end
+
+local colorCodes = {
+    green = '\27[32m',
+    blue = '\27[0;36m',
+    yellow = '\27[33m',
+    red = '\27[0;31m',
+    purple = '\27[1;35m',
+    proxy = '\27[0;36m',
+    default = '\27[37m'
+}
+local RESET = '\27[0m'
 
 local router = {
 	["bitstream"] = { onfoot = bitStream.new(), incar = bitStream.new(), aim = bitStream.new() },
@@ -60,17 +134,37 @@ local router = {
 }
 
 printm = function(text, color)
-    if color == "green" then
-        print('\x1b[32m[ '..visuals.name..' ]: \x1b[37m'..text)
-    elseif color == "blue" then
-        print('\x1b[0;36m[ '..visuals.name..' ]: \x1b[37m'..text)
-    elseif color == "yellow" then
-        print('\x1b[33m[ '..visuals.name..' ]: \x1b[37m'..text)
-    elseif color == "red" then
-        print('\x1b[0;31m[ '..visuals.name..' ]: \x1b[37m'..text)
-    elseif color == "purple" then
-        print('\x1b[1;35m[ '..visuals.name..' ]: \x1b[37m'..text)
+    color = color or "default"
+    local code = colorCodes[color] or colorCodes.default
+    local tstamp = os.date("%H:%M:%S")
+    local prefix = ("[ %s v%s ]"):format(visuals.name, visuals.version)
+    local em = emoji.info
+    if color == "green" then em = emoji.check
+    elseif color == "blue" then em = emoji.info
+    elseif color == "yellow" then em = emoji.warning
+    elseif color == "red" then em = emoji.error
+    elseif color == "purple" then em = emoji.target
+    elseif color == "proxy" then em = emoji.network end
+
+    local em_s = pctDecode(em)
+    local header = string.format("%s %s %s", tstamp, prefix, em_s)
+
+    local body = ""
+    if type(text) == "string" and text:find("\n") then
+        local lines = {}
+        for line in text:gmatch("[^\n]+") do
+            table.insert(lines, ("? %s"):format(line))
+        end
+        body = "\n" .. table.concat(lines, "\n")
+    else
+        body = " " .. tostring(text)
     end
+
+    -- Простая рамка вокруг заголовка
+    local line = string.rep("?", math.max(10, #header + 2))
+    print(code .. "?" .. line .. "?" .. RESET)
+    print(code .. "? " .. header .. RESET .. body)
+    print(code .. "?" .. line .. "?" .. RESET)
 end
 
 local servers = {
@@ -507,45 +601,6 @@ getForwardVector = function(rotation)
 end
 
 updatePosition = function()
-    if FailBot.state ~= 1 then return end
-    if FailBot.fallStartTime == 0 then
-        FailBot.fallStartTime = os.clock()
-        local rotation = getBotRotation()
-        FailBot.forwardVector = getForwardVector(rotation)
-    end
-    if FailBot.targetPosition.z ~= FailBot.position.z then
-        FailBot.position.z = FailBot.position.z + FailBot.speed
-        if FailBot.shouldMoveForward then
-            local currentTime = os.clock()
-            local timeSinceFall = (currentTime - FailBot.fallStartTime) * 1000
-            if timeSinceFall >= FailBot.DELAY_BEFORE_MOVE then
-                if FailBot.currentForwardSpeed < FailBot.MAX_FORWARD_SPEED then
-                    FailBot.currentForwardSpeed = FailBot.currentForwardSpeed + FailBot.FORWARD_ACCELERATION
-                    if FailBot.currentForwardSpeed > FailBot.MAX_FORWARD_SPEED then
-                        FailBot.currentForwardSpeed = FailBot.MAX_FORWARD_SPEED
-                    end
-                end
-                FailBot.position.x = FailBot.position.x + FailBot.forwardVector.x * FailBot.currentForwardSpeed
-                FailBot.position.y = FailBot.position.y + FailBot.forwardVector.y * FailBot.currentForwardSpeed
-            end
-        end
-        FailBot.needSpeedFall = true
-        setBotPosition(FailBot.position.x, FailBot.position.y, FailBot.position.z)
-        updateSync()
-        FailBot.needSpeedFall = false
-        if FailBot.position.z <= FailBot.targetPosition.z then
-            local finalX = FailBot.position.x
-            local finalY = FailBot.position.y
-            setBotPosition(finalX, finalY, FailBot.targetPosition.z)
-            updateSync()
-            FailBot.state = 0
-            FailBot.speed = FailBot.INITIAL_SPEED
-            FailBot.forwardVector = {x = 0, y = 0}
-            FailBot.fallStartTime = 0
-            FailBot.currentForwardSpeed = 0
-        end
-    end
-endupdatePosition = function()
     if FailBot.state ~= 1 then return end
     if FailBot.fallStartTime == 0 then
         FailBot.fallStartTime = os.clock()
@@ -1199,21 +1254,40 @@ mysplit = function(inputstr, sep)
 end
 
 sendTG = function(arg)
-    -- Экранируем спецсимволы Markdown для Телеграма
-    local function escapeTelegramMarkdown(text)
-        text = text:gsub('_', '\\_')   -- экранируем подчёркивание
-        text = text:gsub('%*', '\\*')  -- экранируем звёздочки
-        text = text:gsub('%[', '\\[')  -- экранируем [
-        text = text:gsub('%]', '\\]')  -- экранируем ]
-        text = text:gsub('%(', '\\(')  -- экранируем (
-        text = text:gsub('%)', '\\)')  -- экранируем )
-        text = text:gsub('`', '\\`')   -- экранируем обратные кавычки
-        return text
+    if not (cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid) then
+        printm("Telegram не настроен в конфиге — пропускаю отправку.", "yellow")
+        return
     end
-    
-    local userTag = escapeTelegramMarkdown(tostring(cfg.telegram.user))
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* %s\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, userTag)
-    async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
+
+    local function escapeMarkdownSimple(text)
+        if not text then return "" end
+        -- минимальное экранирование для Markdown (осторожно, не полный набор)
+        local replacements = { ['_']='\\_', ['*']='\\*', ['[']='\\[', [']']='\\]', ['(']='\\(', [')']='\\)', ['`']='\\`' }
+        return (text:gsub("[_%*%[%]%(%`)%%]", replacements))
+    end
+
+    local userTag = escapeMarkdownSimple(tostring(cfg.telegram.user or "unknown"))
+    local nick = escapeMarkdownSimple(tostring(getBotNick() or "nil"))
+    local serverInfo = servers[getServerAddress()] and escapeMarkdownSimple(servers[getServerAddress()].name) or escapeMarkdownSimple(getServerAddress() or "unknown")
+
+    local lines = {}
+    table.insert(lines, emoji.rocket .. emoji.sparkle)
+    table.insert(lines, (emoji.muscle .. " *Ник:* `%s[%d]`"):format(escapeMarkdownSimple(getBotNick() or "nil"), getBotId() or 0))
+    table.insert(lines, (emoji.planet .. " *Сервер:* `%s`"):format(serverInfo))
+    table.insert(lines, (emoji.score .. " *Уровень:* `%d`"):format(getBotScore() or 0))
+    table.insert(lines, (emoji.money .. " *Деньги:* `$%d`"):format(counter.bmoney or 0))
+    table.insert(lines, (emoji.star .. " *User ID:* %s"):format(userTag))
+
+    if arg and tostring(arg) ~= "" then
+        table.insert(lines, "")
+        table.insert(lines, "*Сообщение:*")
+        table.insert(lines, "`" .. escapeMarkdownSimple(tostring(arg)) .. "`")
+    end
+
+    local text = table.concat(lines, "\n")
+
+    local url = 'https://api.telegram.org/bot' .. tostring(cfg.telegram.tokenbot) .. '/sendMessage?chat_id=' .. tostring(cfg.telegram.chatid) .. '&text=' .. encodeUrlPreservePercents(text) .. '&parse_mode=Markdown'
+    async_http_request(url, '', function(result) printm("Telegram: уведомление отправлено.", "green") end, function(err) printm("Telegram: ошибка отправки - " .. tostring(err), "red") end)
 end
 
 encodeUrl = function(str)
