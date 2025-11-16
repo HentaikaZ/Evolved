@@ -1175,8 +1175,25 @@ mysplit = function(inputstr, sep)
 end
 
 sendTG = function(arg)
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* %s\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, tostring(cfg.telegram.user))
+    -- Экранируем спецсимволы Markdown для Телеграма
+    local function escapeTelegramMarkdown(text)
+        text = text:gsub('_', '\\_')   -- экранируем подчёркивание
+        text = text:gsub('%*', '\\*')  -- экранируем звёздочки
+        text = text:gsub('%[', '\\[')  -- экранируем [
+        text = text:gsub('%]', '\\]')  -- экранируем ]
+        text = text:gsub('%(', '\\(')  -- экранируем (
+        text = text:gsub('%)', '\\)')  -- экранируем )
+        text = text:gsub('`', '\\`')   -- экранируем обратные кавычки
+        return text
+    end
+    
+    local userTag = escapeTelegramMarkdown(tostring(cfg.telegram.user))
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* `%s`\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, userTag)
     async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
+end
+
+encodeUrl = function(str)
+    return u8:encode(str, 'CP1251')
 end
 
 encodeUrl = function(str)
