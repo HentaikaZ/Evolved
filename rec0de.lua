@@ -721,7 +721,10 @@ sampev.onServerMessage = function(color, text)
         newTask(newNick, 1)
     end
     if text:match('Вы не состоите в семье или лидер семьи не установил позицию') then
-        newTask(sendClickTextdraw, 2084, id)
+        newTask(function()
+            wait(500)
+            sendClickTextdraw(2084)
+        end)
         printm('Появились на дефолт спавне, так как спавн семьи отключен.', 'red')
     end
     if text:match("Время сейчас: ") then
