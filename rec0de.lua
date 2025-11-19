@@ -654,7 +654,20 @@ windowTitle = function()
         wait(3000)
         while true do
             wait(500)
-            setWindowTitle(('[ %s ] Nick: %s | LVL: %s | Сервер: %s'):format(visuals.name.." v"..visuals.version:sub(1, visuals.i), getBotNick(), getBotScore(), servername))
+            
+            -- Определяем, что показывать: сервер или прокси
+            local displayInfo = servername
+            if cfg.main.proxy == 1 and proxys.activeProxy and proxys.activeProxy.ip then
+                displayInfo = "proxy: " .. proxys.activeProxy.ip
+            end
+            
+            setWindowTitle(('[ %s ] Nick: %s | LVL: %s | %s'):format(
+                visuals.name.." v"..visuals.version:sub(1, visuals.i), 
+                getBotNick(), 
+                getBotScore(), 
+                displayInfo
+            ))
+            
             visuals.i = visuals.i + visuals.direction
             if visuals.i > #visuals.name then
                 visuals.direction = -1
@@ -1008,6 +1021,7 @@ loadProxyList = function()
     if #proxys.proxyList == 0 then
         printm('В списке прокси не найдено ни одной записи!', "red")
     else
+        printm('Загружено прокси: ' .. #proxys.proxyList, "green") -- добавлено
         changeProxy()
     end
 end
