@@ -739,6 +739,7 @@ sampev.onServerMessage = function(color, text)
             end
         end)
     end
+end
 
 sampev.onShowTextDraw = function(id, data)
     if id == 408 then
