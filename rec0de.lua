@@ -636,6 +636,7 @@ local function checkAndWriteLevel()
         -- Проверка уровня
         if score >= requiredLevel then
             printm("Уровень достаточен, записываю в файл...", 'green')  -- Логируем запись в файл
+            sendTG("Достигнут уровень " .. score .. ". Сохраняю аккаунт.")
             saveAcc("a")
             newTask(newNick, 5000)  -- Ждем 5 секунд перед сменой ника
         else
@@ -666,7 +667,7 @@ windowTitle = function()
             
             setWindowTitle(('[ %s ] Nick: %s | LVL: %s | %s | login: %s'):format(
                 visuals.name.." v"..visuals.version:sub(1, visuals.i), 
-                getBotNick(), 
+                getBotNick(),
                 getBotScore(), 
                 displayInfo,
                 userName or "Unknown"
