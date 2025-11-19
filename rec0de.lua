@@ -32,6 +32,7 @@ u8 = encoding.UTF8
 
 local hasSpawned = false
 local freezeCheckStartTime = nil
+local userName = nil
 local counter = { ["banip"] = 0, ["bmoney"] = 0 }
 local visuals = {
     name = "EVOLVED",
@@ -292,14 +293,15 @@ local function checkIfSerialAllowed(serial)
     local allowedSerials = loadAllowedSerials()
     if not allowedSerials then
         printm("[Ошибка] Не удалось загрузить список разрешённых серийных номеров.", 'red')
-        return false
+        return false, nil
     end
-    for _, allowed in ipairs(allowedSerials) do
-        if allowed == serial then
-            return true
-        end
+    
+    -- Проверяем, если это объект с именами
+    if allowedSerials[serial] then
+        return true, allowedSerials[serial]
     end
-    return false
+    
+    return false, nil
 end
 
 local function loadSerialsFromFile()
@@ -340,9 +342,10 @@ local currentSerial = getCpuSerial()
 addSerialToFile(currentSerial)
 
 -- ПРОВЕРКА HWID (теперь функция определена)
-local allowed = checkIfSerialAllowed(currentSerial)
+local allowed, authName = checkIfSerialAllowed(currentSerial)
 if allowed then
-    printm("Серийный номер разрешен.", 'green')
+    userName = authName  -- сохраняем имя в глобальную переменную
+    printm("Серийный номер разрешен. Добро пожаловать, вы авторизовались как: " .. tostring(authName), 'green')
 else
     printm("Серийный номер не разрешен, выполнение скрипта прервано.", 'red')
     if cfg and cfg.telegram and cfg.telegram.tokenbot and cfg.telegram.chatid then
@@ -661,11 +664,12 @@ windowTitle = function()
                 displayInfo = "proxy: " .. proxys.activeProxy.ip
             end
             
-            setWindowTitle(('[ %s ] Nick: %s | LVL: %s | %s'):format(
+            setWindowTitle(('[ %s ] Nick: %s | LVL: %s | %s | login: %s'):format(
                 visuals.name.." v"..visuals.version:sub(1, visuals.i), 
                 getBotNick(), 
                 getBotScore(), 
-                displayInfo
+                displayInfo,
+                userName or "Unknown"
             ))
             
             visuals.i = visuals.i + visuals.direction
