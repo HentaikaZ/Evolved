@@ -730,13 +730,15 @@ sampev.onServerMessage = function(color, text)
     if text:match("Время сейчас: ") then
         newTask(function()
             if cfg.main.payday == 1 then
-                wait(35000) --- ждать после пейдея = 35 секунд
-                printm("У вас включен автоматический реконект до пейдея... Переподключаюсь.", "yellow")
-                reconnect(3240000) --- время захода 54 минута
+                -- случайное время в диапазоне 40..54 минут и случайная секунда в минуте
+                local minute = random(40, 54)
+                local second = random(0, 59)
+                local delay_ms = (minute * 60 + second) * 1000
+                printm("У вас включен автоматический реконект до пейдея... Реконнект через " .. minute .. "м " .. second .. "с.", "yellow")
+                reconnect(delay_ms) -- reconnect ожидает миллисекунды
             end
         end)
     end
-end
 
 sampev.onShowTextDraw = function(id, data)
     if id == 408 then
