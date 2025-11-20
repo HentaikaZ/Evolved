@@ -775,8 +775,8 @@ sampev.onServerMessage = function(color, text)
             end
         end)
     end
-    if text:find("%[Выписка%]: Новый баланс: %$%d+") then
-        local amount = text:match("%$(%d+)")
+    if text:find("Новый баланс: %$%d+") then
+        local amount = text:match("Новый баланс: %$(%d+)")
         counter.bmoney = tonumber(amount)
         printm("Баланс обновлен: $" .. amount, "green")
     end
