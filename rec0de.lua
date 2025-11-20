@@ -763,6 +763,7 @@ sampev.onServerMessage = function(color, text)
     end
     if text:match("Время сейчас: ") then
         newTask(function()
+            wait(5000)
             if cfg.main.payday == 1 then
                 -- случайное время в диапазоне 40..54 минут и случайная секунда в минуте
                 local minute = random(40, 54)
@@ -772,6 +773,11 @@ sampev.onServerMessage = function(color, text)
                 reconnect(delay_ms) -- reconnect ожидает миллисекунды
             end
         end)
+    end
+    if text:find("%[Выписка%]: Новый баланс: %$%d+") then
+        local amount = text:match("%$(%d+)")
+        counter.bmoney = tonumber(amount)
+        printm("Баланс обновлен: $" .. amount, "green")
     end
 end
 
