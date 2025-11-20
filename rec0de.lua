@@ -36,6 +36,7 @@ local lastControllableCheck = 0
 local lastInteriorChange = 0
 local userName = nil
 local counter = { ["banip"] = 0, ["bmoney"] = 0 }
+local currentLevel = 1  -- жесткая проверка уровня, минимум 1
 local visuals = {
     name = "EVOLVED",
     version = "3.0",
@@ -795,6 +796,9 @@ end
 
 sampev.onUpdateScoresAndPings = function()
     local lvl = getBotScore()
+    if lvl > 0 then
+        currentLevel = lvl  -- обновляем уровень только если он > 0
+    end
     if tonumber(lvl) >= tonumber(cfg.main.finishLVL) and tonumber(cfg.main.finishLVL) ~= -1 then
         newTask(function()
             wait(1000)
@@ -1191,7 +1195,7 @@ sendTG = function(arg)
     end
     
     local userTag = escapeTelegramMarkdown(tostring(cfg.telegram.user))
-    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* %s\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, getBotScore(), emoji.money, counter.bmoney, emoji.star, userTag)
+    local text = format("%s\n> %s *Ник:* `%s[%d]`\n> %s *Сервер:* `%s`\n> %s *Уровень:* `%d`\n> %s *Деньги:* `$%d`\n> %s *User ID:* %s\n", arg, emoji.muscle, getBotNick(), getBotId(), emoji.planet, servers[getServerAddress()].name, emoji.score, currentLevel, emoji.money, counter.bmoney, emoji.star, userTag)
     async_http_request('https://api.telegram.org/bot'..tostring(cfg.telegram.tokenbot)..'/sendMessage?chat_id='..tostring(cfg.telegram.chatid)..'&text='..encodeUrl(text)..'&parse_mode=Markdown', '', function(result) end)
 end
 
