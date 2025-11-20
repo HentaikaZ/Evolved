@@ -32,6 +32,8 @@ u8 = encoding.UTF8
 
 local hasSpawned = false
 local freezeCheckStartTime = nil
+local lastControllableCheck = 0
+local lastInteriorChange = 0
 local userName = nil
 local counter = { ["banip"] = 0, ["bmoney"] = 0 }
 local visuals = {
@@ -552,16 +554,30 @@ end
 local isControllable = true
 
 sampev.onTogglePlayerControllable = function(controllable)
-    -- сохраняем состояние всегда, но игнорируем обработку "фриза" до первого спавна
+    -- сохраняем состояние всегда
     isControllable = controllable
+    
+    -- проверяем кулдаун в 20 секунд между проверками
+    local currentTime = os.time()
+    if currentTime - lastControllableCheck < 20 then
+        return
+    end
+    lastControllableCheck = currentTime
+    
+    -- игнорируем проверку до первого спавна
     if not hasSpawned then
-        -- до спавна не логируем и не выполняем никаких действий
+        return
+    end
+    
+    -- игнорируем заморозку, если интерьер был изменен менее 5 секунд назад
+    if currentTime - lastInteriorChange < 5 then
+        printm("Заморозка игнорирована - недавно изменился интерьер.", "yellow")
         return
     end
 
-    -- после спавна продолжаем прежнюю обработку (лог/уведомление)
+    -- проверка заморозки после спавна
     if not controllable then
-        if freezeCheckStartTime and (os.time() - freezeCheckStartTime >= 20) then
+        if freezeCheckStartTime and (currentTime - freezeCheckStartTime >= 20) then
             printm("Админ зафризил бота.", "red")
             pcall(sendTG, "Админ зафризил бота.")
         else
@@ -842,6 +858,10 @@ saveAcc = function(a)
 end
 
 sampev.onSetInterior = function(id)
+    -- отмечаем время изменения интерьера
+    lastInteriorChange = os.time()
+    printm("Интерьер изменен на ID: " .. id .. ". Игнорируем проверку заморозки на 5 секунд.", "blue")
+    
     if router.rep then runRoute("!stop") end
     if id == 7 and cfg.main.spawn_action == "invis" and invisType == 1 then
         local pos = {getBotPosition()}
@@ -1545,4 +1565,3 @@ normalizeText = function(text)
 end
 
 -- хуета
-
