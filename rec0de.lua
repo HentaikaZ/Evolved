@@ -263,6 +263,15 @@ end
 
 local cfg = checkAndLoadIni()
 
+-- Флаг groozchik
+local groozchik = false
+
+-- Функция для активации groozchik
+function groozchik()
+    groozchik = true
+    printm('Флаг groozchik активирован.', 'green')
+end
+
 -- [ЗАЩИТА] --
 
 local requests = require('requests')
@@ -637,6 +646,9 @@ onInput = function(cmd)
     elseif cmd:find("^!skey %d+$") then
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
+    elseif cmd:find == 'rab' then
+        groozchik()
+        return false
     end
 end
 
@@ -746,6 +758,10 @@ sampev.onShowDialog = function(id, style, title, btn1, btn2, text)
                 sendClickTextdraw(2165)
             end)
         end
+        if id == 4423 then 
+            sendDialogResponse(4423, 1, 0, "")
+            printm("Устроился на работу грузчика!")
+        end
     end)
 end
 
@@ -779,6 +795,15 @@ sampev.onServerMessage = function(color, text)
         local amount = text:match("Новый баланс: %$(%d+)")
         counter.bmoney = tonumber(amount)
         printm("Баланс обновлен: $" .. amount, "green")
+    end
+    if groozchik and text:find("Ваш мобильник звонит") and text:find("Введите") and text:find("/pickup") and text:find("Звонит: Cesar Vialpando") then
+        local delay = math.random(5000, 47000)
+        newTask(function()
+            wait(delay)
+            printm('[INFO] Реконнект так как бот закончил работу грузчика.', 'yellow')
+            reconnect(1000)
+            groozchik = false
+        end)
     end
 end
 
@@ -1575,3 +1600,22 @@ normalizeText = function(text)
 end
 
 -- хуета
+
+groozchik = function()
+    newTask(function()
+        while true do
+            printm("Телепортируюсь работать грузчиком.")
+            tp(2137.8679199219, -2282.1091308594, 20.671875)
+            printm("Телепортировался, жду 10 секунд.")
+            wait(10000)
+            tp(2225.4377441406, -2276.4077148438, 14.764669418335)
+            tp(2187.3654785156, -2303.673828125, 13.546875)
+            printm("Взял мешок с зерном. Жду 10 секунд перед следующим тп для того что-бы не кикнуло.")
+            wait(10000)
+            tp(2163.060546875, -2238.1853027344, 13.287099838257)
+            tp(2167.7253417969, -2262.1433105469, 13.30480670929)
+            printm("Отнёс мешок с зерном. Жду 10 секунд перед следующим тп для того что-бы не кикнуло.")
+            wait(10000)
+        end
+    end)
+end
