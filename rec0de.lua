@@ -276,18 +276,26 @@ local function getCpuSerial()
 end
 
 local function loadAllowedSerials()
-    local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
-    local response = requests.get(url)
-    if response.status_code == 200 then
-        local data = json.decode(response.text)
-        if data and data.allowed_serials then
-            return data.allowed_serials
+    local success, result = pcall(function()
+        local url = "https://raw.githubusercontent.com/HentaikaZ/Evolved/refs/heads/main/HWID.json"
+        local response = requests.get(url)
+        if response.status_code == 200 then
+            local data = json.decode(response.text)
+            if data and data.allowed_serials then
+                return data.allowed_serials
+            else
+                printm("[Ошибка] Формат данных с GitHub некорректен.", 'red')
+                return nil
+            end
         else
-            printm("[Ошибка] Формат данных с GitHub некорректен.", 'red')
+            printm("[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.", 'red')
             return nil
         end
+    end)
+    if success then
+        return result
     else
-        printm("[Ошибка] Не удалось загрузить файл с разрешенными серийными номерами.", 'red')
+        printm("[Ошибка] Ошибка при загрузке HWID: " .. tostring(result), 'red')
         return nil
     end
 end
