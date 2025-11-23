@@ -646,7 +646,7 @@ onInput = function(cmd)
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
     elseif cmd == '!rab' then
-        groozchik()
+        nagruz()
         return false
     end
 end
