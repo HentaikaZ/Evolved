@@ -1612,6 +1612,7 @@ end
 groozchik = function()
     newTask(function()
         while true do
+            wait(2222)
             tp(2225.4377441406, -2276.4077148438, 14.764669418335)
             wait(2222)
             tp(2187.3654785156, -2303.673828125, 13.546875)
