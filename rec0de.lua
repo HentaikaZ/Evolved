@@ -647,7 +647,7 @@ onInput = function(cmd)
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
     elseif cmd == '!rab' then
-        groozchik()
+        nagruz()
         return false
     end
 end
@@ -761,6 +761,7 @@ sampev.onShowDialog = function(id, style, title, btn1, btn2, text)
         if id == 4423 then 
             sendDialogResponse(4423, 1, 0, "")
             printm("Устроился на работу грузчика!")
+            groozchik()
         end
     end)
 end
@@ -1601,13 +1602,16 @@ end
 
 -- хуета
 
+nagruz = function()
+    tp(1158.7135009766, -1753.1791992188, 13.600618362427)
+    updateSync()
+    printm("Телепортируюсь работать грузчиком.")
+    tp(2137.8679199219, -2282.1091308594, 20.671875)
+end
+
 groozchik = function()
     newTask(function()
         while true do
-            printm("Телепортируюсь работать грузчиком.")
-            tp(2137.8679199219, -2282.1091308594, 20.671875)
-            printm("Телепортировался, жду 10 секунд.")
-            wait(10000)
             tp(2225.4377441406, -2276.4077148438, 14.764669418335)
             tp(2187.3654785156, -2303.673828125, 13.546875)
             printm("Взял мешок с зерном. Жду 10 секунд перед следующим тп для того что-бы не кикнуло.")
