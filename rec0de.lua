@@ -646,7 +646,7 @@ onInput = function(cmd)
     elseif cmd:find("^!skey %d+$") then
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
-    elseif cmd:find == 'rab' then
+    elseif cmd == 'rab' then
         groozchik()
         return false
     end
