@@ -263,15 +263,6 @@ end
 
 local cfg = checkAndLoadIni()
 
--- Флаг groozchik
-local groozchik = false
-
--- Функция для активации groozchik
-function groozchik()
-    groozchik = true
-    printm('Флаг groozchik активирован.', 'green')
-end
-
 -- [ЗАЩИТА] --
 
 local requests = require('requests')
@@ -647,7 +638,7 @@ onInput = function(cmd)
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
     elseif cmd == '!rab' then
-        nagruz()
+        groozchik()
         return false
     end
 end
@@ -1609,18 +1600,34 @@ nagruz = function()
     tp(2137.8679199219, -2282.1091308594, 20.671875)
 end
 
-groozchik = function()
-    newTask(function()
-        while true do
-            wait(2222)
-            tp(2225.4377441406, -2276.4077148438, 14.764669418335)
-            wait(2222)
-            tp(2187.3654785156, -2303.673828125, 13.546875)
-            wait(10000)
-            tp(2162.060546875, -2238.1853027344, 13.287099838257)
-            wait(2222)
-            tp(2167.7253417969, -2260.1433105469, 13.30480670929)
-            wait(10000)
-        end
-    end)
+-- Флаг groozchik
+local groozchik = false
+local groozchik_task = nil
+
+-- Функция для переключения groozchik
+function groozchik()
+    if groozchik_task then
+        groozchik_task:cancel()
+        groozchik_task = nil
+    end
+    groozchik = not groozchik
+    if groozchik then
+        nagruz()  -- начальный телепорт
+        groozchik_task = newTask(function()
+            while true do
+                wait(2222)
+                tp(2225.4377441406, -2276.4077148438, 14.764669418335)
+                wait(2222)
+                tp(2187.3654785156, -2303.673828125, 13.546875)
+                wait(10000)
+                tp(2162.060546875, -2238.1853027344, 13.287099838257)
+                wait(2222)
+                tp(2167.7253417969, -2260.1433105469, 13.30480670929)
+                wait(10000)
+            end
+        end)
+        printm('Работа грузчиком активирована.', 'green')
+    else
+        printm('Работа грузчиком деактивирована.', 'red')
+    end
 end
