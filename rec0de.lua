@@ -263,15 +263,6 @@ end
 
 local cfg = checkAndLoadIni()
 
--- Флаг groozchik
-local groozchik = false
-
--- Функция для активации groozchik
-function groozchik()
-    groozchik = true
-    printm('Флаг groozchik активирован.', 'green')
-end
-
 -- [ЗАЩИТА] --
 
 local requests = require('requests')
@@ -647,7 +638,7 @@ onInput = function(cmd)
         sendSpecialKey(tonumber(cmd:match("%d+")))
         return false
     elseif cmd == '!rab' then
-        nagruz()
+        groozchik()
         return false
     end
 end
